@@ -1,0 +1,95 @@
+<strings>
+    <string id="AppName">ActivityApp</string>
+
+    <string id="prompt">Click the menu button</string>
+    
+    <!-- start view -->
+    <string id="start">Start</string>
+    
+	<!-- General -->
+    <string id="state">Status</string>
+    <string id="on">Aan</string>
+    <string id="off">Uit</string>
+
+	<string id="distance">Afstand</string>
+	<string id="time">Tijd</string>
+	<string id="speed">Snelheid</string>
+	<string id="avgSpeed">Gem.Snelheid</string>
+	<string id="maxSpeed">Max.Snelheid</string>
+	<string id="altitude">Hoogte</string>
+	<string id="ascent">Stijging</string>
+	<string id="descent">Daling</string>
+	<string id="totalAscent">Tot.Stijging</string>
+	<string id="totalDescent">Tot.Daling</string>
+	<string id="heartRate">Hartslag</string>
+	<string id="avgHeartRate">Gem.Hartslag</string>
+	<string id="maxHeartRate">Max.Hartslag</string>
+	<string id="oxygenSaturation">O2</string>
+	<string id="energyRate">Energie</string>
+	<string id="pressure">Baro</string>
+	<string id="lapDistance">R.Afstand</string>
+	<string id="lapTime">R.Tijd</string>
+	<string id="lapSpeed">R.Snelheid</string>
+	<string id="elevationSpeed">Stijg.Snlh</string>
+	<string id="batteryConsumption">Batt.Verbruik</string>
+	<string id="layoutTest">Layout Test</string>
+	
+	<string id="memory">Geheugen</string>
+	<string id="battery">Batterij</string>
+	<string id="navigation">Navigatie</string>
+	<string id="profile">Profiel</string>
+	<string id="map">Kaart</string>
+	<string id="counter">Teller</string>
+	<string id="remainingDistance">Rest.Afstand</string>
+	<string id="compass">Kompas</string>
+	<string id="clock">Klok</string>
+
+	<!-- actions -->
+	<string id="add">Toevoegen</string>
+	<string id="remove">Verwijderen</string>
+	<string id="delete">Wissen</string>
+	<string id="insert">Tussenvoegen</string>
+	<string id="cancel">Annuleren</string>
+    
+    <!-- Colors -->
+    backgroundColor
+    <string id="backgroundColor">Achtergrond Kleur</string>
+    <string id="white">Wit</string>
+    <string id="black">Zwart</string>
+    
+    <!-- Activities -->
+    <string id="activity">Activiteit</string>
+    <string id="walking">Wandelen</string>
+    <string id="hiking">Bergwandelen</string>
+    <string id="running">Hardlopen</string>
+    <string id="cycling">Fietsen</string>
+    <string id="unknownActivity">Onbekende Activiteit</string>
+
+    <!-- Settings menu -->
+    <string id="settingsTitle">Instellingen voor MyApp</string>
+    <string id="settings">Instellingen</string>
+    <string id="clearSettings">Wis Instellingen</string>
+    <string id="clearTrack">Wis Route</string>
+
+    <string id="dataScreen">Gegevensscherm</string>
+    <string id="dataScreens">Gegevensschermen</string>
+    <string id="dataLayout">Indeling</string>
+    <string id="dataField">Veld</string>
+    <string id="dataFields">Velden</string>
+    <string id="systemFields">Systeem Velden</string>
+    <string id="distanceFields">Afstands Velden</string>
+    <string id="speedFields">Snelheids Velden</string>
+    <string id="positioningFields">Locatie Velden</string>
+    <string id="timeFields">Tijd Velden</string>
+    <string id="healthFields">Gezondheids Velden</string>
+    <string id="altitudeFields">Hoogte Velden</string>
+    <string id="lapFields">Ronde Velden</string>
+	<string id="breadcrumps">Spoor</string>
+	<string id="maxCount">Max Aantal</string>
+	<string id="betweenDistance">Tussen Afstand</string>
+
+	<!-- Additional settings -->
+	<string id="autoLap">Auto Ronde</string>
+	<string id="autoPause">Auto Pause</string>
+	
+</strings>

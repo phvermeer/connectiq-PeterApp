@@ -1,0 +1,9 @@
+[submodule "source/MyTools"]
+	path = source/MyTools
+	url = https://github.com/phvermeer/connectiq-MyTools.git
+[submodule "source/MyViews"]
+	path = source/MyViews
+	url = https://github.com/phvermeer/connectiq-MyViews.git
+[submodule "source/MyDrawables"]
+	path = source/MyDrawables
+	url = https://github.com/phvermeer/connectiq-MyDrawables.git

@@ -1,0 +1,5 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+   	<drawable-list id="backgroundWhite" background="Gfx.COLOR_WHITE" />
+   	<drawable-list id="backgroundBlack" background="Gfx.COLOR_BLACK" />    
+</drawables>
