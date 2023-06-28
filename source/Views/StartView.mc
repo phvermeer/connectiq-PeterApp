@@ -41,14 +41,11 @@ class StartView extends MyViews.MyView {
 				session.start();
 
                 // dummy fields and layout
-                var fields = [
-                    new MyDataField({}),
-                    new MyDataField({})
-                ] as Array<MyDataField>;
-                var layout = [
-                    { :locX => 0, :locY => 0, :width => 100, :height => 100 },
-                    { :locX => 100, :locY => 100, :width => 100, :height => 100 },
-                ] as Layout;
+                var layout = getLayout(LAYOUT_THREE_FIELDS);
+                var fields = [] as Array<MyDataField>;
+                for(var i=0; i<layout.size(); i++){
+                    fields.add(new MyDataField({}));
+                }
 			
 				// Open the data screen
 				var view = new DataView({

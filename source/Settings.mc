@@ -23,14 +23,7 @@ enum SettingDefinition{
 	// screen settings uses PREFIX_SCREEN
 	SETTING_SCREEN_ENABLED = "En",
 	SETTING_SCREEN_LAYOUT = "Sl",
-}
-
-enum LayoutDefinition{
-	LAYOUT_ONE_FIELD = 1,
-	LAYOUT_TWO_FIELDS = 2,
-	LAYOUT_THREE_FIELDS = 3,
-	LAYOUT_FOUR_FIELDS = 4,
-	LAYOUT_FIVE_FIELDS = 5,
+	SETTING_SCREEN_FIELDS = "Sf",
 }
 
 class Settings{
@@ -51,7 +44,8 @@ class Settings{
 		SETTING_BREADCRUMPS_MAX_COUNT => 50,
 		SETTING_SCREEN_COUNT => 1,
 		SETTING_SCREEN_ENABLED => true,
-		SETTING_SCREEN_LAYOUT => [LAYOUT_ONE_FIELD, ["clock"]],
+		SETTING_SCREEN_LAYOUT => LAYOUT_ONE_FIELD,
+		SETTING_SCREEN_FIELDS => ["clock"],
 	};
 
 	hidden var onChange as Null | Method(screenIndex as Number?, id as String, value as PropertyValueType) as Void;

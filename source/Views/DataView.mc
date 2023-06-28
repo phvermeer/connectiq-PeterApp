@@ -4,13 +4,6 @@ import Toybox.WatchUi;
 import MyViews;
 import MyMath;
 
-typedef Layout as Array<{
-    :locX as Number,
-    :locY as Number,
-    :width as Number,
-    :height as Number
-}>;
-
 class DataView extends MyViews.MyView{
     hidden var isDrawn as Boolean = false;
     hidden var layout as Layout;
