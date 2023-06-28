@@ -71,11 +71,33 @@ class DataView extends MyViews.MyView{
         updateLayout();
     }
 
-    function onSessionStateChange(state as SessionState) as Void{
+    // event handler for session state changes
+    function onSessionState(state as SessionState) as Void{
         System.println("Session state changed to " + state.toString());
     }
 
+    // event handler for the timer
+    function onTimer() as Void{
+        // update fields
+        var doUpdate = false;
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            if(field has :onTimer){
+                (field as TimerListener).onTimer();
+            }
+            if(!field.isUpToDate()){
+                doUpdate = true;
+            }
+        }
+        if(doUpdate){
+            WatchUi.requestUpdate();
+        }
+    }
+
+    // event handler for key press
     function onKey(sender as MyViewDelegate, keyEvent as KeyEvent) as Boolean{
+        // only respond to key enter (keep default handling for other events)
+		if(keyEvent.getType() == WatchUi.PRESS_TYPE_ACTION && keyEvent.getKey() == WatchUi.KEY_ENTER){
         // toggle session start/stop
         var session = $.session as Session;
         switch(session.getState()){
@@ -88,5 +110,6 @@ class DataView extends MyViews.MyView{
         }
         return true;
     }
-
+        return false;
+    }
 }

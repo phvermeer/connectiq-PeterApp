@@ -13,9 +13,15 @@ class ViewDelegate extends MyViews.MyViewDelegate {
         return true;
     }
 
-    function onSessionStateChange(state as SessionState) as Void{
-        if(mView has :onSessionStateChange){
-            (mView as UseSessionState).onSessionStateChange(state);
+    function onSessionState(state as SessionState) as Void{
+        if(mView has :onSessionState){
+            (mView as SessionStateListener).onSessionState(state);
+        }
+    }
+
+    function onTimer() as Void{
+        if(mView has :onTimer){
+            (mView as TimerListener).onTimer();
         }
     }
 }
