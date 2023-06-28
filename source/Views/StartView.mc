@@ -44,7 +44,9 @@ class StartView extends MyViews.MyView {
                 var layout = getLayout(LAYOUT_THREE_FIELDS);
                 var fields = [] as Array<MyDataField>;
                 for(var i=0; i<layout.size(); i++){
-                    fields.add(new MyDataField({}));
+                    fields.add(new TestField({
+                        :backgroundColor => Graphics.COLOR_TRANSPARENT
+                    }));
                 }
 			
 				// Open the data screen
