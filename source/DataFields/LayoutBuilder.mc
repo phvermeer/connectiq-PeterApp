@@ -2,7 +2,7 @@ import Toybox.Lang;
 import Toybox.System;
 import Toybox.Math;
 
-enum LayoutDefinition {
+enum LayoutIdentifier {
 	LAYOUT_FIRST = 0x1,
 	LAYOUT_LAST = 0x7,
 	LAYOUT_ONE_FIELD = 0x1,
@@ -21,21 +21,21 @@ typedef Layout as Array<{
     :height as Number
 }>;
 
-function getLayout(definition as LayoutDefinition) as Layout{
+function getLayout(id as LayoutIdentifier) as Layout{
     var deviceSettings = System.getDeviceSettings();
     var width = deviceSettings.screenWidth;
     var height = deviceSettings.screenHeight;
 	var margin = Math.ceil(width / 150.0f);
 	
     var data = [];
-    if(definition == LAYOUT_ONE_FIELD){
+    if(id == LAYOUT_ONE_FIELD){
         data.add({
             :locX => 0,
             :locY => 0,
             :width => width,
             :height => height
         });
-    }else if(definition == LAYOUT_TWO_FIELDS){
+    }else if(id == LAYOUT_TWO_FIELDS){
         var h = (height-margin) / 2;
         data.add({
             :locX => 0,
@@ -50,7 +50,7 @@ function getLayout(definition as LayoutDefinition) as Layout{
             :width => width,
             :height => h
         });
-    }else if(definition == LAYOUT_THREE_FIELDS){
+    }else if(id == LAYOUT_THREE_FIELDS){
         var h = (height-2*margin) / 3;
         data.add({
             :locX => 0,
@@ -72,7 +72,7 @@ function getLayout(definition as LayoutDefinition) as Layout{
             :width => width,
             :height => h
         });
-    }else if(definition == LAYOUT_FOUR_FIELDS){
+    }else if(id == LAYOUT_FOUR_FIELDS){
         var h = (height-2*margin) / 3.0;
         var w = (width-margin) / 2.0;
         data.add({
@@ -102,7 +102,7 @@ function getLayout(definition as LayoutDefinition) as Layout{
             :width => width,
             :height => h
         });
-    }else if(definition == LAYOUT_SIX_FIELDS){
+    }else if(id == LAYOUT_SIX_FIELDS){
         var h = (height-2*margin) / 4.0;
         var w = (width-margin) / 2.0;
         data.add({
@@ -145,7 +145,7 @@ function getLayout(definition as LayoutDefinition) as Layout{
             :width => width,
             :height => h
         });
-    }else if(definition == LAYOUT_CUSTOM1){
+    }else if(id == LAYOUT_CUSTOM1){
         var h = 0.25 * height - 0.5 * margin;
         data.add({
             :locX => 0,
@@ -187,7 +187,7 @@ function getLayout(definition as LayoutDefinition) as Layout{
             :width => width,
             :height => h
         });
-    }else if(definition == LAYOUT_CUSTOM2){
+    }else if(id == LAYOUT_CUSTOM2){
         // Two transparent fields on top and a big field (without margins)
         var x = 0;
         var y = 0;
