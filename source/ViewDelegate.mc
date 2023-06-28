@@ -12,4 +12,10 @@ class ViewDelegate extends MyViews.MyViewDelegate {
         WatchUi.pushView(new Rez.Menus.MainMenu(), new MenuDelegate(), WatchUi.SLIDE_UP);
         return true;
     }
+
+    function onSessionStateChange(state as SessionState) as Void{
+        if(mView has :onSessionStateChange){
+            (mView as UseSessionState).onSessionStateChange(state);
+        }
+    }
 }

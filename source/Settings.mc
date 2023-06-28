@@ -54,11 +54,11 @@ class Settings{
 		SETTING_SCREEN_LAYOUT => [LAYOUT_ONE_FIELD, ["clock"]],
 	};
 
-	hidden var onChanged as Null | Method(screenIndex as Number?, id as String, value as PropertyValueType) as Void;
+	hidden var onChange as Null | Method(screenIndex as Number?, id as String, value as PropertyValueType) as Void;
 	hidden var sport as Sport = Activity.SPORT_WALKING;
 
 	function initialize(options as {
-		:onChanged as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void,
+		:onChange as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void,
 	}){
 		// load the properties
 		$.getApp().loadProperties();
@@ -68,8 +68,8 @@ class Settings{
 		setProfile(sport);
 
 		// assign listeners
-		if(options.hasKey(:onChanged)){
-			onChanged = options.get(:onChanged) as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void;
+		if(options.hasKey(:onChange)){
+			onChange = options.get(:onChange) as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void;
 		}
 	}
 	
@@ -93,7 +93,7 @@ class Settings{
 	
 	// listeners
 	function setListener(callback as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void) as Void{
-		self.onChanged = callback;
+		self.onChange = callback;
 	}
 	
 	// functions to access the settings
@@ -129,8 +129,8 @@ class Settings{
 		setValue(prefix, id, value);
 		save();
 		
-		if(onChanged != null) {
-			onChanged.invoke(null, id, value);
+		if(onChange != null) {
+			onChange.invoke(null, id, value);
 		}
 	}
 	
@@ -143,8 +143,8 @@ class Settings{
 		setValue(prefix, id, value);
 		save();
 		
-		if(onChanged != null) {
-			onChanged.invoke(screenIndex, id, value); 
+		if(onChange != null) {
+			onChange.invoke(screenIndex, id, value); 
 		}
 	}
 	function deleteScreen(screenIndex as Lang.Number) as Void{
@@ -187,9 +187,9 @@ class Settings{
 			setValue("", SETTING_SPORT, sport as Number);
 			
 			// notify listeners with all new settings
-			if(onChanged != null){
+			if(onChange != null){
 				// normal settings (for each profile/sport)
-				var notifier = onChanged as Method;
+				var notifier = onChange as Method;
 				notifier.invoke({ :id => SETTING_SPORT, :value => sport });
 				var prefix = Lang.format(PREFIX_PROFILE, [sport]);
 				var ids = [

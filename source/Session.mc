@@ -5,6 +5,13 @@ using Toybox.Activity;
 import MyTools;
 using Toybox.Time;
 
+enum SessionState {
+	SESSION_STATE_IDLE,
+	SESSION_STATE_BUSY,
+	SESSION_STATE_PAUSED,
+	SESSION_STATE_STOPPED,
+}
+
 class LapInfo{
 	public var speed as Float?; // [m/s]
 	public var time as Number = 0; // [ms]
@@ -34,13 +41,6 @@ class LapInfo{
 }
 
 class Session{
-	enum SessionState {
-		SESSION_STATE_IDLE,
-		SESSION_STATE_BUSY,
-		SESSION_STATE_PAUSED,
-		SESSION_STATE_STOPPED,
-	}
-
 	public var currentLapInfo as LapInfo?;
 	public var previousLapInfo as LapInfo?;
 
