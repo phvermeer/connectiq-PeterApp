@@ -89,9 +89,9 @@ class Session{
 	}
 	public function getSport() as Activity.Sport{
 		var sport = mOptions.get(:sport) as Activity.Sport?;
-		var settings = $.settings as Settings;
+		var settings = $.getApp().settings;
 		if(sport == null){
-			sport = settings.getSetting(SETTING_SPORT) as Activity.Sport;  
+			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
 		}
 		return sport;
 	}

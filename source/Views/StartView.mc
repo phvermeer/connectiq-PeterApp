@@ -31,19 +31,25 @@ class StartView extends MyViews.MyView {
     }
 
     function onKey(sender as MyViewDelegate, keyEvent as WatchUi.KeyEvent) as Boolean{
-        var session = $.session as Session;
+        var app = $.getApp();
+        var session = app.session;
 	    switch(keyEvent.getKey()){
 			case WatchUi.KEY_ENTER:{
 				// Start the session
-				var settings = $.settings as Settings;
-				var sport = settings.getSetting(SETTING_SPORT) as Sport;
+				var settings = app.settings as Settings;
+				var sport = settings.get(SETTING_SPORT) as Sport;
 				session.setSport(sport);
 				session.start();
 
-                // dummy fields and layout
-                var layout = getLayout(LAYOUT_THREE_FIELDS);
+                // Show DataView
+                var screens = settings.get(SETTING_DATASCREENS) as Array;
+                var screen = screens[0] as Array;
+                var layout = DataView.getLayout(screen[0] as LayoutId);
+                var fieldIds = screen[1] as Array<DataFieldId>;
+                var count = MyMath.min([fieldIds.size(), layout.size()] as Array<Number>);
+
                 var fields = [] as Array<MyDataField>;
-                for(var i=0; i<layout.size(); i++){
+                for(var i=0; i<count; i++){
                     fields.add(new TestField({
                         :backgroundColor => Graphics.COLOR_TRANSPARENT
                     }));

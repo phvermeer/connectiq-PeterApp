@@ -3,11 +3,6 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Timer;
 
-// global objects
-var settings as Settings?;
-var session as Session?;
-var delegate as WeakReference?;
-
 // interfaces for generic function support
 typedef SessionStateListener as interface {
     function onSessionState(state as SessionState) as Void;
@@ -20,18 +15,26 @@ typedef PositionListener as interface {
 };
 
 class App extends Application.AppBase {
-    var timer as Timer.Timer;
+    var settings as Settings;
+    var session as Session;
+    var fieldManager as FieldManager;
+    var delegate as ViewDelegate?;
+
+
+    hidden var timer as Timer.Timer;
 
     function initialize() {
         AppBase.initialize();
 
-        $.settings = new Settings({
+        settings = new Settings({
             :onChanged => method(:onMySettingsChanged)
         });
 
-        $.session = new Session({
+        session = new Session({
             :onStateChange => method(:onSessionState)
         });
+
+        fieldManager = new FieldManager();
 
         timer = new Timer.Timer();
     }
@@ -46,29 +49,17 @@ class App extends Application.AppBase {
         timer.stop();
     }
 
-    hidden function getDelegate() as ViewDelegate?{
-        var ref = $.delegate;
-        if (ref != null){
-            if(ref.stillAlive()){
-                return ref.get();
-            }
-        }
-        return null;
-    }
-
     function onMySettingsChanged(screenId as Number?, paramId as String, value as PropertyValueType) as Void {
 
     }
 
     function onSessionState(state as SessionState) as Void {
-        var delegate = getDelegate();
         if(delegate != null && delegate has :onSessionState){
             (delegate as SessionStateListener).onSessionState(state);
         }
     }
 
     function onTimer() as Void{
-        var delegate = getDelegate();
         if(delegate != null && delegate has :onTimer){
             (delegate as TimerListener).onTimer();
         }
@@ -77,11 +68,16 @@ class App extends Application.AppBase {
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
         var view = new StartView();
-        var delegate = new ViewDelegate(view);
-        $.delegate = delegate.weak();
+        delegate = new ViewDelegate(view);
         return [ view, delegate ] as Array<Views or InputDelegates>;
     }
 
+    function getDelegate() as ViewDelegate{
+        if(delegate != null){
+            return delegate;
+        }
+        throw new MyTools.MyException("Delegate is not yet available");
+    }
 }
 
 function getApp() as App {
