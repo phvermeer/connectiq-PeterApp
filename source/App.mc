@@ -17,6 +17,7 @@ typedef PositionListener as interface {
 class App extends Application.AppBase {
     var settings as Settings;
     var session as Session;
+    var track as Track?;
     var fieldManager as FieldManager;
     var delegate as ViewDelegate?;
 
