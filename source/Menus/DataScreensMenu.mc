@@ -63,10 +63,11 @@ class DataScreensMenu extends MyMenu {
 	// this could be modified or overridden for customization
 	function onSelect(item){
 		var id = item.getId() as Number | String;
+		var settings = $.getApp().settings;
+		var screens = new DataScreensSettings(settings.get(SETTING_DATASCREENS));
+
 		switch(id){
 			case "add":{
-				var settings = $.getApp().settings;
-				var screens = new DataScreensSettings(settings.get(SETTING_DATASCREENS));
 
 				// remove "add" item after current screen items
 				var count = screens.items.size();
@@ -84,9 +85,9 @@ class DataScreensMenu extends MyMenu {
 				break;			
 			}
 			default:{
-//				var screenIndex = id as Number;
-//				var menu = new DataScreenMenu(screenIndex);
-//				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
+				var screenIndex = id as Number;
+				var menu = new DataScreenMenu(screenIndex, screens.items[screenIndex]);
+				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
 				break;
 			}
 		}

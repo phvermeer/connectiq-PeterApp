@@ -23,7 +23,14 @@ class DataScreensSettings{
     }
 
     function removeScreen(index as Number) as Void{
-
+        var lastIndex = items.size()-1;
+        // keep items before selected item
+        var itemsUpdated = (index>0) ? items.slice(0,index) : [] as Array<DataScreenSettings>;
+        // keep items after selected item
+        if(index<lastIndex){
+            itemsUpdated.addAll(items.slice(index+1, null));
+        }
+        items = itemsUpdated;
     }
 
     function addScreen(screenSettings as DataScreenSettings?) as Void{
