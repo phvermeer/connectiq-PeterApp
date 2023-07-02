@@ -86,7 +86,7 @@ class DataScreensMenu extends MyMenu {
 			}
 			default:{
 				var screenIndex = id as Number;
-				var menu = new DataScreenMenu(screenIndex, screens.items[screenIndex]);
+				var menu = new DataScreenMenu(screenIndex, screens);
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
 				break;
 			}

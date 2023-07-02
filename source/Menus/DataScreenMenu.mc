@@ -4,11 +4,12 @@ import Toybox.Application;
 
 class DataScreenMenu extends MyMenu {
 	protected var screenIndex as Lang.Number;
-	hidden var screenSettings as DataScreenSettings;
+	hidden var screensSettings as DataScreensSettings;
 
-	function initialize(screenIndex as Lang.Number, screenSettings as DataScreenSettings){
+	function initialize(screenIndex as Lang.Number, screensSettings as DataScreensSettings){
 		self.screenIndex = screenIndex;
-		self.screenSettings = screenSettings;
+		self.screensSettings = screensSettings;
+		var screenSettings = screensSettings.items[screenIndex];
 
 		var title = Lang.format("$1$ $2$", [WatchUi.loadResource(Rez.Strings.dataScreen), screenIndex]);
 		MyMenu.initialize({ :title => title });
@@ -66,7 +67,7 @@ class DataScreenMenu extends MyMenu {
 	}
 	
 	function onShow(){
-
+		var screenSettings = screensSettings.items[screenIndex];
 		var layout = DataView.getLayoutById(screenSettings.layoutId);
 
 		var count = layout.size();
@@ -80,27 +81,24 @@ class DataScreenMenu extends MyMenu {
 	}
 	
 	function onSelect(item){
-		var settings = $.getApp().settings;
-		var screensSettings = new DataScreensSettings(settings.get(SETTING_DATASCREENS));
 		var id = item.getId() as String|DataScreenSettings.DataViewSettingId;
+		var settings = $.getApp().settings;
 
 		switch(id){
-/*
 			// Open LayoutPicker
 			case DataScreenSettings.SETTING_LAYOUT:
-				{
-					var layout = DataView.getLayoutById(screenSettings.layoutId);
-					var fields = FieldManager.getFields(screenSettings.fieldIds);
+				var screenSettings = screensSettings.items[screenIndex];
+				var layout = DataView.getLayoutById(screenSettings.layoutId);
+				var fields = FieldManager.getFields(screenSettings.fieldIds);
 
-					var view = new DataView({
-						:layout => layout,
-						:fields => fields
-					});
-					var delegate = new LayoutPickerDelegate(view, screenIndex);
-					WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);				
-					break;
-				}
-			// Open FieldsPicker
+				var view = new DataView({
+					:layout => layout,
+					:fields => fields
+				});
+				var delegate = new LayoutPickerDelegate(view, screenIndex, screensSettings);
+				WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);				
+				return true;
+/*			// Open FieldsPicker
 			case DataScreenSettings.SETTING_FIELDS:
 				{
 					var layout = DataView.getLayoutById(layoutId);
@@ -116,8 +114,7 @@ class DataScreenMenu extends MyMenu {
 				}
 			// Toggle menus
 */			case DataScreenSettings.SETTING_ENABLED:
-				screenSettings.enabled = (item as ToggleMenuItem).isEnabled();
-				screensSettings.items[screenIndex] = screenSettings;
+				screensSettings.items[screenIndex].enabled = (item as ToggleMenuItem).isEnabled();
 				settings.set(SETTING_DATASCREENS, screensSettings.export());
 				return true;
 			case "remove":
