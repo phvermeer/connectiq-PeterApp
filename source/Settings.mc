@@ -15,13 +15,11 @@ enum SettingId{
     SETTING_AUTOLAP = 5,
     SETTING_AUTOLAP_DISTANCE = 6,
     SETTING_DATASCREENS = 7,
-    SETTING_BREADCRUMPS_ENABLED = 8,
+    SETTING_BREADCRUMPS = 8,
     SETTING_BREADCRUMPS_MIN_DISTANCE = 9,
     SETTING_BREADCRUMPS_MAX_COUNT = 10,
     SETTING_PROFILE_MAX = 10,
 }
-
-
 
 class Settings{
     hidden enum ProfileSection{
@@ -33,7 +31,7 @@ class Settings{
     }
 
     // default values
-	hidden const DEFAULT_VALUES = {
+	const DEFAULT_VALUES = {
         SETTING_SPORT => Activity.SPORT_WALKING,
         SETTING_TRACK => null,
         SETTING_ZOOMLEVEL => 1.0f,
@@ -41,8 +39,8 @@ class Settings{
         SETTING_AUTOPAUSE => true,
         SETTING_AUTOLAP => false,
         SETTING_AUTOLAP_DISTANCE => 1000,
-        SETTING_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST]]],
-        SETTING_BREADCRUMPS_ENABLED => true,
+        SETTING_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true]],
+        SETTING_BREADCRUMPS => true,
 	    SETTING_BREADCRUMPS_MIN_DISTANCE => 50,
 	    SETTING_BREADCRUMPS_MAX_COUNT => 50,
 	};    
@@ -79,11 +77,12 @@ class Settings{
 
     function get(settingId as SettingId) as PropertyValueType{
         var id = settingId as Number;
-        var value = (id <= SETTING_GLOBAL_MAX)
-            ? globalData[id]
-            : (id <= SETTING_PROFILE_MAX)
-                ? profileData[id - SETTING_GLOBAL_MAX]
-                : null;
+        var value = null;
+        if(id <= SETTING_GLOBAL_MAX){
+            value = globalData[id] as PropertyValueType;
+        }else if(id <= SETTING_PROFILE_MAX){
+            value =  profileData[id - (SETTING_GLOBAL_MAX + 1)] as PropertyValueType;
+        }
         if(value == null){
             // get default value
             value = DEFAULT_VALUES.get(id) as PropertyValueType?;
@@ -103,13 +102,19 @@ class Settings{
             globalData[id] = value;
             app.setProperty(SECTION_GLOBAL, globalData);
         }else if(id <= SETTING_PROFILE_MAX){
-            profileData[id - SETTING_GLOBAL_MAX] = value;
+            profileData[id - (SETTING_GLOBAL_MAX + 1)] = value;
             app.setProperty(getProfileSection() as Number, profileData);
         }
         // inform listeners
         if(onValueChange != null){
             onValueChange.invoke(settingId, value);
         }
+    }
+
+    function clear() as Void{
+        globalData = new Array<PropertyValueType>[SETTING_GLOBAL_MAX+1];
+        profileData = new Array<PropertyValueType>[SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX];
+        $.getApp().clearProperties();
     }
 
     // hidden helper functions:
