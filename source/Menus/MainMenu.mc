@@ -184,7 +184,6 @@ class MainMenu extends MyMenu {
 		var result = true;
 		switch(id){
 	
-/*
 			// DataScreens menu
 			case "dataScreensMenu":
 				{
@@ -193,7 +192,6 @@ class MainMenu extends MyMenu {
 				}
 				return true;	
 			// Option menus
-*/			
 			case SETTING_SPORT:
 			case SETTING_BACKGROUND_COLOR:
 			{
