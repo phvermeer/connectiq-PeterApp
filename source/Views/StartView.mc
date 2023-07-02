@@ -44,7 +44,7 @@ class StartView extends MyViews.MyView {
                 // Show DataView
                 var screens = settings.get(SETTING_DATASCREENS) as Array;
                 var screen = screens[0] as Array;
-                var layout = DataView.getLayout(screen[0] as LayoutId);
+                var layout = DataView.getLayoutById(screen[0] as LayoutId);
                 var fieldIds = screen[1] as Array<DataFieldId>;
                 var count = MyMath.min([fieldIds.size(), layout.size()] as Array<Number>);
 

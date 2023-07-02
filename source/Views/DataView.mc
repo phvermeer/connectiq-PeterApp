@@ -5,23 +5,18 @@ import MyViews;
 import MyMath;
 
 enum LayoutId {
-	LAYOUT_FIRST = 0x1,
-	LAYOUT_LAST = 0x7,
-	LAYOUT_ONE_FIELD = 0x1,
-	LAYOUT_TWO_FIELDS = 0x2,
-	LAYOUT_THREE_FIELDS = 0x3,
-	LAYOUT_FOUR_FIELDS = 0x4,
-	LAYOUT_SIX_FIELDS = 0x5,
-	LAYOUT_CUSTOM1 = 0x6,
-	LAYOUT_CUSTOM2 = 0x7,
+	LAYOUT_ONE_FIELD = 0,
+	LAYOUT_TWO_FIELDS = 1,
+	LAYOUT_THREE_FIELDS = 2,
+	LAYOUT_FOUR_FIELDS = 3,
+	LAYOUT_SIX_FIELDS = 4,
+	LAYOUT_CUSTOM1 = 5,
+	LAYOUT_CUSTOM2 = 6,
+	LAYOUT_MAX = 6,
 }
 
-typedef Layout as Array<{
-    :locX as Number,
-    :locY as Number,
-    :width as Number,
-    :height as Number
-}>;
+typedef Layout as Array< Array<Number> >;
+// array of [x, y, width, height]
 
 class DataView extends MyViews.MyView{
     hidden var drawn as Boolean = false;
@@ -63,16 +58,11 @@ class DataView extends MyViews.MyView{
     }
 
     // update single field with given field layout
-    hidden function updateFieldLayout(field as MyDataField, fieldLayout as {
-        :locX as Number,
-        :locY as Number,
-        :width as Number,
-        :height as Number
-    }) as Void{
-        field.locX = fieldLayout.get(:locX) as Number;
-        field.locY = fieldLayout.get(:locY) as Number;
-        field.width = fieldLayout.get(:width) as Number;
-        field.height = fieldLayout.get(:height) as Number;
+    hidden function updateFieldLayout(field as MyDataField, fieldLayout as Array<Number>) as Void{
+        field.locX = fieldLayout[0];
+        field.locY = fieldLayout[1];
+        field.width = fieldLayout[2];
+        field.height = fieldLayout[3];
     }
 
     // update all fields with current layout
@@ -85,15 +75,23 @@ class DataView extends MyViews.MyView{
     }
 
     // setter for Layout
-    function setLayout(layout as Layout){
+    function setLayout(layout as Layout) as Void{
         self.layout = layout;
         updateLayout();
+    }
+    function getLayout() as Layout{
+        return layout;
     }
 
     // setter for DataFields
     function setFields(fields as Array<MyDataField>) as Void{
         self.fields = fields;
         updateLayout();
+    }
+
+    // getter for DataFields
+    function getFields() as Array<MyDataField>{
+         return fields;
     }
 
     // event handler for session state changes
@@ -139,7 +137,7 @@ class DataView extends MyViews.MyView{
     }
 
     // get the field layout from the identifier
-    static function getLayout(id as LayoutId) as Layout{
+    static function getLayoutById(id as LayoutId) as Layout{
         var deviceSettings = System.getDeviceSettings();
         var width = deviceSettings.screenWidth;
         var height = deviceSettings.screenHeight;
@@ -147,202 +145,77 @@ class DataView extends MyViews.MyView{
         
         var data = [];
         if(id == LAYOUT_ONE_FIELD){
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => height
-            });
+            data.add([0, 0, width, height]);
         }else if(id == LAYOUT_TWO_FIELDS){
             var h = (height-margin) / 2;
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => h
-            });
+            data.add([0, 0, width, h]);
             var y = h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
         }else if(id == LAYOUT_THREE_FIELDS){
             var h = (height-2*margin) / 3;
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => h
-            });
+            data.add([0, 0, width, h]);
             var y = h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
             y += h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
         }else if(id == LAYOUT_FOUR_FIELDS){
             var h = (height-2*margin) / 3.0;
             var w = (width-margin) / 2.0;
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => h
-            });
+            data.add([0, 0,width, h]);
             var y = h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([0, y, w, h]);
             var x = w + margin;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([x, y, w, h]);
             y += h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
         }else if(id == LAYOUT_SIX_FIELDS){
             var h = (height-2*margin) / 4.0;
             var w = (width-margin) / 2.0;
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => h
-            });
+            data.add([0, 0, width, h]);
             var y = h + margin;
             var x = w + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([0, y, w, h]);
+            data.add([x, y, w, h]);
             y += h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([0, y, w, h]);
+            data.add([x, y, w, h]);
             y += h + margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
         }else if(id == LAYOUT_CUSTOM1){
             var h = 0.25 * height - 0.5 * margin;
-            data.add({
-                :locX => 0,
-                :locY => 0,
-                :width => width,
-                :height => h
-            });
+            data.add([0, 0, width, h]);
             var y = h + margin;
             h = 0.5 * height - margin;
             var w = 0.5 * width - 0.5 * margin;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([0, y, w, h]);
             var x = w + margin;
             var h1 = 0.5 * h - 0.5 * margin;
             w = width - w - margin;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h1
-            });
+            data.add([x, y, w, h1]);
             y += h1 + margin;
             h1 = h - h1 - margin;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h1
-            });
+            data.add([x, y, w, h1]);
             y += h1 + margin;
             h = height - y;
-            data.add({
-                :locX => 0,
-                :locY => y,
-                :width => width,
-                :height => h
-            });
+            data.add([0, y, width, h]);
         }else if(id == LAYOUT_CUSTOM2){
             // Two transparent fields on top and a big field (without margins)
             var x = 0;
             var y = 0;
             var h = 0.2f * height;
             var w = 0.5f * width;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([x, y, w, h]);
             x = w;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([x, y, w, h]);
             x = 0;
             y = h;
             w = width;
             h = height - h;
-            data.add({
-                :locX => x,
-                :locY => y,
-                :width => w,
-                :height => h
-            });
+            data.add([x, y, w, h]);
         }else{
             var w2 = 0.5 * width;
             var h2 = 0.5 * height;
-            data.add({
-                :locX => w2,
-                :locY => h2,
-                :width => w2,
-                :height => h2
-            });
+            data.add([w2, h2, w2, h2]);
         }
         return data as Layout;            
     }

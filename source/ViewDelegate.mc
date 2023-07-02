@@ -44,7 +44,7 @@ class ViewDelegate extends MyViews.MyViewDelegate {
 
     function createDataView(dataViewSettings as Array) as DataView{
         // create layout from settings
-        var layout = DataView.getLayout(dataViewSettings[0] as LayoutId);
+        var layout = DataView.getLayoutById(dataViewSettings[0] as LayoutId);
         var fieldIds = dataViewSettings[1] as Array<DataFieldId>;
         
         // get fields for fieldIds
