@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Application;
+import Toybox.Graphics;
 import MyTools;
 
 enum SettingId{
@@ -31,7 +32,7 @@ class Settings{
     }
 
     // default values
-	const DEFAULT_VALUES = {
+	static const DEFAULT_VALUES = {
         SETTING_SPORT => Activity.SPORT_WALKING,
         SETTING_TRACK => null,
         SETTING_ZOOMLEVEL => 1.0f,

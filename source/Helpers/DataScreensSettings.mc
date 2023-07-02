@@ -9,16 +9,16 @@ class DataScreensSettings{
             var screensData_ = screensData as Array;
             var count = screensData_.size();
             items = new Array<DataScreenSettings>[count];
-            for(var i=0; i< count; i++){
+            for(var i=0; i<count; i++){
                 var screenData = screensData_[i];
                 if(screenData instanceof Array){
                     items[i] = new DataScreenSettings(screenData as Array);
                 }else{
-                    throw new Lang.UnexpectedTypeException(Lang.format("Setting values for DataView[$1$] should be of type array", [i]), null, null);
+                    throw new MyTools.MyException(Lang.format("Setting values for DataView[$1$] should be of type array", [i]));
                 }
             }
         }else{
-            throw new Lang.UnexpectedTypeException("Setting values for DataViews should be of type array", null, null);
+            throw new MyTools.MyException("Setting values for DataViews should be of type array");
         }
     }
 
@@ -31,11 +31,11 @@ class DataScreensSettings{
             // use default screen settings
             var defaultScreensData = Settings.DEFAULT_VALUES.get(SETTING_DATASCREENS);
             if(!(defaultScreensData instanceof Array)){
-                throw new Lang.UnexpectedTypeException("The default screens settings should be of type Array", null, null);
+                throw new MyTools.MyException("The default screens settings should be of type Array");
             }
             var screenData = (defaultScreensData as Array)[0];
             if(!(screenData instanceof Array)){
-                throw new Lang.UnexpectedTypeException("ScreenData should be an array (ScreenSettings)", null, null);
+                throw new MyTools.MyException("ScreenData should be an array (ScreenSettings)");
             }
 
             screenSettings = new DataScreenSettings(screenData as Array);
