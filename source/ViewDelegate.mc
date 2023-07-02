@@ -12,7 +12,8 @@ class ViewDelegate extends MyViews.MyViewDelegate {
     }
 
     function onMenu() as Boolean {
-        WatchUi.pushView(new Rez.Menus.MainMenu(), new MenuDelegate(), WatchUi.SLIDE_UP);
+        var menu = new MainMenu();
+        WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_UP);
         return true;
     }
 

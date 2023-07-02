@@ -31,4 +31,13 @@ class FieldManager{
         fieldRefs[id] = field.weak();
         return field;
     }
+
+    function getFields(ids as Array<DataFieldId>) as Array<MyDataField>{
+        var count = ids.size();
+        var fields = new Array<MyDataField>[count];
+        for(var i=0; i<count; i++){
+            fields[i] = getField(ids[i]);
+        }
+        return fields;
+    }
 }
