@@ -205,7 +205,7 @@ class MainMenu extends MyMenu {
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
 				break;
 			}
-/*			
+			
 			// Sub menus
 			case "autoLapSubmenu":
 			{
@@ -220,7 +220,7 @@ class MainMenu extends MyMenu {
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
 			}
 			return true;
-*/
+
 			case "clearTrack":
 				var app = getApp();
 				app.track = null;
