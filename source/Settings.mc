@@ -46,6 +46,7 @@ class Settings{
 	};    
 
     hidden var globalData as Array<PropertyValueType>;
+    hidden var profileId as ProfileSection;
     hidden var profileData as Array<PropertyValueType>;
     hidden var onValueChange as Null|Method(settingId as SettingId, value as PropertyValueType) as Void;
     hidden var onDefaultRequest as Null|Method(settingId as SettingId) as PropertyValueType;
@@ -67,10 +68,14 @@ class Settings{
             : data;
 
         // load profile data
-        var sectionId = getProfileSection();
-        size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;
-        data = app.getProperty(SECTION_GLOBAL);
-        profileData = (data == null || (data as Array).size() != size)
+        var sport = get(SETTING_SPORT) as Activity.Sport;
+        profileId = getProfileSection(sport);
+        profileData = getProfileData(profileId);
+    }
+    hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
+        var size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;
+        var data = getApp().getProperty(profileId as Number);
+        return (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
             : data;
     }
@@ -103,8 +108,19 @@ class Settings{
             app.setProperty(SECTION_GLOBAL, globalData);
         }else if(id <= SETTING_PROFILE_MAX){
             profileData[id - (SETTING_GLOBAL_MAX + 1)] = value;
-            app.setProperty(getProfileSection() as Number, profileData);
+            app.setProperty(profileId as Number, profileData);
         }
+
+        // check if the profile is changed
+        if(settingId == SETTING_SPORT){
+            var profileIdNew = getProfileSection(value as Sport);
+            if(profileIdNew != profileId){
+                // profile is changed
+                profileId = profileIdNew;
+                profileData = getProfileData(profileId);
+            }
+        }
+
         // inform listeners
         if(onValueChange != null){
             onValueChange.invoke(settingId, value);
@@ -118,8 +134,7 @@ class Settings{
     }
 
     // hidden helper functions:
-    hidden function getProfileSection() as ProfileSection{
-        var sport = get(SETTING_SPORT) as Activity.Sport;
+    hidden function getProfileSection(sport as Sport) as ProfileSection{
         switch(sport){
             case Activity.SPORT_WALKING:
                 return SECTION_PROFILE_WALKING;
@@ -133,4 +148,5 @@ class Settings{
                 return SECTION_PROFILE_WALKING;
         }
     }
+
 }
