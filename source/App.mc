@@ -52,6 +52,9 @@ class App extends Application.AppBase {
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
         fieldManager.onSetting(id, value);
+        if(delegate != null){
+            delegate.onSettingChange(id, value);
+        }
     }
 
     function onSessionState(state as SessionState) as Void {

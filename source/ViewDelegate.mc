@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Graphics;
+import Toybox.Application;
 import MyViews;
 
 class ViewDelegate extends MyViews.MyViewDelegate {
@@ -41,6 +42,24 @@ class ViewDelegate extends MyViews.MyViewDelegate {
             return true;
         }
         return false;
+    }
+
+    // external trigger to update DataView with changed settings
+    function onSettingChange(id as SettingId, value as PropertyValueType) as Void{
+        if(mView instanceof DataView){
+            var view = mView as DataView;
+            if(id == SETTING_DATASCREENS){
+                // decode settings with helpers
+                var screensSettings = new DataScreensSettings(value);
+                var screenSettings = screensSettings.items[dataViewIndex];
+
+                var layout = DataView.getLayoutById(screenSettings.layoutId);
+                var fields = $.getApp().fieldManager.getFields(screenSettings.fieldIds);
+
+                view.setFields(fields);
+                view.setLayout(layout);
+            }
+        }
     }
 
     function createDataView(dataViewSettings as Array) as DataView{
