@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.Graphics;
+import Toybox.Application;
 
 enum DataFieldId{
     DATAFIELD_TEST = 0,
@@ -24,8 +25,11 @@ class FieldManager{
         }
 
         // else create a new datafield
+        var backgroundColor = $.getApp().settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
         var field = 
-            new TestField({});
+            new TestField({
+                :backgroundColor => backgroundColor
+            });
 
         // keep weak link in buffer for new requests
         fieldRefs[id] = field.weak();
@@ -39,5 +43,19 @@ class FieldManager{
             fields[i] = getField(ids[i]);
         }
         return fields;
+    }
+
+    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+        if(id == SETTING_BACKGROUND_COLOR){
+            var color = value as ColorType;
+            for(var i=0; i<fieldRefs.size(); i++){
+                var ref = fieldRefs[i];
+                if(ref != null){
+                    if(ref.stillAlive()){
+                        (ref.get() as MyDataField).setBackgroundColor(color);
+                    }
+                }
+            }
+        }
     }
 }

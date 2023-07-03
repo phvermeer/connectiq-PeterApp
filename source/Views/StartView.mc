@@ -46,14 +46,7 @@ class StartView extends MyViews.MyView {
                 var screen = screens[0] as Array;
                 var layout = DataView.getLayoutById(screen[0] as LayoutId);
                 var fieldIds = screen[1] as Array<DataFieldId>;
-                var count = MyMath.min([fieldIds.size(), layout.size()] as Array<Number>);
-
-                var fields = [] as Array<MyDataField>;
-                for(var i=0; i<count; i++){
-                    fields.add(new TestField({
-                        :backgroundColor => Graphics.COLOR_TRANSPARENT
-                    }));
-                }
+                var fields = app.fieldManager.getFields(fieldIds);
 			
 				// Open the data screen
 				var view = new DataView({
@@ -67,5 +60,4 @@ class StartView extends MyViews.MyView {
 				return false;
 		}
     }
-
 }

@@ -82,14 +82,16 @@ class DataScreenMenu extends MyMenu {
 	
 	function onSelect(item){
 		var id = item.getId() as String|DataScreenSettings.DataViewSettingId;
-		var settings = $.getApp().settings;
+		var app = $.getApp();
+		var settings = app.settings;
+		var fieldManager = app.fieldManager;
 
 		switch(id){
 			// Open LayoutPicker
 			case DataScreenSettings.SETTING_LAYOUT:
 				var screenSettings = screensSettings.items[screenIndex];
 				var layout = DataView.getLayoutById(screenSettings.layoutId);
-				var fields = FieldManager.getFields(screenSettings.fieldIds);
+				var fields = fieldManager.getFields(screenSettings.fieldIds);
 
 				var view = new DataView({
 					:layout => layout,
@@ -102,7 +104,7 @@ class DataScreenMenu extends MyMenu {
 			case DataScreenSettings.SETTING_FIELDS:
 				{
 					var layout = DataView.getLayoutById(layoutId);
-					var fields = FieldManager.getFields(fieldIds);
+					var fields = fieldManager.getFields(fieldIds);
 
 					var view = new DataView({
 						:layout => layout,

@@ -28,7 +28,7 @@ class App extends Application.AppBase {
         AppBase.initialize();
 
         settings = new Settings({
-            :onChanged => method(:onMySettingsChanged)
+            :onValueChange => method(:onSetting)
         });
 
         session = new Session({
@@ -50,8 +50,8 @@ class App extends Application.AppBase {
         timer.stop();
     }
 
-    function onMySettingsChanged(screenId as Number?, paramId as String, value as PropertyValueType) as Void {
-
+    function onSetting(id as SettingId, value as PropertyValueType) as Void {
+        fieldManager.onSetting(id, value);
     }
 
     function onSessionState(state as SessionState) as Void {

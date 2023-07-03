@@ -13,8 +13,7 @@ enum LayoutId {
 	LAYOUT_FOUR_FIELDS = 3,
 	LAYOUT_SIX_FIELDS = 4,
 	LAYOUT_CUSTOM1 = 5,
-	LAYOUT_CUSTOM2 = 6,
-	LAYOUT_MAX = 6,
+	LAYOUT_MAX = 5,
 }
 
 typedef Layout as Array< Array<Number> >;
@@ -50,6 +49,8 @@ class DataView extends MyViews.MyView{
         var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             var field = fields[i];
+            var fieldLayout = layout[i];
+            updateFieldLayout(field, fieldLayout);
             field.draw(dc);
         }
         upToDate = true;
