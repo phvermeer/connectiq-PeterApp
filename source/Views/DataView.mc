@@ -21,8 +21,7 @@ typedef Layout as Array< Array<Number> >;
 // array of [x, y, width, height]
 
 class DataView extends MyViews.MyView{
-    hidden var drawn as Boolean = false;
-    hidden var visible as Boolean = false;
+    hidden var upToDate as Boolean = false;
     hidden var layout as Layout;
     hidden var fields as Array<MyDataField>;
 
@@ -38,12 +37,8 @@ class DataView extends MyViews.MyView{
 
     // event handler when view becomes visible
     function onShow(){
-        drawn = false;
-        visible = true;
-    }
-
-    function onHide(){
-        visible = false;
+        MyView.onShow();
+        upToDate = false;
     }
 
     // event handler for graphical update request
@@ -57,14 +52,13 @@ class DataView extends MyViews.MyView{
             var field = fields[i];
             field.draw(dc);
         }
+        upToDate = true;
     }
 
     // update single field with given field layout
     hidden function updateFieldLayout(field as MyDataField, fieldLayout as Array<Number>) as Void{
-        field.locX = fieldLayout[0];
-        field.locY = fieldLayout[1];
-        field.width = fieldLayout[2];
-        field.height = fieldLayout[3];
+        field.setLocation(fieldLayout[0], fieldLayout[1]);
+        field.setSize(fieldLayout[2], fieldLayout[3]);
     }
 
     // update all fields with current layout
@@ -73,7 +67,6 @@ class DataView extends MyViews.MyView{
         for(var i=0; i<count; i++){
             updateFieldLayout(fields[i], layout[i]);
         }
-        drawn = false;
     }
 
     // setter for Layout
@@ -104,7 +97,8 @@ class DataView extends MyViews.MyView{
     // event handler for the timer
     function onTimer() as Void{
         // update fields
-        var doUpdate = false;
+        if(isVisible()){
+            var doUpdate = !upToDate;
         for(var i=0; i<fields.size(); i++){
             var field = fields[i];
             if(field has :onTimer){
@@ -116,6 +110,7 @@ class DataView extends MyViews.MyView{
         }
         if(doUpdate){
             WatchUi.requestUpdate();
+            }
         }
     }
 
@@ -200,24 +195,10 @@ class DataView extends MyViews.MyView{
             y += h1 + margin;
             h = height - y;
             data.add([0, y, width, h]);
-        }else if(id == LAYOUT_CUSTOM2){
-            // Two transparent fields on top and a big field (without margins)
-            var x = 0;
-            var y = 0;
-            var h = 0.2f * height;
-            var w = 0.5f * width;
-            data.add([x, y, w, h]);
-            x = w;
-            data.add([x, y, w, h]);
-            x = 0;
-            y = h;
-            w = width;
-            h = height - h;
-            data.add([x, y, w, h]);
         }else{
             var w2 = 0.5 * width;
             var h2 = 0.5 * height;
-            data.add([w2, h2, w2, h2]);
+            data.add([w2/2, h2/2, w2, h2]);
         }
         return data as Layout;            
     }
