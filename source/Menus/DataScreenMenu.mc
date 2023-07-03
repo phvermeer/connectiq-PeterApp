@@ -89,6 +89,7 @@ class DataScreenMenu extends MyMenu {
 		switch(id){
 			// Open LayoutPicker
 			case DataScreenSettings.SETTING_LAYOUT:
+			case DataScreenSettings.SETTING_FIELDS:
 				var screenSettings = screensSettings.items[screenIndex];
 				var layout = DataView.getLayoutById(screenSettings.layoutId);
 				var fields = fieldManager.getFields(screenSettings.fieldIds);
@@ -97,25 +98,14 @@ class DataScreenMenu extends MyMenu {
 					:layout => layout,
 					:fields => fields
 				});
-				var delegate = new LayoutPickerDelegate(view, screenIndex, screensSettings);
+
+				var delegate = (id == DataScreenSettings.SETTING_LAYOUT)
+					? new LayoutPickerDelegate(view, screenIndex, screensSettings)
+					: new FieldPickerDelegate(view, screenIndex, screensSettings);
 				WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);				
 				return true;
-/*			// Open FieldsPicker
-			case DataScreenSettings.SETTING_FIELDS:
-				{
-					var layout = DataView.getLayoutById(layoutId);
-					var fields = fieldManager.getFields(fieldIds);
-
-					var view = new DataView({
-						:layout => layout,
-						:fields => fields
-					});
-					var delegate = new FieldPickerDelegate(view, screenIndex);
-					WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
-					break;
-				}
 			// Toggle menus
-*/			case DataScreenSettings.SETTING_ENABLED:
+			case DataScreenSettings.SETTING_ENABLED:
 				screensSettings.items[screenIndex].enabled = (item as ToggleMenuItem).isEnabled();
 				settings.set(SETTING_DATASCREENS, screensSettings.export());
 				return true;

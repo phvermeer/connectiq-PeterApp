@@ -6,49 +6,54 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 	hidden var screenIndex as Lang.Number;
 	hidden var dataView as DataView;
 	hidden var screensSettings as DataScreensSettings;
-	hidden var originalFields as Array<MyDataField>;
+	hidden var layoutId as LayoutId;
+	hidden var fieldIds as Array<DataFieldId>;
+	hidden var fieldIdsInitial as Array<DataFieldId>;
 
 	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataScreensSettings){
 		self.dataView = dataView;
 		self.screenIndex = screenIndex;
-		self.originalFields = dataView.getFields();
 		self.screensSettings = screensSettings;
+
+		// get initial values
+		var screenSettings = screensSettings.items[screenIndex];
+		layoutId = screenSettings.layoutId;
+		fieldIds = screenSettings.fieldIds;
+		fieldIdsInitial = fieldIds;
 
 		BehaviorDelegate.initialize();
 	}
 
 	function onNextPage() as Boolean{
-		var layoutId = screensSettings.items[screenIndex].layoutId;
 		layoutId = ((layoutId >= LAYOUT_MAX) ? 0 : layoutId + 1) as LayoutId;
-		screensSettings.items[screenIndex].layoutId = layoutId;
-
-		var layout = DataView.getLayoutById(layoutId);
-		showLayout(layout);
+		showLayout();
 		return true;
 	}
 	
 	function onPreviousPage() as Boolean{
-		var layoutId = screensSettings.items[screenIndex].layoutId;
 		layoutId = ((layoutId <= 0) ? LAYOUT_MAX : layoutId - 1) as LayoutId;
-		screensSettings.items[screenIndex].layoutId = layoutId;
-
-		var layout = DataView.getLayoutById(layoutId);
-		showLayout(layout);
+		showLayout();
 		return true;
 	}
 	
-	function showLayout(layout as Layout) as Void{
-		// determine the fields for selected layout style
-		var newCount = layout.size();
-		var oldCount = originalFields.size();
-		var fields = new [newCount] as Array<MyDataField>;
-		for(var i=0; i<newCount; i++){
-			if(i<oldCount){
-				fields[i] = originalFields[i];
+	function showLayout() as Void{
+		// Get the Layout
+		var layout = DataView.getLayoutById(layoutId);
+
+		// Make sure that the field count is corresponding with the layout
+		var count = layout.size();
+		fieldIds = [] as Array<DataFieldId>;
+		for(var i=0; i<count; i++){
+			if(i < fieldIdsInitial.size()){
+				fieldIds.add(fieldIdsInitial[i]);
 			}else{
-				fields[i] = getApp().fieldManager.getField(DATAFIELD_TEST);
+				fieldIds.add(DATAFIELD_TEST);
 			}
 		}
+
+		// determine the fields for selected layout style
+		var fieldManager = $.getApp().fieldManager;
+		var fields = fieldManager.getFields(fieldIds);
 
 		dataView.setLayout(layout);
 		dataView.setFields(fields);
@@ -57,6 +62,10 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 	
 	function onSelect() as Lang.Boolean{
 		// save current layout
+		var screenSettings = screensSettings.items[screenIndex];
+		screenSettings.layoutId = layoutId;
+		screenSettings.fieldIds = fieldIds;
+
 		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings.export());
 		return true;
 	}
