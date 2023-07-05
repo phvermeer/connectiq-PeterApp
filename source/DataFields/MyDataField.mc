@@ -5,6 +5,7 @@ import Toybox.Lang;
 class MyDataField extends WatchUi.Drawable{
     hidden var upToDate as Boolean = false;
     hidden var backgroundColor as ColorType;
+    hidden var previousLayout as Array<Numeric>?;
 
     function initialize(options as {
         :locX as Numeric,
@@ -19,20 +20,42 @@ class MyDataField extends WatchUi.Drawable{
     }
 
     function draw(dc as Dc) as Void{
-        dc.setColor(backgroundColor, Graphics.COLOR_TRANSPARENT);
-        dc.fillRectangle(locX, locY, width, height);
-        upToDate = true;
+        // check if onLayout should be called
+        var doLayout = false;
+        var layout = [locX, locY, width, height] as Array<Numeric>;
+        if(previousLayout != null){
+            var prevLayout = previousLayout;
+            for(var i=0; i<layout.size(); i++){
+                if(layout[i] != prevLayout[i]){
+                    doLayout = true;
+                    break;
+                }
+            }
+        }else{
+            doLayout = true;
+        }
+        if(doLayout){
+            upToDate = false;
+            onLayout(dc);
+        }
+        previousLayout = layout;
 
+        // check if onUpdate should be called
+        if(!upToDate){
+            onUpdate(dc);
+            upToDate = true;
+        }
+    }
+
+    protected function onLayout(dc as Dc) as Void{
         // override this function
+        dc.setColor(Graphics.COLOR_DK_GRAY, backgroundColor);
+        dc.clear();
     }
-
-    function setLocation(x, y){
-        Drawable.setLocation(x, y);
-        upToDate = false;
-    }
-    function setSize(w, h){
-        Drawable.setSize(w, h);
-        upToDate = false;
+    protected function onUpdate(dc as Dc) as Void{
+        // override this function
+        dc.setColor(Graphics.COLOR_DK_GRAY, backgroundColor);
+        dc.drawRectangle(locX, locY, width, height);
     }
 
     // this function will indicate if the value is changed since last onUpdate()

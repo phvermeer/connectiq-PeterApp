@@ -5,11 +5,10 @@ import Toybox.Time.Gregorian;
 import MyTools;
 
 class TestField extends MyDataField{
-    static hidden var counter as Number = 0;
-    static hidden var hours as Number;
-    static hidden var minutes as Number;
-    static hidden var seconds as Number;
-    static hidden var foregroundColor as ColorType;
+    hidden var foregroundColor as ColorType;
+    hidden var label as MyText;
+    hidden var value as MyText;
+    hidden var visible as Boolean = false;    
 
     function initialize(options as {
         :locX as Numeric,
@@ -19,17 +18,70 @@ class TestField extends MyDataField{
     }) {
         MyDataField.initialize(options);
         var info = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
-        hours = info.hour;
-        minutes = info.min;
-        seconds = 5 * (info.sec /5);
         foregroundColor = getForegroundColor(backgroundColor);
+
+        label = new MyText({
+            :text => "TEST",
+        });
+        value = new MyText({
+            :text => "---",
+        });
+    }
+    function onLayout(dc){
+        //if(locY > 50 && locY < 130 && locX == 0){
+            visible = true;
+        //}else{
+        //    visible = false;
+        //    return;
+        //}
+
+        var helper = new RoundScreenHelper({
+            :xMin => locX,
+            :xMax => locX + width,
+            :yMin => locY,
+            :yMax => locY + height
+        });
+
+        // determine the font sizes
+        var surface = helper.getSurfaceArea().toFloat();
+        var surfaceMax = dc.getWidth() * dc.getHeight();
+        var ratio = surface / surfaceMax;
+        if(ratio < 0.2){
+            label.setFont(Graphics.FONT_XTINY);
+            value.setFont(Graphics.FONT_NUMBER_MILD);
+        }else if(ratio < 0.4){
+            label.setFont(Graphics.FONT_XTINY);
+            value.setFont(Graphics.FONT_NUMBER_MILD);
+        }else if(ratio <= 0.5){
+            label.setFont(Graphics.FONT_TINY);
+            value.setFont(Graphics.FONT_NUMBER_HOT);
+        }else{
+            label.setFont(Graphics.FONT_SMALL);
+            value.setFont(Graphics.FONT_NUMBER_THAI_HOT);
+        }
+
+
+        label.updateDimensions(dc);
+        helper.align(label, ALIGN_TOP);
+
+        value.updateDimensions(dc);
+        value.setLocation(locX + (width-value.width)/2, locY + (height-value.height)/2);
+
     }
 
-    function draw(dc as Dc){
-        MyDataField.draw(dc);
-        counter++;
-        dc.setColor(foregroundColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(locX+width/2, locY+height/2, Graphics.FONT_MEDIUM, Lang.format("$1$:$2$:$3$", [hours.format("%02u"), minutes.format("%02u"), seconds.format("%02u")]), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    function onUpdate(dc){
+        MyDataField.onUpdate(dc);
+
+        dc.setColor(foregroundColor, backgroundColor);
+        if(visible){
+            // label
+            dc.drawRectangle(label.locX, label.locY, label.width, label.height);
+            label.draw(dc);
+
+            // value
+            dc.drawRectangle(value.locX, value.locY, value.width, value.height);
+            value.draw(dc);
+        }
     }
 
     function setBackgroundColor(color as ColorType) as Void{
@@ -44,13 +96,12 @@ class TestField extends MyDataField{
 
     function onTimer() as Void{
         var info = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
-        var hoursNew = info.hour;
-        var minutesNew = info.min;
-        var secondsNew = 5*(info.sec/5);
-        if(hoursNew != hours || minutesNew != minutes || secondsNew != seconds){
-            hours = hoursNew;
-            minutes = minutesNew;
-            seconds = secondsNew;
+        var hours = info.hour;
+        var minutes = info.min;
+        var seconds = 5*(info.sec/5);
+        var valueNew = Lang.format("$1$:$2$:$3$", [hours.format("%02u"), minutes.format("%02u"), seconds.format("%02u")]);
+        if(valueNew != value.getText()){
+            value.setText(valueNew);
             upToDate = false;
         }
     }
