@@ -3,6 +3,7 @@ import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import MyTools;
+import MyDrawables;
 
 class TestField extends MyDataField{
     hidden var foregroundColor as ColorType;
@@ -17,7 +18,6 @@ class TestField extends MyDataField{
         :height as Numeric,
     }) {
         MyDataField.initialize(options);
-        var info = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         foregroundColor = getForegroundColor(backgroundColor);
 
         label = new MyText({
@@ -35,7 +35,7 @@ class TestField extends MyDataField{
         //    return;
         //}
 
-        var helper = new RoundScreenHelper({
+        var helper = new MyLayoutHelper.RoundScreenHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -43,7 +43,7 @@ class TestField extends MyDataField{
         });
 
         // determine the font sizes
-        var surface = helper.getSurfaceArea().toFloat();
+        var surface = width * height;
         var surfaceMax = dc.getWidth() * dc.getHeight();
         var ratio = surface / surfaceMax;
         if(ratio < 0.2){
@@ -62,7 +62,7 @@ class TestField extends MyDataField{
 
 
         label.updateDimensions(dc);
-        helper.align(label, ALIGN_TOP);
+        helper.align(label, MyLayoutHelper.ALIGN_TOP);
 
         value.updateDimensions(dc);
         value.setLocation(locX + (width-value.width)/2, locY + (height-value.height)/2);
@@ -98,9 +98,9 @@ class TestField extends MyDataField{
         var info = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         var hours = info.hour;
         var minutes = info.min;
-        var seconds = 5*(info.sec/5);
+        var seconds = 10*(info.sec/10);
         var valueNew = Lang.format("$1$:$2$:$3$", [hours.format("%02u"), minutes.format("%02u"), seconds.format("%02u")]);
-        if(valueNew != value.getText()){
+        if(!valueNew.equals(value.getText())){
             value.setText(valueNew);
             upToDate = false;
         }

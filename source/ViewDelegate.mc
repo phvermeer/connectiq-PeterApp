@@ -12,6 +12,24 @@ class ViewDelegate extends MyViews.MyViewDelegate {
         MyViewDelegate.initialize(view);
     }
 
+    function onKey(keyEvent as KeyEvent) as Boolean{
+        if(keyEvent.getKey() == WatchUi.KEY_START){
+            if(keyEvent.getType() == PRESS_TYPE_ACTION){
+                var session = getApp().session;
+                switch(session.getState()){
+                    case SESSION_STATE_IDLE:
+			        case SESSION_STATE_STOPPED:
+                        session.start();
+                        break;
+                    default:
+                        session.stop();
+                        break;
+                }
+            }
+        }
+        return MyViewDelegate.onKey(keyEvent);
+    }
+
     function onMenu() as Boolean {
         var menu = new MainMenu();
         WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_UP);
@@ -19,14 +37,14 @@ class ViewDelegate extends MyViews.MyViewDelegate {
     }
 
     function onSessionState(state as SessionState) as Void{
-        if(mView has :onSessionState){
-            (mView as SessionStateListener).onSessionState(state);
+        if(mView instanceof DataView){
+            (mView as DataView).onSessionState(state);
         }
     }
 
     function onTimer() as Void{
-        if(mView has :onTimer){
-            (mView as TimerListener).onTimer();
+        if(mView instanceof DataView){
+            (mView as DataView).onTimer();
         }
     }
 
@@ -57,7 +75,7 @@ class ViewDelegate extends MyViews.MyViewDelegate {
                 var fields = $.getApp().fieldManager.getFields(screenSettings.fieldIds);
 
                 view.setFields(fields);
-                view.setLayout(layout);
+                view.setFieldsLayout(layout);
             }
         }
     }

@@ -35,16 +35,13 @@ class MyDataField extends WatchUi.Drawable{
             doLayout = true;
         }
         if(doLayout){
-            upToDate = false;
             onLayout(dc);
         }
         previousLayout = layout;
 
         // check if onUpdate should be called
-        if(!upToDate){
-            onUpdate(dc);
-            upToDate = true;
-        }
+        onUpdate(dc);
+        upToDate = true;
     }
 
     protected function onLayout(dc as Dc) as Void{
@@ -56,6 +53,10 @@ class MyDataField extends WatchUi.Drawable{
         // override this function
         dc.setColor(Graphics.COLOR_DK_GRAY, backgroundColor);
         dc.drawRectangle(locX, locY, width, height);
+    }
+
+    public function onTimer() as Void{
+        // called periodicly from external
     }
 
     // this function will indicate if the value is changed since last onUpdate()

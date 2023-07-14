@@ -5,6 +5,7 @@ import Toybox.System;
 import Toybox.Math;
 import MyViews;
 import MyMath;
+import MyDrawables;
 
 enum LayoutId {
 	LAYOUT_ONE_FIELD = 0,
@@ -23,6 +24,7 @@ class DataView extends MyViews.MyView{
     hidden var upToDate as Boolean = false;
     hidden var layout as Layout;
     hidden var fields as Array<MyDataField>;
+    hidden var edge as Edge;
 
     function initialize(options as {
         :layout as Layout,
@@ -31,7 +33,12 @@ class DataView extends MyViews.MyView{
         MyView.initialize();
         layout = (options.hasKey(:layout) ? options.get(:layout) : []) as Layout;
         fields = (options.hasKey(:fields) ? options.get(:fields) : []) as Array<MyDataField>;
-        updateLayout();
+        updateFieldsLayout();
+
+        edge = new MyDrawables.Edge({
+            :visible => false,
+            :position => Edge.EDGE_ALL,
+        });
     }
 
     // event handler when view becomes visible
@@ -42,6 +49,8 @@ class DataView extends MyViews.MyView{
 
     // event handler for graphical update request
     function onUpdate(dc as Dc) as Void{
+        upToDate = true;
+
         // clear
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLUE);
         dc.clear();
@@ -53,7 +62,9 @@ class DataView extends MyViews.MyView{
             updateFieldLayout(field, fieldLayout);
             field.draw(dc);
         }
-        upToDate = true;
+
+        // draw the edge
+        edge.draw(dc);
     }
 
     // update single field with given field layout
@@ -63,7 +74,7 @@ class DataView extends MyViews.MyView{
     }
 
     // update all fields with current layout
-    hidden function updateLayout() as Void{
+    hidden function updateFieldsLayout() as Void{
         var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             updateFieldLayout(fields[i], layout[i]);
@@ -71,18 +82,18 @@ class DataView extends MyViews.MyView{
     }
 
     // setter for Layout
-    function setLayout(layout as Layout) as Void{
+    function setFieldsLayout(layout as Layout) as Void{
         self.layout = layout;
-        updateLayout();
+        updateFieldsLayout();
     }
-    function getLayout() as Layout{
+    function getFieldsLayout() as Layout{
         return layout;
     }
 
     // setter for DataFields
     function setFields(fields as Array<MyDataField>) as Void{
         self.fields = fields;
-        updateLayout();
+        updateFieldsLayout();
     }
 
     // getter for DataFields
@@ -92,26 +103,52 @@ class DataView extends MyViews.MyView{
 
     // event handler for session state changes
     function onSessionState(state as SessionState) as Void{
+
         System.println("Session state changed to " + state.toString());
+        switch(state){
+            case SESSION_STATE_STOPPED:
+                edge.color = Graphics.COLOR_RED;
+                edge.setVisible(true);
+                break;
+            case SESSION_STATE_PAUSED:
+                edge.color = Graphics.COLOR_YELLOW;
+                edge.setVisible(true);
+                break;
+            default:
+                edge.setVisible(false);
+                break;
+        }
+        upToDate = false;
+        WatchUi.requestUpdate();
+    }
+
+    function isUpToDate() as Boolean{
+        if(!upToDate){
+            return false;
+        }
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            if(!field.isUpToDate()){
+                return false;
+            }
+        }
+        return true;
     }
 
     // event handler for the timer
     function onTimer() as Void{
         // update fields
-        if(isVisible()){
-            var doUpdate = !upToDate;
         for(var i=0; i<fields.size(); i++){
             var field = fields[i];
             if(field has :onTimer){
                 (field as TimerListener).onTimer();
             }
-            if(!field.isUpToDate()){
-                doUpdate = true;
-            }
         }
-        if(doUpdate){
-            WatchUi.requestUpdate();
+        if(isVisible()){
+            if(!isUpToDate()){
+                requestUpdate();
             }
+
         }
     }
 

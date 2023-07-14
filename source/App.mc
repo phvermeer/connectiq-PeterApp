@@ -2,6 +2,7 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Timer;
+import MyViews;
 
 // interfaces for generic function support
 typedef SessionStateListener as interface {

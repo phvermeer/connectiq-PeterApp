@@ -15,7 +15,7 @@ class FieldPickerDelegate extends WatchUi.BehaviorDelegate{
 
 	function onTap(clickEvent as ClickEvent) as Lang.Boolean{
 		// Determine the field that is tapped
-		var layout = dataView.getLayout();
+		var layout = dataView.getFieldsLayout();
 		for(var i=0; i<layout.size(); i++){
 			var fl = layout[i];
 			var xy = clickEvent.getCoordinates();

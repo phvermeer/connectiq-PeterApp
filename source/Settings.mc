@@ -66,7 +66,7 @@ class Settings{
         var data = app.getProperty(SECTION_GLOBAL);
         globalData = (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
-            : data;
+            : data as Array<PropertyValueType>;
 
         // load profile data
         var sport = get(SETTING_SPORT) as Activity.Sport;
@@ -78,7 +78,7 @@ class Settings{
         var data = getApp().getProperty(profileId as Number);
         return (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
-            : data;
+            : data as Array<PropertyValueType>;
     }
 
     function get(settingId as SettingId) as PropertyValueType{
@@ -131,7 +131,10 @@ class Settings{
     function clear() as Void{
         globalData = new Array<PropertyValueType>[SETTING_GLOBAL_MAX+1];
         profileData = new Array<PropertyValueType>[SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX];
-        $.getApp().clearProperties();
+        var app = $.getApp();
+        if(app != null){
+            app.clearProperties();
+        }
     }
 
     // hidden helper functions:

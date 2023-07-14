@@ -55,7 +55,7 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 		var fieldManager = $.getApp().fieldManager;
 		var fields = fieldManager.getFields(fieldIds);
 
-		dataView.setLayout(layout);
+		dataView.setFieldsLayout(layout);
 		dataView.setFields(fields);
 		WatchUi.requestUpdate();
 	}
