@@ -10,3 +10,6 @@
 [submodule "source/MyMath"]
 	path = source/MyMath
 	url = https://github.com/phvermeer/connectiq-MyMath.git
+[submodule "source/MyLayoutHelper"]
+	path = source/MyLayoutHelper
+	url = https://github.com/phvermeer/connectiq-MyLayoutHelper
