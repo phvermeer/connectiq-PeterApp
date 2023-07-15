@@ -12,22 +12,52 @@ class ViewDelegate extends MyViews.MyViewDelegate {
         MyViewDelegate.initialize(view);
     }
 
-    function onKey(keyEvent as KeyEvent) as Boolean{
-        if(keyEvent.getKey() == WatchUi.KEY_START){
-            if(keyEvent.getType() == PRESS_TYPE_ACTION){
-                var session = getApp().session;
-                switch(session.getState()){
-                    case SESSION_STATE_IDLE:
-			        case SESSION_STATE_STOPPED:
-                        session.start();
-                        break;
-                    default:
-                        session.stop();
-                        break;
+	function onKey(keyEvent as WatchUi.KeyEvent) as Lang.Boolean{
+        if(mView instanceof DataView){
+            if(keyEvent.getType() == WatchUi.PRESS_TYPE_ACTION){
+                switch(keyEvent.getKey()){
+                    case WatchUi.KEY_ENTER:
+                    {
+                        var session = getApp().session;
+                        switch(session.getState()){
+                            case SESSION_STATE_BUSY:
+                            case SESSION_STATE_PAUSED:
+                                session.stop();
+                                break;
+                            default:
+                                session.start();
+                                break;
+                        }
+                        return true;
+                    }
                 }
             }
+		}
+		return MyViewDelegate.onKey(keyEvent);
+	}
+
+    function onBack() as Boolean{
+        // check current view
+        if(mView instanceof DataView){
+            // Open StopView
+            var view = new StopView();
+            switchToView(view, WatchUi.SLIDE_IMMEDIATE);
+            return true;
+        }else if(mView instanceof StopView){
+            // Open DataView with correct fields
+            var app = $.getApp();
+            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS));
+            var screenSettings = screensSettings.items[dataViewIndex];
+            var fields = app.fieldManager.getFields(screenSettings.fieldIds);
+            var layout = DataView.getLayoutById(screenSettings.layoutId);
+            var view = new DataView({
+                :fields => fields,
+                :layout => layout,
+            });
+            switchToView(view, WatchUi.SLIDE_IMMEDIATE);
+            return true;
         }
-        return MyViewDelegate.onKey(keyEvent);
+        return false;
     }
 
     function onMenu() as Boolean {

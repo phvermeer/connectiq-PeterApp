@@ -37,7 +37,7 @@ class DataView extends MyViews.MyView{
 
         edge = new MyDrawables.Edge({
             :visible => false,
-            :position => Edge.EDGE_ALL,
+            :position => MyDrawables.EDGE_ALL,
         });
     }
 

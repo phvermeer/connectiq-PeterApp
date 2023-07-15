@@ -1,9 +1,10 @@
 using Toybox.ActivityRecording;
 import Toybox.Lang;
+import Toybox.WatchUi;
 using Toybox.Timer;
 using Toybox.Activity;
-import MyTools;
 using Toybox.Time;
+import MyTools;
 
 enum SessionState {
 	SESSION_STATE_IDLE,
@@ -162,6 +163,21 @@ class Session{
 			if(!mAutoPause && mState == SESSION_STATE_PAUSED){
 				setPaused(false);
 			}			
+		}
+	}
+
+	static public function getIcon(sport as Activity.Sport) as BitmapResource{
+		switch(sport){
+		case Activity.SPORT_WALKING:
+			return WatchUi.loadResource(Rez.Drawables.walking) as WatchUi.BitmapResource;
+		case Activity.SPORT_RUNNING:
+			return WatchUi.loadResource(Rez.Drawables.running) as WatchUi.BitmapResource;
+		case Activity.SPORT_CYCLING:
+			return WatchUi.loadResource(Rez.Drawables.cycling) as WatchUi.BitmapResource;
+		case Activity.SPORT_HIKING:
+			return WatchUi.loadResource(Rez.Drawables.hiking) as WatchUi.BitmapResource;
+		default:
+			return WatchUi.loadResource(Rez.Drawables.unknown) as WatchUi.BitmapResource;
 		}
 	}
 
