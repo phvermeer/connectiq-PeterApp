@@ -45,15 +45,19 @@ class DataView extends MyViews.MyView{
     function onShow(){
         MyView.onShow();
         upToDate = false;
+
+        for(var i=0; i<fields.size(); i++){
+            fields[i].onShow();
+        }
     }
 
     // event handler for graphical update request
     function onUpdate(dc as Dc) as Void{
+        if(!upToDate){
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLUE);
+            dc.clear();
+        }
         upToDate = true;
-
-        // clear
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLUE);
-        dc.clear();
 
         var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
@@ -118,7 +122,6 @@ class DataView extends MyViews.MyView{
                 edge.setVisible(false);
                 break;
         }
-        upToDate = false;
         WatchUi.requestUpdate();
     }
 

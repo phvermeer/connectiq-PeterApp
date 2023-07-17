@@ -59,9 +59,9 @@ class FieldManager{
         // else create a new datafield
         var backgroundColor = $.getApp().settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
         var field = 
-            new TestField({
-                :backgroundColor => backgroundColor
-            });
+            (id == DATAFIELD_ELAPSED_DISTANCE)
+                ? new ElapsedDistanceField({ :backgroundColor => backgroundColor })
+                : new TestField({ :backgroundColor => backgroundColor });
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());

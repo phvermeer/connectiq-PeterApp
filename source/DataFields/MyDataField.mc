@@ -3,7 +3,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 
 class MyDataField extends WatchUi.Drawable{
-    hidden var upToDate as Boolean = false;
+    hidden var doUpdate as Boolean = true;
     hidden var backgroundColor as ColorType;
     hidden var previousLayout as Array<Numeric>?;
 
@@ -40,19 +40,21 @@ class MyDataField extends WatchUi.Drawable{
         previousLayout = layout;
 
         // check if onUpdate should be called
-        onUpdate(dc);
-        upToDate = true;
+        if(doUpdate){
+            doUpdate = false;
+            onUpdate(dc);
+        }
+    }
+
+    function onShow() as Void{
+        doUpdate = true;
     }
 
     protected function onLayout(dc as Dc) as Void{
         // override this function
-        dc.setColor(Graphics.COLOR_DK_GRAY, backgroundColor);
-        dc.clear();
     }
     protected function onUpdate(dc as Dc) as Void{
         // override this function
-        dc.setColor(Graphics.COLOR_DK_GRAY, backgroundColor);
-        dc.drawRectangle(locX, locY, width, height);
     }
 
     public function onTimer() as Void{
@@ -61,11 +63,11 @@ class MyDataField extends WatchUi.Drawable{
 
     // this function will indicate if the value is changed since last onUpdate()
     function isUpToDate() as Boolean{
-        return upToDate;
+        return !doUpdate;
     }
 
     function setBackgroundColor(color as Graphics.ColorType) as Void{
         backgroundColor = color;
-        upToDate = false;
+        doUpdate = true;
     }
 }

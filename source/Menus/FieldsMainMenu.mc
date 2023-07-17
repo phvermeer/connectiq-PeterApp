@@ -46,15 +46,15 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_"maxSpeed" => WatchUi.loadResource(Rez.Strings.maxSpeed),
 				},
 			},
-
+*/
 			"distanceFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.distanceFields),
 				:items => {
-					DATAFIELD_"elapsedDistance" => WatchUi.loadResource(Rez.Strings.distance),
-					DATAFIELD_"remainingDistance" => WatchUi.loadResource(Rez.Strings.remainingDistance),
+					DATAFIELD_ELAPSED_DISTANCE => WatchUi.loadResource(Rez.Strings.distance),
+//					DATAFIELD_"remainingDistance" => WatchUi.loadResource(Rez.Strings.remainingDistance),
 				},
 			},
-
+/*
 			"altitudeFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.altitudeFields),
 				:items => {

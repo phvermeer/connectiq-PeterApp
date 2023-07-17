@@ -102,7 +102,7 @@ class TestField extends MyDataField{
         var valueNew = Lang.format("$1$:$2$:$3$", [hours.format("%02u"), minutes.format("%02u"), seconds.format("%02u")]);
         if(!valueNew.equals(value.getText())){
             value.setText(valueNew);
-            upToDate = false;
+            doUpdate = true;
         }
     }
 }
