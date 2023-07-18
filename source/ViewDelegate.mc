@@ -80,14 +80,42 @@ class ViewDelegate extends MyViews.MyViewDelegate {
 
     function onSwipe(event as SwipeEvent) as Boolean{
         if(mView instanceof DataView){
+            var dataView = mView as DataView;
+
+            // get screens settings
+            var app = $.getApp();
+            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS));
+            var count = screensSettings.items.size();
+
             // swipe up or down to next dataview
             switch(event.getDirection()){
                 case WatchUi.SWIPE_DOWN:
+                    // next screen id
+                    do{
+                        dataViewIndex++;
+                        if(dataViewIndex >= count){
+                            dataViewIndex = 0;
+                        }
+                    }while(!screensSettings.items[dataViewIndex].enabled);
                     break;
                 case WatchUi.SWIPE_UP:
+                    do{
+                        dataViewIndex--;
+                        if(dataViewIndex <0){
+                            dataViewIndex = count-1;
+                        }
+                    }while(!screensSettings.items[dataViewIndex].enabled);
                     break;
+                default:
+                    return false;
             }
-            return true;
+            // show new screen
+            var screenSettings = screensSettings.items[dataViewIndex];
+            var fields = app.fieldManager.getFields(screenSettings.fieldIds);
+            var layout = DataView.getLayoutById(screenSettings.layoutId);
+            dataView.setFields(fields);
+            dataView.setFieldsLayout(layout);
+            WatchUi.requestUpdate();
         }
         return false;
     }
