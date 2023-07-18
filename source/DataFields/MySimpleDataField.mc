@@ -17,7 +17,7 @@ class MySimpleDataField extends MyDataField{
         :label as String,
     }){
         MyDataField.initialize(options);
-        var lbl = options.hasKey(:label) ? options.get(:label) as String : "Label";
+        var lbl = options.hasKey(:label) ? (options.get(:label) as String).toUpper() : "LABEL";
         label = new MyDrawables.MyText({ :text => lbl });
         value = new MyDrawables.MyText({ :text => "---" });
         setBackgroundColor(self.backgroundColor);
