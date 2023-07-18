@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Application;
+import Toybox.Application.Storage;
 import Toybox.Graphics;
 import MyTools;
 
@@ -57,13 +58,9 @@ class Settings{
     }){
         onValueChange = options.get(:onValueChange);
 
-        // load data
-        var app = $.getApp();
-        app.loadProperties();
-
         // load global data
         var size = SETTING_GLOBAL_MAX+1;
-        var data = app.getProperty(SECTION_GLOBAL);
+        var data = Storage.getValue(SECTION_GLOBAL);
         globalData = (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
             : data as Array<PropertyValueType>;
@@ -75,7 +72,7 @@ class Settings{
     }
     hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
         var size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;
-        var data = getApp().getProperty(profileId as Number);
+        var data = Storage.getValue(profileId as Number);
         return (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
             : data as Array<PropertyValueType>;
@@ -103,13 +100,12 @@ class Settings{
     function set(settingId as SettingId, value as PropertyValueType) as Void{
         // update instance and app data
         var id = settingId as Number;
-        var app = getApp();
         if (id <= SETTING_GLOBAL_MAX){
             globalData[id] = value;
-            app.setProperty(SECTION_GLOBAL, globalData);
+            Storage.setValue(SECTION_GLOBAL, globalData);
         }else if(id <= SETTING_PROFILE_MAX){
             profileData[id - (SETTING_GLOBAL_MAX + 1)] = value;
-            app.setProperty(profileId as Number, profileData);
+            Storage.setValue(profileId as Number, profileData);
         }
 
         // check if the profile is changed
@@ -131,10 +127,7 @@ class Settings{
     function clear() as Void{
         globalData = new Array<PropertyValueType>[SETTING_GLOBAL_MAX+1];
         profileData = new Array<PropertyValueType>[SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX];
-        var app = $.getApp();
-        if(app != null){
-            app.clearProperties();
-        }
+        Storage.clearValues();
     }
 
     // hidden helper functions:
