@@ -64,9 +64,8 @@ class MySimpleDataField extends MyDataField{
     }
 
     function onUpdate(dc){
-        MyDataField.onUpdate(dc);
-
         // label
+        dc.clear();
         label.draw(dc);
         value.draw(dc);
     }    

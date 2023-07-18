@@ -89,6 +89,7 @@ class DataView extends MyViews.MyView{
     function setFieldsLayout(layout as Layout) as Void{
         self.layout = layout;
         updateFieldsLayout();
+        upToDate = false;
     }
     function getFieldsLayout() as Layout{
         return layout;

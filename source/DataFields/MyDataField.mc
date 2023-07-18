@@ -28,21 +28,30 @@ class MyDataField extends WatchUi.Drawable{
             for(var i=0; i<layout.size(); i++){
                 if(layout[i] != prevLayout[i]){
                     doLayout = true;
+                    doUpdate = true;
                     break;
                 }
             }
         }else{
             doLayout = true;
         }
-        if(doLayout){
-            onLayout(dc);
-        }
-        previousLayout = layout;
 
-        // check if onUpdate should be called
-        if(doUpdate){
-            doUpdate = false;
-            onUpdate(dc);
+        // call onLayout and onUpdate methods
+        dc.setClip(locX, locY, width, height);
+        dc.setColor(Graphics.COLOR_LT_GRAY, backgroundColor);
+        try{
+            if(doLayout){
+                onLayout(dc);
+            }
+            previousLayout = layout;
+
+            // check if onUpdate should be called
+            if(doUpdate){
+                doUpdate = false;
+                onUpdate(dc);
+            }
+        }finally{
+            dc.clearClip();
         }
     }
 
