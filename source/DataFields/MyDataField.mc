@@ -45,11 +45,9 @@ class MyDataField extends WatchUi.Drawable{
             }
             previousLayout = layout;
 
-            // check if onUpdate should be called
-            if(doUpdate){
-                doUpdate = false;
-                onUpdate(dc);
-            }
+            // alway update when called
+            onUpdate(dc);
+            doUpdate = false;
         }finally{
             dc.clearClip();
         }

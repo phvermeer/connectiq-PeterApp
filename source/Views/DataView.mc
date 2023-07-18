@@ -25,6 +25,7 @@ class DataView extends MyViews.MyView{
     hidden var layout as Layout;
     hidden var fields as Array<MyDataField>;
     hidden var edge as Edge;
+    hidden var layer as Layer;
 
     function initialize(options as {
         :layout as Layout,
@@ -36,9 +37,15 @@ class DataView extends MyViews.MyView{
         updateFieldsLayout();
 
         edge = new MyDrawables.Edge({
-            :visible => false,
             :position => MyDrawables.EDGE_ALL,
         });
+        layer = new WatchUi.Layer({
+            :locX => 0,
+            :locY => 0,
+            :width => edge.width.toNumber(),
+            :height => edge.height.toNumber(),
+        });
+        self.addLayer(layer);
     }
 
     // event handler when view becomes visible
@@ -66,9 +73,6 @@ class DataView extends MyViews.MyView{
             updateFieldLayout(field, fieldLayout);
             field.draw(dc);
         }
-
-        // draw the edge
-        edge.draw(dc);
     }
 
     // update single field with given field layout
@@ -110,20 +114,31 @@ class DataView extends MyViews.MyView{
     function onSessionState(state as SessionState) as Void{
 
         System.println("Session state changed to " + state.toString());
-        switch(state){
+        var dc = layer.getDc();
+        if(dc != null){
+            switch(state){
             case SESSION_STATE_STOPPED:
                 edge.color = Graphics.COLOR_RED;
-                edge.setVisible(true);
                 break;
             case SESSION_STATE_PAUSED:
                 edge.color = Graphics.COLOR_YELLOW;
-                edge.setVisible(true);
                 break;
             default:
-                edge.setVisible(false);
+                edge.color = Graphics.COLOR_TRANSPARENT;
                 break;
+            }
+
+            if(edge.color != Graphics.COLOR_TRANSPARENT){
+                edge.draw(dc);
+//                dc.setColor(Graphics.COLOR_PINK, Graphics.COLOR_PURPLE);
+//                dc.fillRectangle(0, 0, 260, 260);
+                layer.setVisible(true);
+            }else{
+                layer.setVisible(false);
+            }
+
+            WatchUi.requestUpdate();
         }
-        WatchUi.requestUpdate();
     }
 
     function isUpToDate() as Boolean{
