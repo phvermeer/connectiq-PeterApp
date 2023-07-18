@@ -34,8 +34,13 @@ class App extends Application.AppBase {
         session = new Session({ :onStateChange => method(:onSessionState) });
         fieldManager = new FieldManager();
         timer = new Timer.Timer();
-
         Communications.registerForPhoneAppMessages(method(:onPhone));
+
+        // initial track
+        var trackData = settings.get(SETTING_TRACK);
+        if(trackData instanceof Array){
+            track = new Track(trackData as Array);
+        }
     }
 
     // onStart() is called on application start up
@@ -72,12 +77,16 @@ class App extends Application.AppBase {
 
         // receive track data
         if(msg.data instanceof Array){
-            track = new Track(msg.data as Array);
+            var data = msg.data as Array;
+            track = new Track(data);
 
             // vibrate when track is received
             if(Attention has :vibrate){
                 Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
             }
+
+            // save track data in storage
+            settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
         }
     }
 
