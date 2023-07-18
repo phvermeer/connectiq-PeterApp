@@ -37,16 +37,16 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_"compass" => WatchUi.loadResource(Rez.Strings.compass),
 				},
 			},
-	
+*/	
 			"speedFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.speedFields),
 				:items => {
-					DATAFIELD_"currentSpeed" => WatchUi.loadResource(Rez.Strings.speed),
-					DATAFIELD_"avgSpeed" => WatchUi.loadResource(Rez.Strings.avgSpeed),
-					DATAFIELD_"maxSpeed" => WatchUi.loadResource(Rez.Strings.maxSpeed),
+					DATAFIELD_CURRENT_SPEED => WatchUi.loadResource(Rez.Strings.speed),
+					DATAFIELD_AVG_SPEED => WatchUi.loadResource(Rez.Strings.avgSpeed),
+					DATAFIELD_MAX_SPEED => WatchUi.loadResource(Rez.Strings.maxSpeed),
 				},
 			},
-*/
+
 			"distanceFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.distanceFields),
 				:items => {
@@ -54,17 +54,18 @@ class FieldsMainMenu extends MyMenu{
 //					DATAFIELD_"remainingDistance" => WatchUi.loadResource(Rez.Strings.remainingDistance),
 				},
 			},
-/*
+
 			"altitudeFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.altitudeFields),
 				:items => {
 					DATAFIELD_ALTITUDE => WatchUi.loadResource(Rez.Strings.altitude),
-					DATAFIELD_ELEVATION_SPEED => WatchUi.loadResource(Rez.Strings.elevationSpeed),
-					DATAFIELD_TOTAL_ASCENT" => WatchUi.loadResource(Rez.Strings.totalAscent),
+//					DATAFIELD_ELEVATION_SPEED => WatchUi.loadResource(Rez.Strings.elevationSpeed),
+					DATAFIELD_TOTAL_ASCENT => WatchUi.loadResource(Rez.Strings.totalAscent),
 					DATAFIELD_TOTAL_DESCENT => WatchUi.loadResource(Rez.Strings.totalDescent),
 				},
 			},
 
+/*
 			"lapFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.lapFields),
 				:items => {
@@ -73,18 +74,29 @@ class FieldsMainMenu extends MyMenu{
 					"lapSpeed" => WatchUi.loadResource(Rez.Strings.speed),
 				},
 			},
+*/
 
 			"healthFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.healthFields),
 				:items => {
-					"heartRate" => WatchUi.loadResource(Rez.Strings.heartRate),
-					"avgHeartRate" => WatchUi.loadResource(Rez.Strings.avgHeartRate),
-					"maxHeartRate" => WatchUi.loadResource(Rez.Strings.maxHeartRate),
-					"oxygenSaturation" => WatchUi.loadResource(Rez.Strings.oxygenSaturation),
-					"energyRate" => WatchUi.loadResource(Rez.Strings.energyRate),
+					DATAFIELD_HEART_RATE => WatchUi.loadResource(Rez.Strings.heartRate),
+					DATAFIELD_AVG_HEARTRATE => WatchUi.loadResource(Rez.Strings.avgHeartRate),
+					DATAFIELD_MAX_HEARTRATE => WatchUi.loadResource(Rez.Strings.maxHeartRate),
+					DATAFIELD_OXYGEN_SATURATION => WatchUi.loadResource(Rez.Strings.oxygenSaturation),
+					DATAFIELD_ENERGY_RATE => WatchUi.loadResource(Rez.Strings.energyRate),
 				},
 			},
-			"systemFields" => {
+
+			"pressureFields" => {
+				:title => WatchUi.loadResource(Rez.Strings.pressureFields),
+				:items => {
+					DATAFIELD_PRESSURE => WatchUi.loadResource(Rez.Strings.airPressure),
+					DATAFIELD_SEALEVEL_PRESSURE => WatchUi.loadResource(Rez.Strings.seaLevelPressure),
+				},
+			},
+
+
+/*			"systemFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.systemFields),
 				:items => {
 					"clock" => WatchUi.loadResource(Rez.Strings.clock),

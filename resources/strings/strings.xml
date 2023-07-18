@@ -33,6 +33,8 @@
 	<string id="elevationSpeed">Stijg.Snlh</string>
 	<string id="batteryConsumption">Batt.Verbruik</string>
 	<string id="layoutTest">Layout Test</string>
+	<string id="airPressure">Luchtdruk</string>
+	<string id="seaLevelPressure">Druk NAP</string>
 	
 	<string id="memory">Geheugen</string>
 	<string id="battery">Batterij</string>
@@ -83,6 +85,7 @@
     <string id="timeFields">Tijd Velden</string>
     <string id="healthFields">Gezondheids Velden</string>
     <string id="altitudeFields">Hoogte Velden</string>
+    <string id="pressureFields">Luchtdruk Velden</string>
     <string id="lapFields">Ronde Velden</string>
 	<string id="breadcrumps">Spoor</string>
 	<string id="maxCount">Max Aantal</string>

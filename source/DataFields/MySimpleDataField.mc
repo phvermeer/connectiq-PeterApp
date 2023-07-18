@@ -81,12 +81,14 @@ class MySimpleDataField extends MyDataField{
         value.setColor(textColor);
     }
 
-    function setValue(value as Numeric|Null) as Void{
+    function setValue(value as Numeric|String|Null) as Void{
         var txt = (value instanceof Float || value instanceof Double)
             ? value.format("%.2f")
             : (value instanceof Number || value instanceof Long)
                 ? value.format("%i")
-                : "---";
+                : (value instanceof String)
+                    ? value
+                    : "---";
         if(!txt.equals(self.value.getText())){
             self.value.setText(txt);
             doUpdate = true;

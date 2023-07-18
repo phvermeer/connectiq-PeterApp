@@ -33,6 +33,8 @@ enum DataFieldId{
     DATAFIELD_BATTERY_CONSUMPTION = 27,
     DATAFIELD_LAYOUT_TEST = 28,
     DATAFIELD_FONT_TEST = 29,
+    DATAFIELD_PRESSURE = 30,
+    DATAFIELD_SEALEVEL_PRESSURE = 31,
 }
 
 enum XXX{
@@ -58,10 +60,26 @@ class FieldManager{
 
         // else create a new datafield
         var backgroundColor = $.getApp().settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
-        var field = 
-            (id == DATAFIELD_ELAPSED_DISTANCE)
-                ? new ElapsedDistanceField({ :backgroundColor => backgroundColor })
-                : new TestField({ :backgroundColor => backgroundColor });
+        var options = { :backgroundColor => backgroundColor };
+        var field
+            = (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ALTITUDE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_TOTAL_ASCENT) ?  new ActivityInfoField(id, options)
+            : (id == DATAFIELD_TOTAL_DESCENT) ?  new ActivityInfoField(id, options)
+            : (id == DATAFIELD_HEART_RATE) ?  new ActivityInfoField(id, options)
+            : (id == DATAFIELD_AVG_HEARTRATE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_MAX_HEARTRATE) ?  new ActivityInfoField(id, options)
+            : (id == DATAFIELD_OXYGEN_SATURATION) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ENERGY_RATE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_PRESSURE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new ActivityInfoField(id, options)
+            : new TestField(options);
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
