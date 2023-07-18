@@ -1,7 +1,9 @@
 import Toybox.Application;
+import Toybox.Communications;
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Timer;
+import Toybox.Attention;
 import MyViews;
 
 // interfaces for generic function support
@@ -28,17 +30,12 @@ class App extends Application.AppBase {
     function initialize() {
         AppBase.initialize();
 
-        settings = new Settings({
-            :onValueChange => method(:onSetting)
-        });
-
-        session = new Session({
-            :onStateChange => method(:onSessionState)
-        });
-
+        settings = new Settings({ :onValueChange => method(:onSetting) });
+        session = new Session({ :onStateChange => method(:onSessionState) });
         fieldManager = new FieldManager();
-
         timer = new Timer.Timer();
+
+        Communications.registerForPhoneAppMessages(method(:onPhone));
     }
 
     // onStart() is called on application start up
@@ -67,6 +64,20 @@ class App extends Application.AppBase {
     function onTimer() as Void{
         if(delegate != null && delegate has :onTimer){
             (delegate as TimerListener).onTimer();
+        }
+    }
+
+    function onPhone(msg as Communications.Message) as Void{
+        System.println("onPhone message received");
+
+        // receive track data
+        if(msg.data instanceof Array){
+            track = new Track(msg.data as Array);
+
+            // vibrate when track is received
+            if(Attention has :vibrate){
+                Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
+            }
         }
     }
 
