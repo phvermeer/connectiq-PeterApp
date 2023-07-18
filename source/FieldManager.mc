@@ -64,6 +64,9 @@ class FieldManager{
         var field
             = (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
+//            : (id == DATAFIELD_TRACK_MAP) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
+//            : (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)

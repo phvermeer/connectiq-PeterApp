@@ -27,17 +27,17 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_ELAPSED_TIME => WatchUi.loadResource(Rez.Strings.time),
 				},
 			},
-/*
+
 			"positioningFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.positioningFields),
 				:items => {
-					DATAFIELD_"trackMap" => WatchUi.loadResource(Rez.Strings.navigation),
-					DATAFIELD_"trackOverview" => WatchUi.loadResource(Rez.Strings.map),
-					DATAFIELD_"trackProfile" => WatchUi.loadResource(Rez.Strings.profile),
-					DATAFIELD_"compass" => WatchUi.loadResource(Rez.Strings.compass),
+//					DATAFIELD_"trackMap" => WatchUi.loadResource(Rez.Strings.navigation),
+					DATAFIELD_TRACK_OVERVIEW => WatchUi.loadResource(Rez.Strings.map),
+//					DATAFIELD_"trackProfile" => WatchUi.loadResource(Rez.Strings.profile),
+//					DATAFIELD_"compass" => WatchUi.loadResource(Rez.Strings.compass),
 				},
 			},
-*/	
+	
 			"speedFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.speedFields),
 				:items => {
