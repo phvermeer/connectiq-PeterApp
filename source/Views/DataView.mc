@@ -130,8 +130,6 @@ class DataView extends MyViews.MyView{
 
             if(edge.color != Graphics.COLOR_TRANSPARENT){
                 edge.draw(dc);
-//                dc.setColor(Graphics.COLOR_PINK, Graphics.COLOR_PURPLE);
-//                dc.fillRectangle(0, 0, 260, 260);
                 layer.setVisible(true);
             }else{
                 layer.setVisible(false);

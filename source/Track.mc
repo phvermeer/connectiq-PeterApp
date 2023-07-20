@@ -4,6 +4,10 @@ import Toybox.Position;
 
 typedef TrackPoint as Array<Float>; // [x, y, elapsedDistance]
 typedef TrackPoints as Array<TrackPoint>;
+typedef TrackListener as interface{
+	function setTrack(track as Track?) as Void;
+	function updateTrack() as Void;
+};
 
 class Track{
 	private enum SearchDirection{
@@ -17,11 +21,16 @@ class Track{
     var name as String;
     var distanceTotal as Float;
     var distanceElapsed as Float?;
+	var count as Number;
     var xValues as Array<Float>;
     var yValues as Array<Float>;
     var zValues as Array<Float>|Null;
     var xCurrent as Float?;
     var yCurrent as Float?;
+	var xMin as Float;
+	var xMax as Float;
+	var yMin as Float;
+	var yMax as Float;
     var xAligned as Float?;
     var yAligned as Float?;
     var latCenter as Float;
@@ -41,34 +50,43 @@ class Track{
 
         name = info[0] as String;
         distanceTotal = info[1] as Float;
-        var count = info[2] as Number;
+        count = info[2] as Number;
+		xMin = (info[3] * EARTH_RADIUS) as Float;
+		yMin = -(info[4] * EARTH_RADIUS) as Float;
+		xMax = (info[5] * EARTH_RADIUS) as Float;
+		yMax = -(info[6] * EARTH_RADIUS) as Float;
         latCenter = info[7] as Float;
         lonCenter = info[8] as Float;
 
         xValues = rawData[1] as Array<Float>;
         yValues = rawData[2] as Array<Float>;
+		for(var i=0; i<count; i++){
+			xValues[i] = xValues[i] * EARTH_RADIUS;
+			yValues[i] = -yValues[i] * EARTH_RADIUS;
+		}
         if(rawData.size()>=4){
             zValues = rawData[3] as Array<Float>;
         }
 
         distances = [] as Array<Float>;
         var distance = 0f;
-        if(count>=1){
-            var x = null;
-            var y = null;
-            var xPrev = xValues[0];
-            var yPrev = yValues[0];
-            distances.add(distance);
-    
-            for(var i=1; i<count; i++){
-                x = xValues[i];
-                y = yValues[i];
-                distance += pointDistance(xPrev, yPrev, x, y);
-                distances.add(distance);
-                xPrev = x;
-                yPrev = y;
-            }
-        }
+		if(count <= 0){
+			throw new MyTools.MyException("Track contains no points");
+		}
+		var x = null;
+		var y = null;
+		var xPrev = xValues[0];
+		var yPrev = yValues[0];
+		distances.add(distance);
+
+		for(var i=1; i<count; i++){
+			x = xValues[i];
+			y = yValues[i];
+			distance += pointDistance(xPrev, yPrev, x, y);
+			distances.add(distance);
+			xPrev = x;
+			yPrev = y;
+		}
 
         // correctionfactor calculated distance vs actual distance        
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;

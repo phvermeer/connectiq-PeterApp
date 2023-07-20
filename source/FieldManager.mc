@@ -37,13 +37,13 @@ enum DataFieldId{
     DATAFIELD_SEALEVEL_PRESSURE = 31,
 }
 
-enum XXX{
-    XXX_0,
-    XXX_1,
-}
-
 class FieldManager{
     hidden var fieldRefs as Dictionary<DataFieldId, WeakReference>;
+
+    typedef IMyDataField as interface{
+        function setBackgroundColor(color as ColorType) as Void;
+        function updateTrack() as Void;
+    };
 
     function initialize(){
         fieldRefs = {} as Dictionary<DataFieldId, WeakReference>;
@@ -59,8 +59,13 @@ class FieldManager{
         }
 
         // else create a new datafield
-        var backgroundColor = $.getApp().settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
+        var app = $.getApp();
+        var backgroundColor = app.settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
+
         var options = { :backgroundColor => backgroundColor };
+        if(app.track != null){
+            options.put(:track, app.track);
+        }
         var field
             = (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
@@ -99,16 +104,22 @@ class FieldManager{
     }
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void{
-        if(id == SETTING_BACKGROUND_COLOR){
-            var color = value as ColorType;
-            var refs = fieldRefs.values();
-            for(var i=0; i<refs.size(); i++){
-                var ref = refs[i];
-                if(ref != null){
-                    if(ref.stillAlive()){
-                        (ref.get() as MyDataField).setBackgroundColor(color);
+        var refs = fieldRefs.values();
+
+        for(var i=0; i<refs.size(); i++){
+            var ref = refs[i];
+            if(ref.stillAlive()){
+                var field = ref.get() as MyDataField;
+                if(id == SETTING_BACKGROUND_COLOR){
+                    field.setBackgroundColor(value as ColorType);
+                }else if(id == SETTING_TRACK){
+                    if((field as IMyDataField) has :updateTrack){
+                        (field as IMyDataField).updateTrack();
                     }
                 }
+            }else{
+                var key = fieldRefs.keys()[i] as DataFieldId;
+                fieldRefs.remove(key);
             }
         }
     }
