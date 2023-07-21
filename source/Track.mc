@@ -58,11 +58,14 @@ class Track{
         latCenter = info[7] as Float;
         lonCenter = info[8] as Float;
 
-        xValues = rawData[1] as Array<Float>;
-        yValues = rawData[2] as Array<Float>;
+		var xValuesRaw = rawData[1] as Array<Float>;
+		var yValuesRaw = rawData[2] as Array<Float>;
+
+        xValues = [] as Array<Float>;
+        yValues = [] as Array<Float>;
 		for(var i=0; i<count; i++){
-			xValues[i] = xValues[i] * EARTH_RADIUS;
-			yValues[i] = -yValues[i] * EARTH_RADIUS;
+			xValues.add((xValuesRaw[i] * EARTH_RADIUS) as Float);
+			yValues.add((yValuesRaw[i] * EARTH_RADIUS) as Float);
 		}
         if(rawData.size()>=4){
             zValues = rawData[3] as Array<Float>;
@@ -96,7 +99,7 @@ class Track{
 		if(quality >= Position.QUALITY_USABLE && lat != null && lon != null){
 			// update the currentIndex of the track
 			xCurrent = EARTH_RADIUS * (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
-			yCurrent = -EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+			yCurrent = EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
 		}
     }
 
