@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Application;
+import Toybox.Position;
 
 enum DataFieldId{
     DATAFIELD_TEST = 0,
@@ -43,6 +44,7 @@ class FieldManager{
     typedef IMyDataField as interface{
         function setBackgroundColor(color as ColorType) as Void;
         function updateTrack() as Void;
+        function onPosition(x as Float?, y as Float?, quality as Position.Quality) as Void;
     };
 
     function initialize(){
@@ -69,9 +71,9 @@ class FieldManager{
         var field
             = (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
-//            : (id == DATAFIELD_TRACK_MAP) ? new ActivityInfoField(id, options)
+            //: (id == DATAFIELD_TRACK_MAP) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
-//            : (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
+            //: (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
@@ -116,6 +118,22 @@ class FieldManager{
                     if((field as IMyDataField) has :updateTrack){
                         (field as IMyDataField).updateTrack();
                     }
+                }
+            }else{
+                var key = fieldRefs.keys()[i] as DataFieldId;
+                fieldRefs.remove(key);
+            }
+        }
+    }
+
+    function onPosition(x as Float?, y as Float?, quality as Position.Quality) as Void{
+        var refs = fieldRefs.values();
+        for(var i=0; i<refs.size(); i++){
+            var ref = refs[i];
+            if(ref.stillAlive()){
+                var field = ref.get() as MyDataField;
+                if((field as IMyDataField) has :onPosition){
+                    (field as IMyDataField).onPosition(x, y, quality);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;

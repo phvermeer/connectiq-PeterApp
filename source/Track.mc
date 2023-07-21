@@ -92,10 +92,12 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-    function onPosition(lat as Decimal, lon as Decimal) as Void{
-        // update the currentIndex of the track
-        xCurrent = (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
-        yCurrent = (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+    function onPosition(lat as Decimal?, lon as Decimal?, quality as Position.Quality) as Void{
+		if(quality >= Position.QUALITY_USABLE && lat != null && lon != null){
+			// update the currentIndex of the track
+			xCurrent = EARTH_RADIUS * (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
+			yCurrent = -EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+		}
     }
 
     hidden function searchNearestPoint(x as Float, y as Float) as Void{

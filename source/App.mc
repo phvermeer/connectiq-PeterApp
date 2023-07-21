@@ -4,6 +4,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Timer;
 import Toybox.Attention;
+import Toybox.Position;
 import MyViews;
 
 // interfaces for generic function support
@@ -46,10 +47,12 @@ class App extends Application.AppBase {
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
         timer.start(method(:onTimer), 1000, true);
+   	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
+        Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
         timer.stop();
     }
 
@@ -87,6 +90,22 @@ class App extends Application.AppBase {
 
             // save track data in storage
             settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
+        }
+    }
+
+    function onPosition(info as Position.Info) as Void{
+        if(self.track != null){
+            var pos = info.position;
+            var track = self.track as Track;
+            if(pos != null){
+                // Update Track
+                var latlon = pos.toRadians();
+                (track as Track).onPosition(latlon[0] as Double, latlon[1] as Double, info.accuracy);
+            }else{
+                (track as Track).onPosition(null, null, info.accuracy);
+            }
+            // Inform Datafields
+            fieldManager.onPosition(track.xCurrent, track.yCurrent, info.accuracy);
         }
     }
 
