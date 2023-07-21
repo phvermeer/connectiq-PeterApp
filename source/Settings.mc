@@ -9,7 +9,7 @@ enum SettingId{
     // global settings
     SETTING_SPORT = 0,
     SETTING_TRACK = 1,
-    SETTING_ZOOMLEVEL = 2,
+    SETTING_ZOOMFACTOR = 2,
     SETTING_GLOBAL_MAX = 2,
     // profile settings
     SETTING_BACKGROUND_COLOR = 3,
@@ -36,7 +36,7 @@ class Settings{
 	static const DEFAULT_VALUES = {
         SETTING_SPORT => Activity.SPORT_WALKING,
         SETTING_TRACK => null,
-        SETTING_ZOOMLEVEL => 1.0f,
+        SETTING_ZOOMFACTOR=> 1.0f,
         SETTING_BACKGROUND_COLOR => Graphics.COLOR_WHITE,
         SETTING_AUTOPAUSE => true,
         SETTING_AUTOLAP => false,
@@ -89,9 +89,9 @@ class Settings{
         if(value == null){
             // get default value
             value = DEFAULT_VALUES.get(id) as PropertyValueType?;
-            if(value == null){
-                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
-            }
+//            if(value == null){
+//                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
+//            }
             self.set(settingId, value);
         }
         return value;

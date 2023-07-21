@@ -27,6 +27,11 @@ class DataView extends MyViews.MyView{
     hidden var edge as Edge;
     hidden var layer as Layer;
 
+    typedef IMyDataField as interface{
+        // optional field functions
+        function onTap(clickEvent as ClickEvent) as Boolean;
+    };
+
     function initialize(options as {
         :layout as Layout,
         :fields as Array<MyDataField>
@@ -184,6 +189,26 @@ class DataView extends MyViews.MyView{
                     session.start();
             }
             return true;
+        }
+        return false;
+    }
+    
+    // event handler for screen touch
+    function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
+        // forward event to fields
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            var xy = clickEvent.getCoordinates();
+            if(
+                xy[0] >= field.locX && 
+                xy[0] <= field.locX + field.width && 
+                xy[1] >= field.locY && 
+                xy[1] <= field.locY + field.height
+            ){
+                if((field as IMyDataField) has :onTap){
+                    return (field as IMyDataField).onTap(clickEvent);
+                }
+            }            
         }
         return false;
     }

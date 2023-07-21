@@ -44,7 +44,8 @@ class FieldManager{
     typedef IMyDataField as interface{
         function setBackgroundColor(color as ColorType) as Void;
         function updateTrack() as Void;
-        function onPosition(x as Float?, y as Float?, quality as Position.Quality) as Void;
+        function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void;
+        function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
     function initialize(){
@@ -71,7 +72,7 @@ class FieldManager{
         var field
             = (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
-            //: (id == DATAFIELD_TRACK_MAP) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
             //: (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
@@ -118,6 +119,10 @@ class FieldManager{
                     if((field as IMyDataField) has :updateTrack){
                         (field as IMyDataField).updateTrack();
                     }
+                }else{
+                    if((field as IMyDataField) has :onSetting){
+                        (field as IMyDataField).onSetting(id, value);
+                    }
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;
@@ -126,14 +131,14 @@ class FieldManager{
         }
     }
 
-    function onPosition(x as Float?, y as Float?, quality as Position.Quality) as Void{
+    function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
         var refs = fieldRefs.values();
         for(var i=0; i<refs.size(); i++){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
                 if((field as IMyDataField) has :onPosition){
-                    (field as IMyDataField).onPosition(x, y, quality);
+                    (field as IMyDataField).onPosition(x, y, heading, quality);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;

@@ -21,6 +21,11 @@ class TrackOverviewField extends MyDataField{
         MyDataField.initialize(options);
         track = options.get(:track);
 
+        if(track != null){
+            xCurrent = track.xCurrent;
+            yCurrent = track.yCurrent;
+        }
+
         // update darkmode
         setBackgroundColor(backgroundColor);
     }
@@ -105,7 +110,6 @@ class TrackOverviewField extends MyDataField{
         hBitmap = dummy.height;
     }
 
-
     function updateTrack() as Void{
         var track = $.getApp().track;
         setTrack(track);
@@ -126,7 +130,6 @@ class TrackOverviewField extends MyDataField{
             }
         }
     }
-
 
     function drawTrack(bitmap as BufferedBitmap, track as Track, margin as Number) as Void{
         var dc = bitmap.getDc();
@@ -207,7 +210,7 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(x as Float?, y as Float?, quality as Position.Quality) as Void{
+    function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
         if(x != xCurrent || y != yCurrent){
             xCurrent = x;
             yCurrent = y;

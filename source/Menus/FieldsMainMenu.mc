@@ -31,7 +31,7 @@ class FieldsMainMenu extends MyMenu{
 			"positioningFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.positioningFields),
 				:items => {
-//					DATAFIELD_"trackMap" => WatchUi.loadResource(Rez.Strings.navigation),
+					DATAFIELD_TRACK_MAP => WatchUi.loadResource(Rez.Strings.navigation),
 					DATAFIELD_TRACK_OVERVIEW => WatchUi.loadResource(Rez.Strings.map),
 //					DATAFIELD_"trackProfile" => WatchUi.loadResource(Rez.Strings.profile),
 //					DATAFIELD_"compass" => WatchUi.loadResource(Rez.Strings.compass),

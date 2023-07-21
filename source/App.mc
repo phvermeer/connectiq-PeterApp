@@ -105,7 +105,7 @@ class App extends Application.AppBase {
                 (track as Track).onPosition(null, null, info.accuracy);
             }
             // Inform Datafields
-            fieldManager.onPosition(track.xCurrent, track.yCurrent, info.accuracy);
+            fieldManager.onPosition(track.xCurrent, track.yCurrent, info.heading, info.accuracy);
         }
     }
 
