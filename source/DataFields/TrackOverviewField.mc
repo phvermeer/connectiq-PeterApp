@@ -20,6 +20,9 @@ class TrackOverviewField extends MyDataField{
     }){
         MyDataField.initialize(options);
         track = options.get(:track);
+
+        // update darkmode
+        setBackgroundColor(backgroundColor);
     }
 
     function onLayout(dc as Dc){
@@ -144,7 +147,7 @@ class TrackOverviewField extends MyDataField{
     }
 
     function getTrackColor() as ColorType{
-        return darkMode ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE;
+        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
     }
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
@@ -182,7 +185,6 @@ class TrackOverviewField extends MyDataField{
         var rgb = MyTools.colorToRGB(backgroundColor);
         var intensity = Math.mean(rgb);
         darkMode = (intensity < 100);
-
 
         // update color palette of bitmap
         var trackColor = getTrackColor();
