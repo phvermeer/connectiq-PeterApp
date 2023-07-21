@@ -45,6 +45,7 @@ class TrackField extends MyDataField{
 
     function onLayout(dc as Dc){
         trackThickness = getTrackThickness(zoomFactor);
+        legend.updateSize(dc);
         
         // determine marker size
         var deviceSettings = System.getDeviceSettings();
@@ -63,7 +64,6 @@ class TrackField extends MyDataField{
             });
 
             // draw legend (scale indicator)
-            legend.updateSize(dc);
             helper.align(legend, MyLayoutHelper.ALIGN_BOTTOM);
         }
 

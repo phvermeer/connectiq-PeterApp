@@ -31,9 +31,9 @@ class App extends Application.AppBase {
     function initialize() {
         AppBase.initialize();
 
-        settings = new Settings({ :onValueChange => method(:onSetting) });
-        session = new Session({ :onStateChange => method(:onSessionState) });
         fieldManager = new FieldManager();
+        session = new Session({ :onStateChange => method(:onSessionState) });
+        settings = new Settings({ :onValueChange => method(:onSetting) });
         timer = new Timer.Timer();
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
