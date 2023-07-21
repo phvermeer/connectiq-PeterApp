@@ -65,7 +65,7 @@ class Track{
         yValues = [] as Array<Float>;
 		for(var i=0; i<count; i++){
 			xValues.add((xValuesRaw[i] * EARTH_RADIUS) as Float);
-			yValues.add((yValuesRaw[i] * EARTH_RADIUS) as Float);
+			yValues.add((yValuesRaw[i] * -EARTH_RADIUS) as Float);
 		}
         if(rawData.size()>=4){
             zValues = rawData[3] as Array<Float>;
