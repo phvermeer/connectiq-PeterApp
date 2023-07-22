@@ -3,8 +3,16 @@ import Toybox.Activity;
 import Toybox.Graphics;
 
 class ActivityInfoField extends MySimpleDataField{
+    enum FormatId {
+        FORMAT_NONE = -1,
+        FORMAT_SPEED = 0,
+        FORMAT_DISTANCE = 1,
+        FORMAT_TIME = 2,
+        FORMAT_PRESSURE = 3,
+    }
+
     hidden var fieldId as DataFieldId;
-    hidden var formatter as Null | Method(value as Numeric|Null) as Numeric|Null|String;
+    hidden var formatId as FormatId = FORMAT_NONE;
 
     function initialize(fieldId as DataFieldId, options as {
         :locX as Numeric,
@@ -42,35 +50,35 @@ class ActivityInfoField extends MySimpleDataField{
             fieldId == DATAFIELD_MAX_SPEED
         ){
             // speed
-            formatter = method(:formatSpeed);
+            formatId = FORMAT_SPEED;
         }else if(
             fieldId == DATAFIELD_ELAPSED_DISTANCE
         ){
             // distance
-            formatter = method(:formatDistance);
+            formatId = FORMAT_DISTANCE;
         }else if(
             fieldId == DATAFIELD_ELAPSED_TIME
         ){
             // time
-            formatter = method(:formatTime);
+            formatId = FORMAT_TIME;
         }else if(
             fieldId == DATAFIELD_PRESSURE ||
             fieldId == DATAFIELD_SEALEVEL_PRESSURE
         ){
             // time
-            formatter = method(:formatPressure);
+            formatId = FORMAT_PRESSURE;
         }
-
 
         options.put(:label, strLabel);
         MySimpleDataField.initialize(options);
+        onTimer();
     }
 
-    function onTimer(){
+    function onTimer() as Void{
         var info = Activity.getActivityInfo();
         if(info != null){
             var value
-                = (fieldId == DATAFIELD_ELAPSED_TIME) ? info.elapsedTime
+                = (fieldId == DATAFIELD_ELAPSED_TIME) ? info.timerTime
                 : (fieldId == DATAFIELD_CURRENT_SPEED) ? info.currentSpeed
                 : (fieldId == DATAFIELD_AVG_SPEED) ? info.averageSpeed
                 : (fieldId == DATAFIELD_MAX_SPEED) ? info.maxSpeed
@@ -87,39 +95,56 @@ class ActivityInfoField extends MySimpleDataField{
                 : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? info.meanSeaLevelPressure
                 : null;
 
-            if(formatter != null){
-                value = formatter.invoke(value);
-            }
-            setValue(value);
+            setValue(format(value, formatId));
         }else{
             setValue(null);
         }
     }
 
-    function formatSpeed(value as Numeric|Null) as Numeric|Null{
+    function format(value as Numeric|Null, formatId as FormatId) as Numeric|Null|String{
+        var formatters = [
+            :formatSpeed,
+            :formatDistance,
+            :formatTime,
+            :formatPressure,
+        ];
+        if(formatId>0 && formatId < formatters.size()){
+            var formatter = method(formatters[formatId as Number] as Symbol) as (Method(value as Numeric|Null) as Numeric|Null|String);
+            return formatter.invoke(value);
+        }else{
+            return value;
+        }
+    }
+
+    static function formatSpeed(value as Numeric|Null) as Numeric|Null{
         if(value != null){
             value *= 3.6f;
         }
         return value;
     }
 
-    function formatDistance(value as Numeric|Null) as Numeric|Null{
+    static function formatDistance(value as Numeric|Null) as Numeric|Null{
         if(value != null){
             value /= 1000;
         }
         return value;
     }
 
-    function formatTime(value as Numeric|Null) as String|Null{
+    static function formatTime(value as Numeric|Null) as String|Null{
         if(value != null){
-            var minutes = (value / 60000).toNumber(); // msec => minutes
+            var seconds = (value / 1000).toNumber(); // msec => seconds
+            var minutes = (seconds / 60).toNumber(); // seconds => minutes
             var hours = (minutes / 60).toNumber(); // minutes => hours
-            value = Lang.format("$1$:$2$", [hours, (minutes % 60).format("%02d")]);
+            if(hours == 0){
+                value = Lang.format("$1$:$2$", [(minutes % 60).format("%02d"), (seconds % 60).format("%02d")]);
+            }else{
+                value = Lang.format("$1$:$2$", [hours, (minutes % 60).format("%02d")]);
+            }
         }
         return value;
     }
 
-    function formatPressure(value as Numeric|Null) as Numeric|Null{
+    static function formatPressure(value as Numeric|Null) as Numeric|Null{
         // Pa => mBar
         if(value != null){
             value = (value / 100).toNumber();
