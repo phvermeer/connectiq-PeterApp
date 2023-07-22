@@ -30,7 +30,6 @@ class DataView extends MyViews.MyView{
     hidden var layout as Layout;
     hidden var fields as Array<MyDataField>;
     hidden var edge as Edge;
-    hidden var layer as Layer;
 
     typedef IMyDataField as interface{
         // optional field functions
@@ -48,14 +47,8 @@ class DataView extends MyViews.MyView{
 
         edge = new MyDrawables.Edge({
             :position => MyDrawables.EDGE_ALL,
+            :color => Graphics.COLOR_TRANSPARENT,
         });
-        layer = new WatchUi.Layer({
-            :locX => 0,
-            :locY => 0,
-            :width => edge.width.toNumber(),
-            :height => edge.height.toNumber(),
-        });
-        self.addLayer(layer);
     }
 
     // event handler when view becomes visible
@@ -92,6 +85,11 @@ class DataView extends MyViews.MyView{
             }finally{
                 dc.clearClip();
             }
+        }
+
+        // draw edge
+        if(edge.color != Graphics.COLOR_TRANSPARENT){
+            edge.draw(dc);
         }
     }
 
@@ -141,29 +139,18 @@ class DataView extends MyViews.MyView{
     function onSessionState(state as SessionState) as Void{
 
         System.println("Session state changed to " + state.toString());
-        var dc = layer.getDc();
-        if(dc != null){
-            switch(state){
-            case SESSION_STATE_STOPPED:
-                edge.color = Graphics.COLOR_RED;
-                break;
-            case SESSION_STATE_PAUSED:
-                edge.color = Graphics.COLOR_YELLOW;
-                break;
-            default:
-                edge.color = Graphics.COLOR_TRANSPARENT;
-                break;
-            }
-
-            if(edge.color != Graphics.COLOR_TRANSPARENT){
-                edge.draw(dc);
-                layer.setVisible(true);
-            }else{
-                layer.setVisible(false);
-            }
-
-            WatchUi.requestUpdate();
+        switch(state){
+        case SESSION_STATE_STOPPED:
+            edge.color = Graphics.COLOR_RED;
+            break;
+        case SESSION_STATE_PAUSED:
+            edge.color = Graphics.COLOR_YELLOW;
+            break;
+        default:
+            edge.color = Graphics.COLOR_TRANSPARENT;
+            break;
         }
+        WatchUi.requestUpdate();
     }
 
     function isUpToDate() as Boolean{
