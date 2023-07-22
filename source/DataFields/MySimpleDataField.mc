@@ -21,8 +21,6 @@ class MySimpleDataField extends MyDataField{
         label = new MyDrawables.MyText({ :text => lbl });
         value = new MyDrawables.MyText({ :text => "---" });
         setBackgroundColor(self.backgroundColor);
-
-        onTimer();
     }
 
     function onLayout(dc) as Void{

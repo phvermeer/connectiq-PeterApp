@@ -162,9 +162,7 @@ class DataView extends MyViews.MyView{
         // update fields
         for(var i=0; i<fields.size(); i++){
             var field = fields[i];
-            if(field has :onTimer){
-                (field as TimerListener).onTimer();
-            }
+            field.onTimer();
         }
         if(isVisible()){
             if(!isUpToDate()){
