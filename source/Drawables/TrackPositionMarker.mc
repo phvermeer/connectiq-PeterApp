@@ -12,11 +12,16 @@ class TrackPositionMarker extends WatchUi.Drawable{
 	hidden var colorEdge as ColorType = Graphics.COLOR_WHITE;
 
 	function initialize(options as {
-		:heading as Lang.Float or Null,
-		:locX as Lang.Number,
-		:locY as Lang.Number,
+		:heading as Float or Null,
+		:locX as Number,
+		:locY as Number,
+		:darkMode as Boolean,
 	}){
 		Drawable.initialize(options);
+
+		if(options.hasKey(:darkMode)){
+			setDarkMode(options.get(:darkMode) as Boolean);
+		}
 		
 		if(options.hasKey(:heading)){
 			setHeading(options.get(:heading) as Float?);

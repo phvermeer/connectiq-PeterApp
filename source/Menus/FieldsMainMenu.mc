@@ -51,7 +51,7 @@ class FieldsMainMenu extends MyMenu{
 				:title => WatchUi.loadResource(Rez.Strings.distanceFields),
 				:items => {
 					DATAFIELD_ELAPSED_DISTANCE => WatchUi.loadResource(Rez.Strings.distance),
-//					DATAFIELD_"remainingDistance" => WatchUi.loadResource(Rez.Strings.remainingDistance),
+					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
 				},
 			},
 

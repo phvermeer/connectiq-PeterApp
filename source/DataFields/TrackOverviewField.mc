@@ -12,7 +12,6 @@ class TrackOverviewField extends MyDataField{
 
     hidden var zoomFactor as Float = 0.1f;
     hidden var markerSize as Number = 0;
-    hidden var darkMode as Boolean = false;
     hidden var xCurrent as Float?;
     hidden var yCurrent as Float?;
 
@@ -201,9 +200,6 @@ class TrackOverviewField extends MyDataField{
 
     function setBackgroundColor(color as ColorType) as Void{
         MyDataField.setBackgroundColor(color);
-        var rgb = MyTools.colorToRGB(backgroundColor);
-        var intensity = Math.mean(rgb);
-        darkMode = (intensity < 100);
 
         // update color palette of bitmap
         var trackColor = getTrackColor();

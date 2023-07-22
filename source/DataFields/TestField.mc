@@ -18,7 +18,7 @@ class TestField extends MyDataField{
 
         label = new MyText({
             :text => "TEST",
-            :color => getTextColor(backgroundColor),
+            :color => getTextColor(),
         });
     }
     function onLayout(dc){
@@ -50,12 +50,9 @@ class TestField extends MyDataField{
 
     function setBackgroundColor(color as ColorType) as Void{
         MyDataField.setBackgroundColor(color);
-        var textColor = getTextColor(color);
-        label.setColor(textColor);
+        label.setColor(getTextColor());
     }
-    hidden function getTextColor(backgroundColor as ColorType) as ColorType{
-        var rgb = MyTools.colorToRGB(backgroundColor);
-        var intensity = Math.mean(rgb);
-        return (intensity > 100) ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE;
+    hidden function getTextColor() as ColorType{
+        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
     }
 }

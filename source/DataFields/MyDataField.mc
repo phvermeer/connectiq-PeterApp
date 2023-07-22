@@ -7,6 +7,7 @@ class MyDataField extends WatchUi.Drawable{
     hidden var doUpdate as Boolean = true;
     hidden var backgroundColor as ColorType;
     hidden var previousLayout as Array<Numeric>?;
+    hidden var darkMode as Boolean;
 
     function initialize(options as {
         :locX as Numeric,
@@ -18,6 +19,7 @@ class MyDataField extends WatchUi.Drawable{
         Drawable.initialize(options);
         var color = options.get(:backgroundColor);
         backgroundColor = (color != null) ? color : Graphics.COLOR_WHITE;
+        darkMode = getDarkMode(backgroundColor);
     }
 
     function draw(dc as Dc) as Void{
@@ -71,8 +73,18 @@ class MyDataField extends WatchUi.Drawable{
     function setBackgroundColor(color as Graphics.ColorType) as Void{
         backgroundColor = color;
         doUpdate = true;
+
+        // update darkmode status
+        darkMode = getDarkMode(color);
     }
-    function getBackgroundColor() as Graphics.ColorType{
+
+    private function getDarkMode(backgroundColor as ColorType) as Boolean{
+        var rgb = MyTools.colorToRGB(backgroundColor);
+        var intensity = Math.mean(rgb);
+        return (intensity < 100);
+    }
+
+    function getBackgroundColor() as ColorType{
         return backgroundColor;
     }
 

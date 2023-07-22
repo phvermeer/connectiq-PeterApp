@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Position;
+import Toybox.Attention;
 
 typedef TrackPoint as Array<Float>; // [x, y, elapsedDistance]
 typedef TrackPoints as Array<TrackPoint>;
@@ -39,7 +40,7 @@ class Track{
     hidden var distanceCorrectionFactor as Float;
     hidden var nearestPointIndex as Float?;
     hidden var onTrack as Boolean = false;
-    hidden var distanceOffTrack as Float?;
+    var distanceOffTrack as Float?;
 
 
     function initialize(rawData as Array){
@@ -95,11 +96,15 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-    function onPosition(lat as Decimal?, lon as Decimal?, quality as Position.Quality) as Void{
+	function onPosition(lat as Decimal?, lon as Decimal?, quality as Position.Quality) as Void{
 		if(quality >= Position.QUALITY_USABLE && lat != null && lon != null){
 			// update the currentIndex of the track
 			xCurrent = EARTH_RADIUS * (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
 			yCurrent = -EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+
+			if(xCurrent != null && yCurrent != null){
+				searchNearestPoint(xCurrent, yCurrent);
+			}
 		}
     }
 
@@ -187,7 +192,7 @@ class Track{
 			}
 		}
 
-		self.onTrack = onTrack;
+		setOnTrack(onTrack);
 		self.distanceOffTrack = foundDistance;
 
 		if(onTrack){
@@ -224,5 +229,18 @@ class Track{
 	}
 	hidden function pointDistanceSquared(x1 as Float, y1 as Float, x2 as Float, y2 as Float) as Float{
 		return (MyMath.sqr(x2-x1) + MyMath.sqr(y2-y1)) as Float;
+	}
+
+	function isOnTrack() as Boolean{
+		return onTrack;
+	}
+	hidden function setOnTrack(value as Boolean) as Void{
+		if(onTrack && !value){
+			// Send warning for moving from the track
+			if(Attention has :vibrate){
+				Attention.vibrate([new VibeProfile(50, 2000)] as Array<VibeProfile>);
+			}
+		}
+		onTrack = value;
 	}
 }

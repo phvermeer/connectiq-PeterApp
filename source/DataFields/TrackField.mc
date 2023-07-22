@@ -7,7 +7,6 @@ import MyLayoutHelper;
 
 class TrackField extends MyDataField{
     hidden var track as Track?;
-    hidden var darkMode as Boolean = false;
     hidden var xCurrent as Float?;
     hidden var yCurrent as Float?;
     hidden var legend as TrackScaleLegend;
@@ -32,10 +31,9 @@ class TrackField extends MyDataField{
             :zoomFactor => zoomFactor,
             :font => Graphics.FONT_XTINY,
         });
-        positionMarker = new TrackPositionMarker({});
-
-        // update darkmode
-        setBackgroundColor(backgroundColor);
+        positionMarker = new TrackPositionMarker({
+            darkMode => darkMode,
+        });
     }
 
     function updateTrack() as Void{
@@ -193,9 +191,6 @@ class TrackField extends MyDataField{
 
     function setBackgroundColor(color as Graphics.ColorType) as Void{
         MyDataField.setBackgroundColor(color);
-        var rgb = MyTools.colorToRGB(backgroundColor);
-        var intensity = Math.mean(rgb);
-        darkMode = (intensity < 100);
         positionMarker.setDarkMode(darkMode);
     }
 }
