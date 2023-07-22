@@ -32,7 +32,7 @@ class TrackField extends MyDataField{
             :font => Graphics.FONT_XTINY,
         });
         positionMarker = new TrackPositionMarker({
-            darkMode => darkMode,
+            :darkMode => darkMode,
         });
     }
 
@@ -137,11 +137,16 @@ class TrackField extends MyDataField{
         }else if(x >= locX + width - area){
             // zoom in
             settings.set(SETTING_ZOOMFACTOR, zoomFactor * 1.3);
+        }else{
+            return false;
         }
         return true;
     }
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void{
+        // internal background updates
+        MyDataField.onSetting(id, value);
+
         if(id == SETTING_ZOOMFACTOR){
             // update zoomfactor
             setZoomFactor(value as Float);
