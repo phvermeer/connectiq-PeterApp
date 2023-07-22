@@ -99,7 +99,7 @@ class Track{
 		if(quality >= Position.QUALITY_USABLE && lat != null && lon != null){
 			// update the currentIndex of the track
 			xCurrent = EARTH_RADIUS * (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
-			yCurrent = EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+			yCurrent = -EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
 		}
     }
 
