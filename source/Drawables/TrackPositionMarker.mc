@@ -45,6 +45,8 @@ class TrackPositionMarker extends WatchUi.Drawable{
 			// Draw no direction marker
 			dc.setColor(colorFill, Graphics.COLOR_TRANSPARENT);
 			dc.fillCircle(locX, locY, radius*0.5);
+			dc.setColor(colorEdge, Graphics.COLOR_TRANSPARENT);
+			dc.drawCircle(locX, locY, radius*0.5);
 		}else{
 			var h = heading as Float;
 			// heading:
