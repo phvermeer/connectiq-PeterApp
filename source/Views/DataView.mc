@@ -123,6 +123,13 @@ class DataView extends MyViews.MyView{
     function setFields(fields as Array<MyDataField>) as Void{
         self.fields = fields;
         updateFieldsLayout();
+
+        // Notify fields
+        if(isVisible()){
+            for(var i=0; i<fields.size(); i++){
+                fields[i].onShow();
+            }
+        }
     }
 
     // getter for DataFields
@@ -289,11 +296,18 @@ class DataView extends MyViews.MyView{
             h = height - y;
             data.add([0, y, width, h]);
         }else if(id == LAYOUT_CUSTOM2){
+            // full screen
             data.add([0, 0, width, height]);
+            // top
             var h = 0.20 * height - 0.5 * margin;
             data.add([0, 0, width, h]);
-            var y = height - h;
-            data.add([0, y, width, h]);
+            // left
+            var y = h + 2*margin;
+            var w = 0.4 * (width - margin);
+            data.add([0, y, w, h]);
+            // right
+            var x = width - w;
+            data.add([x, y, w, h]);
         }else{
             var w2 = 0.5 * width;
             var h2 = 0.5 * height;

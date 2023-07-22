@@ -108,9 +108,10 @@ class FieldsMainMenu extends MyMenu{
 			},
 */			
 			"testFields" => {
-				:title => "Tests",
+				:title => WatchUi.loadResource(Rez.Strings.test),
 				:items => {
-					DATAFIELD_TEST => "Test",
+					DATAFIELD_TEST => WatchUi.loadResource(Rez.Strings.test),
+					DATAFIELD_EMPTY => WatchUi.loadResource(Rez.Strings.empty),
 				},
 			},
 		};

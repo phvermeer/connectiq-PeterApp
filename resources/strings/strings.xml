@@ -45,6 +45,8 @@
 	<string id="remainingDistance">Rest.Afstand</string>
 	<string id="compass">Kompas</string>
 	<string id="clock">Klok</string>
+	<string id="empty">Leeg</string>
+	<string id="test">Test</string>
 
 	<!-- actions -->
 	<string id="add">Toevoegen</string>

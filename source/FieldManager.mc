@@ -36,6 +36,7 @@ enum DataFieldId{
     DATAFIELD_FONT_TEST = 29,
     DATAFIELD_PRESSURE = 30,
     DATAFIELD_SEALEVEL_PRESSURE = 31,
+    DATAFIELD_EMPTY = 32,
 }
 
 class FieldManager{
@@ -69,7 +70,8 @@ class FieldManager{
             options.put(:track, app.track);
         }
         var field
-            = (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
+            = (id == DATAFIELD_TEST) ? new TestField(options)
+            : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
             //: (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
@@ -89,7 +91,8 @@ class FieldManager{
             : (id == DATAFIELD_ENERGY_RATE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_PRESSURE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new ActivityInfoField(id, options)
-            : new TestField(options);
+            : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
+            : new EmptyField(options);
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
