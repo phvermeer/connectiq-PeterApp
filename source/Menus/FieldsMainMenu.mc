@@ -95,18 +95,17 @@ class FieldsMainMenu extends MyMenu{
 				},
 			},
 
-
-/*			"systemFields" => {
+			"systemFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.systemFields),
 				:items => {
-					"clock" => WatchUi.loadResource(Rez.Strings.clock),
-					"memory" => WatchUi.loadResource(Rez.Strings.memory),
-					"battery" => WatchUi.loadResource(Rez.Strings.battery),
-					"counter" => WatchUi.loadResource(Rez.Strings.counter),
-					"batteryConsumption" => WatchUi.loadResource(Rez.Strings.batteryConsumption),
+					DATAFIELD_CLOCK => WatchUi.loadResource(Rez.Strings.clock),
+					DATAFIELD_MEMORY => WatchUi.loadResource(Rez.Strings.memory),
+					DATAFIELD_BATTERY => WatchUi.loadResource(Rez.Strings.battery),
+//					"counter" => WatchUi.loadResource(Rez.Strings.counter),
+//					"batteryConsumption" => WatchUi.loadResource(Rez.Strings.batteryConsumption),
 				},
 			},
-*/			
+
 			"testFields" => {
 				:title => WatchUi.loadResource(Rez.Strings.test),
 				:items => {

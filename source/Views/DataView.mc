@@ -303,7 +303,7 @@ class DataView extends MyViews.MyView{
             data.add([0, 0, width, h]);
             // left
             var y = h + 2*margin;
-            var w = 0.4 * (width - margin);
+            var w = 0.5 * (width - margin);
             data.add([0, y, w, h]);
             // right
             var x = width - w;

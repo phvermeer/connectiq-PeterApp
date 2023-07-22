@@ -81,7 +81,7 @@ class FieldManager{
             : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_REMAINING_DISTANCE) ? new TrackInfoField(id, options)
             : (id == DATAFIELD_ALTITUDE) ? new ActivityInfoField(id, options)
-            : (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
+            //: (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_ASCENT) ?  new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_DESCENT) ?  new ActivityInfoField(id, options)
             : (id == DATAFIELD_HEART_RATE) ?  new ActivityInfoField(id, options)
@@ -91,6 +91,9 @@ class FieldManager{
             : (id == DATAFIELD_ENERGY_RATE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_PRESSURE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_CLOCK) ? new SystemInfoField(id, options)
+            : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
+            : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
             : new EmptyField(options);
 

@@ -47,7 +47,7 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 			if(i < fieldIdsInitial.size()){
 				fieldIds.add(fieldIdsInitial[i]);
 			}else{
-				fieldIds.add(DATAFIELD_TEST);
+				fieldIds.add(DATAFIELD_EMPTY);
 			}
 		}
 

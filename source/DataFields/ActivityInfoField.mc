@@ -9,6 +9,8 @@ class ActivityInfoField extends MySimpleDataField{
         FORMAT_DISTANCE = 1,
         FORMAT_TIME = 2,
         FORMAT_PRESSURE = 3,
+        FORMAT_ALTITUDE = 4,
+        FORMAT_PERCENTAGE = 5,
     }
 
     hidden var fieldId as DataFieldId;
@@ -31,7 +33,6 @@ class ActivityInfoField extends MySimpleDataField{
             : (fieldId == DATAFIELD_MAX_SPEED) ? WatchUi.loadResource(Rez.Strings.maxSpeed)
             : (fieldId == DATAFIELD_ELAPSED_DISTANCE) ? WatchUi.loadResource(Rez.Strings.distance)
             : (fieldId == DATAFIELD_ALTITUDE) ? WatchUi.loadResource(Rez.Strings.altitude)
-            : (fieldId == DATAFIELD_ELEVATION_SPEED) ? WatchUi.loadResource(Rez.Strings.elevationSpeed)
             : (fieldId == DATAFIELD_TOTAL_ASCENT) ? WatchUi.loadResource(Rez.Strings.totalAscent)
             : (fieldId == DATAFIELD_TOTAL_DESCENT) ? WatchUi.loadResource(Rez.Strings.totalDescent)
             : (fieldId == DATAFIELD_HEART_RATE) ? WatchUi.loadResource(Rez.Strings.heartRate)
@@ -45,28 +46,40 @@ class ActivityInfoField extends MySimpleDataField{
 
         // determin the formatter
         if(
+            // speed
             fieldId == DATAFIELD_CURRENT_SPEED ||
             fieldId == DATAFIELD_AVG_SPEED ||
             fieldId == DATAFIELD_MAX_SPEED
         ){
-            // speed
             formatId = FORMAT_SPEED;
         }else if(
+            // distance
             fieldId == DATAFIELD_ELAPSED_DISTANCE
         ){
-            // distance
             formatId = FORMAT_DISTANCE;
         }else if(
+            // time
             fieldId == DATAFIELD_ELAPSED_TIME
         ){
-            // time
             formatId = FORMAT_TIME;
         }else if(
+            // pressure
             fieldId == DATAFIELD_PRESSURE ||
             fieldId == DATAFIELD_SEALEVEL_PRESSURE
         ){
-            // time
             formatId = FORMAT_PRESSURE;
+        }else if(
+            // altitude
+            fieldId == DATAFIELD_ALTITUDE ||
+            fieldId == DATAFIELD_TOTAL_ASCENT ||
+            fieldId == DATAFIELD_TOTAL_DESCENT
+        ){
+            formatId = FORMAT_ALTITUDE;
+        }else if(
+            // percentage
+            fieldId == DATAFIELD_OXYGEN_SATURATION
+        ){
+            formatId = FORMAT_PERCENTAGE;
         }
 
         options.put(:label, strLabel);
@@ -107,6 +120,8 @@ class ActivityInfoField extends MySimpleDataField{
             :formatDistance,
             :formatTime,
             :formatPressure,
+            :formatAltitude,
+            :formatPercentage,
         ];
         if(formatId>0 && formatId < formatters.size()){
             var formatter = method(formatters[formatId as Number] as Symbol) as (Method(value as Numeric|Null) as Numeric|Null|String);
@@ -144,10 +159,26 @@ class ActivityInfoField extends MySimpleDataField{
         return value;
     }
 
-    static function formatPressure(value as Numeric|Null) as Numeric|Null{
+    static function formatPressure(value as Numeric|Null) as Number|Null{
         // Pa => mBar
         if(value != null){
             value = (value / 100).toNumber();
+        }
+        return value;
+    }
+
+    static function formatAltitude(value as Numeric|Null) as Number|Null{
+        // m (no digits)
+        if(value != null){
+            value = value.toNumber();
+        }
+        return value;
+    }
+
+    static function formatPercentage(value as Numeric|Null) as String|Null{
+        // xxx %
+        if(value != null){
+            value = Lang.format("$1$ %", [Math.round(value).format("%d")]);
         }
         return value;
     }
