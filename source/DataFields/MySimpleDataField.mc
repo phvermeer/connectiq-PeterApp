@@ -60,7 +60,7 @@ class MySimpleDataField extends MyDataField{
 
         // update the aspect ratio of current value text
         value.updateDimensions(dc);
-        helper.resizeToMax(value, true);
+        helper.resizeToMax(value, true, 0);
     }
 
     function onUpdate(dc){
