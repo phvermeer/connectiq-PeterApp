@@ -109,7 +109,7 @@ class FieldManager{
     function onSetting(id as SettingId, value as PropertyValueType) as Void{
         var refs = fieldRefs.values();
 
-        for(var i=0; i<refs.size(); i++){
+        for(var i=refs.size()-1; i>=0; i--){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
@@ -133,7 +133,7 @@ class FieldManager{
 
     function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
         var refs = fieldRefs.values();
-        for(var i=0; i<refs.size(); i++){
+        for(var i=refs.size()-1; i>=0; i--){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
