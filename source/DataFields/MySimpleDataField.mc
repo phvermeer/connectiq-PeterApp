@@ -29,12 +29,19 @@ class MySimpleDataField extends MyDataField{
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
-            :yMax => height,
+            :yMax => locY + height,
         });
+
+        var ds = System.getDeviceSettings();
+        if((height / ds.screenHeight) < 0.22){
+            label.setVisible(false);
+        }else{
+            label.setVisible(true);
+        }
 
         // determine the font sizes
         var surface = width * height;
-        var surfaceMax = dc.getWidth() * dc.getHeight();
+        var surfaceMax = ds.screenWidth * ds.screenHeight;
         var ratio = surface / surfaceMax;
         if(ratio < 0.2){
             label.setFont(Graphics.FONT_XTINY);
@@ -50,11 +57,13 @@ class MySimpleDataField extends MyDataField{
             value.setFont(Graphics.FONT_NUMBER_THAI_HOT);
         }
 
-        label.updateDimensions(dc);
-        helper.align(label, MyLayoutHelper.ALIGN_TOP);
+        if(label.isVisible){
+            label.updateDimensions(dc);
+            helper.align(label, MyLayoutHelper.ALIGN_TOP);
 
-        // align value centered in the remaining area
-        helper.setLimits(locX, locX + width, label.locY + label.height, locY + height);
+            // align value centered in the remaining area
+            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height);
+        }
 
         // update the aspect ratio of current value text
         value.updateDimensions(dc);

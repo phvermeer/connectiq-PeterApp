@@ -14,11 +14,16 @@ enum LayoutId {
 	LAYOUT_FOUR_FIELDS = 3,
 	LAYOUT_SIX_FIELDS = 4,
 	LAYOUT_CUSTOM1 = 5,
-	LAYOUT_MAX = 5,
+	LAYOUT_CUSTOM2 = 6,
+	LAYOUT_MAX = 6,
 }
 
 typedef Layout as Array< Array<Number> >;
-// array of [x, y, width, height]
+//  array of [
+//      [x, y, width, height]   (field 1)
+//      ...
+//      [x, y, width, height]   (field n)
+//  ]
 
 class DataView extends MyViews.MyView{
     hidden var upToDate as Boolean = false;
@@ -65,18 +70,28 @@ class DataView extends MyViews.MyView{
 
     // event handler for graphical update request
     function onUpdate(dc as Dc) as Void{
-        if(!upToDate){
+        upToDate = true;
+        var overlay = hasFieldOverlay();
+        if(!overlay){
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLUE);
             dc.clear();
         }
-        upToDate = true;
 
         var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             var field = fields[i];
             var fieldLayout = layout[i];
             updateFieldLayout(field, fieldLayout);
-            field.draw(dc);
+            dc.setClip(field.locX, field.locY, field.width, field.height);
+            try{
+                if(i==0 || !overlay){
+                    dc.setColor(Graphics.COLOR_LT_GRAY, field.getBackgroundColor());
+                    dc.clear();
+                }
+                field.draw(dc);
+            }finally{
+                dc.clearClip();
+            }
         }
     }
 
@@ -273,11 +288,28 @@ class DataView extends MyViews.MyView{
             y += h1 + margin;
             h = height - y;
             data.add([0, y, width, h]);
+        }else if(id == LAYOUT_CUSTOM2){
+            data.add([0, 0, width, height]);
+            var h = 0.20 * height - 0.5 * margin;
+            data.add([0, 0, width, h]);
+            var y = height - h;
+            data.add([0, y, width, h]);
         }else{
             var w2 = 0.5 * width;
             var h2 = 0.5 * height;
             data.add([w2/2, h2/2, w2, h2]);
         }
         return data as Layout;            
+    }
+
+    function hasFieldOverlay() as Boolean{
+        // more then one fields
+        if(layout.size()>1){
+            // first field is full screen
+            var ds = System.getDeviceSettings();
+            return (layout[0][2] >= ds.screenWidth && layout[0][3] >= ds.screenHeight);
+        }else{
+            return false;
+        }
     }
 }

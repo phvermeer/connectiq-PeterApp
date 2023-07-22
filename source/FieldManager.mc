@@ -42,7 +42,6 @@ class FieldManager{
     hidden var fieldRefs as Dictionary<DataFieldId, WeakReference>;
 
     typedef IMyDataField as interface{
-        function setBackgroundColor(color as ColorType) as Void;
         function updateTrack() as Void;
         function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void;
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
@@ -113,9 +112,7 @@ class FieldManager{
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
-                if(id == SETTING_BACKGROUND_COLOR){
-                    field.setBackgroundColor(value as ColorType);
-                }else if(id == SETTING_TRACK){
+                if(id == SETTING_TRACK){
                     if((field as IMyDataField) has :updateTrack){
                         (field as IMyDataField).updateTrack();
                     }

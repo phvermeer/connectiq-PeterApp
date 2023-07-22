@@ -1,6 +1,7 @@
 import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.Application;
 
 class MyDataField extends WatchUi.Drawable{
     hidden var doUpdate as Boolean = true;
@@ -37,20 +38,14 @@ class MyDataField extends WatchUi.Drawable{
         }
 
         // call onLayout and onUpdate methods
-        dc.setClip(locX, locY, width, height);
-        dc.setColor(Graphics.COLOR_LT_GRAY, backgroundColor);
-        try{
-            if(doLayout){
-                onLayout(dc);
-            }
-            previousLayout = layout;
-
-            // alway update when called
-            onUpdate(dc);
-            doUpdate = false;
-        }finally{
-            dc.clearClip();
+        if(doLayout){
+            onLayout(dc);
         }
+        previousLayout = layout;
+
+        // alway update when called
+        onUpdate(dc);
+        doUpdate = false;
     }
 
     function onShow() as Void{
@@ -76,5 +71,14 @@ class MyDataField extends WatchUi.Drawable{
     function setBackgroundColor(color as Graphics.ColorType) as Void{
         backgroundColor = color;
         doUpdate = true;
+    }
+    function getBackgroundColor() as Graphics.ColorType{
+        return backgroundColor;
+    }
+
+    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+        if(id == SETTING_BACKGROUND_COLOR){
+            setBackgroundColor(value as ColorType);
+        }
     }
 }
