@@ -121,6 +121,7 @@ class TrackField extends MyDataField{
             zoomFactor = value;
             trackThickness = getTrackThickness(zoomFactor);
             legend.setZoomFactor(zoomFactor);
+            doUpdate = true;
             WatchUi.requestUpdate();
         }
     }
