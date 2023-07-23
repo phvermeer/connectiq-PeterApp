@@ -234,14 +234,14 @@ class DataView extends MyViews.MyView{
             var h = (height-margin) / 2;
             data.add([0, 0, width, h]);
             var y = h + margin;
-            data.add([0, y, width, h]);
+            data.add([0, y, width, height-y]);
         }else if(id == LAYOUT_THREE_FIELDS){
             var h = (height-2*margin) / 3;
             data.add([0, 0, width, h]);
             var y = h + margin;
             data.add([0, y, width, h]);
             y += h + margin;
-            data.add([0, y, width, h]);
+            data.add([0, y, width, height-y]);
         }else if(id == LAYOUT_FOUR_FIELDS){
             var h = (height-2*margin) / 3.0;
             var w = (width-margin) / 2.0;
@@ -251,7 +251,7 @@ class DataView extends MyViews.MyView{
             var x = w + margin;
             data.add([x, y, w, h]);
             y += h + margin;
-            data.add([0, y, width, h]);
+            data.add([0, y, width, height-h]);
         }else if(id == LAYOUT_SIX_FIELDS){
             var h = (height-2*margin) / 4.0;
             var w = (width-margin) / 2.0;
@@ -264,7 +264,7 @@ class DataView extends MyViews.MyView{
             data.add([0, y, w, h]);
             data.add([x, y, w, h]);
             y += h + margin;
-            data.add([0, y, width, h]);
+            data.add([0, y, width, height-y]);
         }else if(id == LAYOUT_CUSTOM1){
             var h = 0.25 * height - 0.5 * margin;
             data.add([0, 0, width, h]);
