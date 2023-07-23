@@ -143,20 +143,19 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function updateTrack() as Void{
-        var track = $.getApp().track;
-        setTrack(track);
-    }
-
-    function setTrack(track as Track?) as Void{
-        self.track = track;
-        if(track != null){
-            // create new bitmap
-            updateBitmap(track);
-        }else{
-            bitmap = null;
+    function onSetting(id, value){
+        MyDataField.onSetting(id, value);
+        if(id == SETTING_TRACK){
+            // update the track
+            track = $.getApp().track;
+            if(track != null){
+                // create new bitmap
+                updateBitmap(track);
+            }else{
+                bitmap = null;
+            }
+            doUpdate = true;
         }
-        doUpdate = true;
     }
 
     hidden function getTrackColor() as ColorType{

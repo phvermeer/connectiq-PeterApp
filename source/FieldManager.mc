@@ -118,14 +118,8 @@ class FieldManager{
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
-                if(id == SETTING_TRACK){
-                    if((field as IMyDataField) has :updateTrack){
-                        (field as IMyDataField).updateTrack();
-                    }
-                }else{
-                    if((field as IMyDataField) has :onSetting){
-                        (field as IMyDataField).onSetting(id, value);
-                    }
+                if((field as IMyDataField) has :onSetting){
+                    (field as IMyDataField).onSetting(id, value);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;

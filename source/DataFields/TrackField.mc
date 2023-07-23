@@ -36,11 +36,6 @@ class TrackField extends MyDataField{
         });
     }
 
-    function updateTrack() as Void{
-        var track = $.getApp().track;
-        self.track = track;
-    }
-
     function onLayout(dc as Dc){
         trackThickness = getTrackThickness(zoomFactor);
         legend.updateSize(dc);
@@ -150,6 +145,9 @@ class TrackField extends MyDataField{
         if(id == SETTING_ZOOMFACTOR){
             // update zoomfactor
             setZoomFactor(value as Float);
+        }else if(id == SETTING_TRACK){
+            var track = $.getApp().track;
+            self.track = track;
         }
     }
 
