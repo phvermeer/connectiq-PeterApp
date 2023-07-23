@@ -7,6 +7,8 @@ class TrackOverviewField extends MyDataField{
     hidden var bitmap as BufferedBitmap?;
     hidden var xBitmap as Number = 0;
     hidden var yBitmap as Number = 0;
+    hidden var wBitmap as Number = 0;
+    hidden var hBitmap as Number = 0;
     hidden var xCenter as Numeric = 0;
     hidden var yCenter as Numeric = 0;
 
@@ -48,14 +50,12 @@ class TrackOverviewField extends MyDataField{
     }
 
     function onUpdate(dc as Dc){
-        // show bitmap
-        dc.setColor(Graphics.COLOR_TRANSPARENT, backgroundColor);
-        dc.clear();
-
-        // draw markers
         if(track != null && bitmap != null){
             var track = self.track as Track;
             var bitmap = self.bitmap as BufferedBitmap;
+
+            // Draw the track
+            dc.drawBitmap(xBitmap as Numeric, yBitmap as Numeric, bitmap);
 
             // Draw the finish marker
             var i = track.count-1;
@@ -75,9 +75,6 @@ class TrackOverviewField extends MyDataField{
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x as Float, y as Float, markerSize);
             }
-
-            // Draw the track
-            dc.drawBitmap(xBitmap as Numeric, yBitmap as Numeric, bitmap);
         }
     }
     hidden function updateBitmap(track as Track) as Void{
@@ -95,41 +92,42 @@ class TrackOverviewField extends MyDataField{
 
         var margin = markerSize;
         helper.resizeToMax(dummy, false, margin);
-        xBitmap = (dummy.locX - margin).toNumber();
-        yBitmap = (dummy.locY - margin).toNumber();
-        xCenter = dummy.locX + dummy.width/2;
-        yCenter = dummy.locY + dummy.height/2;
+        xBitmap = dummy.locX.toNumber() - margin;
+        yBitmap = dummy.locY.toNumber() - margin;
+        wBitmap = dummy.width.toNumber() + 2 * margin;
+        hBitmap = dummy.height.toNumber() + 2 * margin;
+        xCenter = xBitmap + wBitmap/2;
+        yCenter = yBitmap + hBitmap/2;
 
         // create the bitmap
-        var color = getTrackColor();
-        var colorPalette = [color, Graphics.COLOR_TRANSPARENT] as Array<ColorValue>;
+        var trackColor = getTrackColor();
+        var colorPalette = [trackColor, backgroundColor] as Array<ColorValue>;
         var bitmap = new Graphics.BufferedBitmap({
-            :width => (dummy.width + 2 * margin).toNumber(),
-            :height => (dummy.height + 2 * margin).toNumber(),
+            :width => wBitmap,
+            :height => hBitmap,
             :palette => colorPalette,
         });
         self.bitmap = bitmap;
-        xBitmap = dummy.locX.toNumber();
-        yBitmap = dummy.locY.toNumber();
-        xCenter = (xBitmap + dummy.width/2).toNumber();
-        yCenter = (yBitmap + dummy.height/2).toNumber();
+
+        // calculate the zoom factor to show the whole track
+        var factorHor = (wBitmap-2*margin) / (track.xMax - track.xMin);
+        var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
+        zoomFactor = factorHor < factorVert ? factorHor : factorVert;
 
         // draw the track
         var dc = bitmap.getDc();
-        var xOffset = xCenter - xBitmap;
-        var yOffset = yCenter - yBitmap;
 
         if(dc != null){
-            var factorHor = dummy.width.toFloat() / (track.xMax - track.xMin);
-            var factorVert = dummy.height.toFloat() / (track.yMax - track.yMin);
-            zoomFactor = (factorHor + factorVert) / 2;
+
+            var xOffset = xCenter - xBitmap;
+            var yOffset = yCenter - yBitmap;
 
             var count = track.count;
 
-            dc.setColor(colorPalette[0], colorPalette[1]);
-            dc.clear();
             var penWidth = getTrackThickness(zoomFactor);
             dc.setPenWidth(penWidth);
+            dc.setColor(trackColor, backgroundColor);
+            dc.clear();
 
             var x1 = xOffset + zoomFactor * track.xValues[0];
             var y1 = yOffset + zoomFactor * track.yValues[0];
@@ -143,7 +141,6 @@ class TrackOverviewField extends MyDataField{
                 y1 = y2;
             }
         }
-
     }
 
     function updateTrack() as Void{
@@ -201,10 +198,10 @@ class TrackOverviewField extends MyDataField{
     function setBackgroundColor(color as ColorType) as Void{
         MyDataField.setBackgroundColor(color);
 
-        // update color palette of bitmap
-        var trackColor = getTrackColor();
-        if(bitmap != null){
-            bitmap.setPalette([trackColor, Graphics.COLOR_TRANSPARENT] as Array<ColorValue>);
+        // update track bitmap with updated colors
+        var track = $.getApp().track;
+        if(track != null && bitmap != null){
+            updateBitmap(track);
         }
     }
 
