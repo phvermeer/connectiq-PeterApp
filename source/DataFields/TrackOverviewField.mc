@@ -166,12 +166,14 @@ class TrackOverviewField extends MyDataField{
 		var size = (width < height) ? width : height;
         var trackThickness = 1;
 		if(size > 0 && zoomFactor > 0){
+            var ds = System.getDeviceSettings();
 			var thicknessMax = (size > 10) ? size / 10 : 1;
-			var thicknessMin = 1;
+			var thicknessMin = Math.ceil(0.01f * ds.screenWidth);
+
 			var range = size / zoomFactor; // [m]
 			// 0 → 50m:		 	maxPenWidth
-			// 50m → 5km: 		scaled between maxPenWidth and minPenWidth
-			// 5km → ∞:			minPenWidth
+			// 50m → 10km: 		scaled between maxPenWidth and minPenWidth
+			// 10km → ∞:			minPenWidth
 			var rangeMin = 50;
 			var rangeMax = 10000;
 
