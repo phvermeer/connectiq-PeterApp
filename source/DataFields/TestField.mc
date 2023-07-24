@@ -37,7 +37,7 @@ class TestField extends MyDataField{
             label.setFont(Graphics.FONT_SMALL);
         }
 
-        label.updateDimensions(dc);
+        label.adaptSize(dc);
         label.locX = locX + (width-label.width)/2;
         label.locY = locY + (height-label.height)/2;
     }

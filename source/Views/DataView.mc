@@ -286,11 +286,12 @@ class DataView extends MyViews.MyView{
             // full screen
             data.add([0, 0, width, height]);
             // top
-            var h = 0.20 * height - 0.5 * margin;
-            data.add([0, 0, width, h]);
+            var h = 0.25 * height;
+            var y = 0;
+            data.add([0, y, width, h]);
             // left
-            var y = h + 2*margin;
-            var w = 0.5 * (width - margin);
+            y = (height - h)/2;
+            var w = 0.4 * (width);
             data.add([0, y, w, h]);
             // right
             var x = width - w;

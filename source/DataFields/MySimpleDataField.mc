@@ -65,7 +65,7 @@ class MySimpleDataField extends MyDataField{
         }
 
         if(label.isVisible){
-            label.updateDimensions(dc);
+            label.adaptSize(dc);
             helper.align(label, MyLayoutHelper.ALIGN_TOP);
 
             // align value centered in the remaining area
@@ -73,8 +73,9 @@ class MySimpleDataField extends MyDataField{
         }
 
         // update the aspect ratio of current value text
-        value.updateDimensions(dc);
+        value.adaptSize(dc);
         helper.resizeToMax(value, true, 0);
+        value.adaptFont(dc, true);
     }
 
     function onUpdate(dc){

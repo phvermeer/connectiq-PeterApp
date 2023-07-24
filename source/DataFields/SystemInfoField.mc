@@ -50,7 +50,7 @@ class SystemInfoField extends MySimpleDataField{
 
     static function formatPercentage(value as Numeric) as String{
         // 0 % - 100 %
-        value = Lang.format("$1$ %", [Math.round(value).format("%d")]);
+        value = Lang.format("$1$%", [Math.round(value).format("%d")]);
         return value;
     }
 }

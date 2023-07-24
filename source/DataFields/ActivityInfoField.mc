@@ -178,7 +178,7 @@ class ActivityInfoField extends MySimpleDataField{
     static function formatPercentage(value as Numeric|Null) as String|Null{
         // xxx %
         if(value != null){
-            value = Lang.format("$1$ %", [Math.round(value).format("%d")]);
+            value = Lang.format("$1$%", [Math.round(value).format("%d")]);
         }
         return value;
     }
