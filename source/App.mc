@@ -23,6 +23,7 @@ class App extends Application.AppBase {
     var session as Session;
     var track as Track?;
     var fieldManager as FieldManager;
+    var positionManager as PositionManager;
     var delegate as ViewDelegate?;
 
 
@@ -34,6 +35,12 @@ class App extends Application.AppBase {
         fieldManager = new FieldManager();
         session = new Session({ :onStateChange => method(:onSessionState) });
         settings = new Settings({ :onValueChange => method(:onSetting) });
+        positionManager = new PositionManager({
+            :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
+            :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+        });
+
         timer = new Timer.Timer();
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
@@ -41,6 +48,7 @@ class App extends Application.AppBase {
         var trackData = settings.get(SETTING_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
+            positionManager.setCenter(track.latlonCenter);
         }
     }
 
@@ -57,9 +65,23 @@ class App extends Application.AppBase {
     }
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
-        fieldManager.onSetting(id, value);
-        if(delegate != null){
-            delegate.onSettingChange(id, value);
+        if(id == SETTING_BREADCRUMPS){
+            positionManager.setLoggingEnabled(value as Boolean);
+        }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
+            positionManager.setMinDistance(value as Number);
+        }else if(id == SETTING_BREADCRUMPS_MAX_COUNT){
+            positionManager.setSize(value as Number);
+        }else{
+            if(id == SETTING_TRACK){
+                if(track != null){
+                    positionManager.setCenter(track.latlonCenter);
+                }
+            }
+
+            fieldManager.onSetting(id, value);
+            if(delegate != null){
+                delegate.onSettingChange(id, value);
+            }
         }
     }
 
@@ -94,19 +116,27 @@ class App extends Application.AppBase {
     }
 
     function onPosition(info as Position.Info) as Void{
-        if(self.track != null){
-            var pos = info.position;
-            var track = self.track as Track;
-            if(pos != null){
-                // Update Track
-                var latlon = pos.toRadians();
-                (track as Track).onPosition(latlon[0] as Double, latlon[1] as Double, info.accuracy);
-            }else{
-                (track as Track).onPosition(null, null, info.accuracy);
-            }
-            // Inform Datafields
-            fieldManager.onPosition(track.xCurrent, track.yCurrent, info.heading, info.accuracy);
+        var pos = info.position;
+
+        var xy = null;
+        if(pos != null && info.accuracy >= Position.QUALITY_USABLE){
+            // Update Breadcrump
+            var latlon = pos.toRadians();
+            xy = positionManager.addPosition(latlon);
+        }else{
+            positionManager.addPosition(null);
         }
+
+        var x = xy != null ? xy[0] : null;
+        var y = xy != null ? xy[1] : null;
+
+        if(track != null){
+            // Update Track
+            track.onPosition(x, y, info.accuracy);
+        }
+
+        // Inform Datafields
+        fieldManager.onPosition(x, y, info.heading, info.accuracy);
     }
 
     // Return the initial view of your application here

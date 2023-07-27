@@ -71,19 +71,18 @@ class TrackField extends MyDataField{
         legend.draw(dc);
 
         // draw the map
-        if(track != null){
+        var xOffset = locX + width/2;
+        var yOffset = locY + height/2;
+        if(xCurrent != null && yCurrent != null){
+            xOffset -= zoomFactor * xCurrent;
+            yOffset -= zoomFactor * yCurrent;
+        }
+        dc.setPenWidth(trackThickness);
+
+        if(self.track != null){
+            var track = self.track as Track;
             color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            dc.setPenWidth(trackThickness);
-
-            var track = self.track as Track;
-
-            var xOffset = locX + width/2;
-            var yOffset = locY + height/2;
-            if(xCurrent != null && yCurrent != null){
-                xOffset -= zoomFactor * xCurrent;
-                yOffset -= zoomFactor * yCurrent;
-            }
 
             var x1 = xOffset + zoomFactor * track.xValues[0];
             var y1 = yOffset + zoomFactor * track.yValues[0];
@@ -96,16 +95,47 @@ class TrackField extends MyDataField{
                 x1 = x2;
                 y1 = y2;
             }
+        }
+
+        // draw bread crumps
+        color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+
+        var posManager = $.getApp().positionManager;
+        var points = posManager.getXyValues();
+        if(points.size() >= 2){
+            var p1 = points[0];
+            var x1 = xOffset + zoomFactor * p1[0];
+            var y1 = yOffset + zoomFactor * p1[1];
+
+            for(var i=1; i<points.size(); i++){
+                var p2 = points[i];
+
+                var x2 = xOffset + zoomFactor * p2[0];
+                var y2 = yOffset + zoomFactor * p2[1];
+
+                dc.drawLine(x1, y1, x2, y2);
+
+                x1 = x2;
+                y1 = y2;
+            }
+        }
+
+
+        if(track != null){
+            var i = track.count - 1;
+            var x = track.xValues[i];
+            var y = track.yValues[i];
 
             // draw finish marker
    	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(x1, y1, markerSize);
+            dc.fillCircle(x, y, markerSize);
+        }
 
-            // draw current position marker
-            if(xCurrent != null && yCurrent != null){
-                positionMarker.draw(dc);
-            }
+        // draw current position marker
+        if(xCurrent != null && yCurrent != null){
+            positionMarker.draw(dc);
         }
     }
 

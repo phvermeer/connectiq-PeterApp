@@ -34,8 +34,7 @@ class Track{
 	var yMax as Float;
     var xAligned as Float?;
     var yAligned as Float?;
-    var latCenter as Float;
-    var lonCenter as Float;
+    var latlonCenter as Array<Float>;
     hidden var distances as Array<Float>;
     hidden var distanceCorrectionFactor as Float;
     hidden var nearestPointIndex as Float?;
@@ -56,8 +55,7 @@ class Track{
 		yMin = -(info[4] * EARTH_RADIUS) as Float;
 		xMax = (info[5] * EARTH_RADIUS) as Float;
 		yMax = -(info[6] * EARTH_RADIUS) as Float;
-        latCenter = info[7] as Float;
-        lonCenter = info[8] as Float;
+        latlonCenter = [info[7], info[8]] as Array<Float>;
 
 		var xValuesRaw = rawData[1] as Array<Float>;
 		var yValuesRaw = rawData[2] as Array<Float>;
@@ -96,11 +94,11 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-	function onPosition(lat as Decimal?, lon as Decimal?, quality as Position.Quality) as Void{
-		if(quality >= Position.QUALITY_USABLE && lat != null && lon != null){
+	function onPosition(x as Float?, y as Float?, quality as Quality) as Void{
+		if(quality >= Position.QUALITY_USABLE && x != null && y != null){
 			// update the currentIndex of the track
-			xCurrent = EARTH_RADIUS * (Math.cos(lat)*Math.sin(lon-lonCenter)).toFloat();
-			yCurrent = -EARTH_RADIUS * (Math.cos(latCenter)*Math.sin(lat) - Math.sin(latCenter)*Math.cos(lat)*Math.cos(lon-lonCenter)).toFloat();
+			xCurrent = x;
+			yCurrent = y;
 
 			if(xCurrent != null && yCurrent != null){
 				searchNearestPoint(xCurrent, yCurrent);
