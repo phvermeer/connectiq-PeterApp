@@ -94,14 +94,16 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-	function onPosition(x as Float?, y as Float?, quality as Quality) as Void{
-		if(quality >= Position.QUALITY_USABLE && x != null && y != null){
+	function onPosition(xy as Array<Float>|Null, quality as Quality) as Void{
+		if(quality >= Position.QUALITY_USABLE && xy != null){
 			// update the currentIndex of the track
-			xCurrent = x;
-			yCurrent = y;
-
-			if(xCurrent != null && yCurrent != null){
+			if(xy != null){
+				xCurrent = xy[0];
+				yCurrent = xy[1];
 				searchNearestPoint(xCurrent, yCurrent);
+			}else{
+				xCurrent = null;
+				yCurrent = null;
 			}
 		}
     }

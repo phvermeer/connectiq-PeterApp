@@ -44,7 +44,7 @@ class FieldManager{
 
     typedef IMyDataField as interface{
         function updateTrack() as Void;
-        function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void;
+        function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void;
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
@@ -128,14 +128,14 @@ class FieldManager{
         }
     }
 
-    function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
+    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
         var refs = fieldRefs.values();
         for(var i=refs.size()-1; i>=0; i--){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
                 if((field as IMyDataField) has :onPosition){
-                    (field as IMyDataField).onPosition(x, y, heading, quality);
+                    (field as IMyDataField).onPosition(xy, heading, quality);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;

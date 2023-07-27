@@ -7,8 +7,7 @@ import MyLayoutHelper;
 
 class TrackField extends MyDataField{
     hidden var track as Track?;
-    hidden var xCurrent as Float?;
-    hidden var yCurrent as Float?;
+    hidden var xyCurrent as Array<Float>|Null;
     hidden var legend as TrackScaleLegend;
     hidden var positionMarker as TrackPositionMarker;
     hidden var zoomFactor as Float;
@@ -16,14 +15,11 @@ class TrackField extends MyDataField{
     hidden var markerSize as Number = 3;
 
     function initialize(options as {
-        :track as Track
+        :track as Track,
+        :xyCurrent as Array<Float>,
     }){
         MyDataField.initialize(options);
         track = options.get(:track);
-        if(track != null){
-            xCurrent = track.xCurrent;
-            yCurrent = track.yCurrent;
-        }
 
         zoomFactor = $.getApp().settings.get(SETTING_ZOOMFACTOR) as Float;
 
@@ -73,22 +69,26 @@ class TrackField extends MyDataField{
         // draw the map
         var xOffset = locX + width/2;
         var yOffset = locY + height/2;
-        if(xCurrent != null && yCurrent != null){
-            xOffset -= zoomFactor * xCurrent;
-            yOffset -= zoomFactor * yCurrent;
+        if(xyCurrent != null ){
+            xOffset -= zoomFactor * xyCurrent[0];
+            yOffset -= zoomFactor * xyCurrent[1];
         }
         dc.setPenWidth(trackThickness);
 
+        var x1 = 0f;
+        var y1 = 0f;
+        var x2 = 0f;
+        var y2 = 0f;
         if(self.track != null){
             var track = self.track as Track;
             color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-            var x1 = xOffset + zoomFactor * track.xValues[0];
-            var y1 = yOffset + zoomFactor * track.yValues[0];
+            x1 = xOffset + zoomFactor * track.xValues[0];
+            y1 = yOffset + zoomFactor * track.yValues[0];
             for(var i=1; i<track.count; i++){
-                var x2 = xOffset + zoomFactor * track.xValues[i];
-                var y2 = yOffset + zoomFactor * track.yValues[i];
+                x2 = xOffset + zoomFactor * track.xValues[i];
+                y2 = yOffset + zoomFactor * track.yValues[i];
 
                 dc.drawLine(x1, y1, x2, y2);
 
@@ -103,29 +103,34 @@ class TrackField extends MyDataField{
 
         var posManager = $.getApp().positionManager;
         var points = posManager.getXyValues();
-        if(points.size() >= 2){
+        var count = points.size();
+        if(count >= 2){
             var p1 = points[0];
-            var x1 = xOffset + zoomFactor * p1[0];
-            var y1 = yOffset + zoomFactor * p1[1];
+            if(p1 != null){
+                x1 = xOffset + zoomFactor * p1[0];
+                y1 = yOffset + zoomFactor * p1[1];
+            }
 
-            for(var i=1; i<points.size(); i++){
+            for(var i=1; i<count; i++){
                 var p2 = points[i];
+                if(p2 != null){
+                    x2 = xOffset + zoomFactor * p2[0];
+                    y2 = yOffset + zoomFactor * p2[1];
 
-                var x2 = xOffset + zoomFactor * p2[0];
-                var y2 = yOffset + zoomFactor * p2[1];
-
-                dc.drawLine(x1, y1, x2, y2);
-
-                x1 = x2;
-                y1 = y2;
+                    if(p1 != null){
+                        dc.drawLine(x1, y1, x2, y2);
+                    }
+                    x1 = x2;
+                    y1 = y2;
+                }
+                p1 = p2;
             }
         }
 
-
         if(track != null){
             var i = track.count - 1;
-            var x = track.xValues[i];
-            var y = track.yValues[i];
+            var x = xOffset + zoomFactor * track.xValues[i];
+            var y = yOffset + zoomFactor * track.yValues[i];
 
             // draw finish marker
    	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
@@ -134,7 +139,7 @@ class TrackField extends MyDataField{
         }
 
         // draw current position marker
-        if(xCurrent != null && yCurrent != null){
+        if(xyCurrent != null){
             positionMarker.draw(dc);
         }
     }
@@ -215,10 +220,9 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
-        if(x != null && x != null && quality >= Position.QUALITY_USABLE){
-            xCurrent = x;
-            yCurrent = y;
+    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+        if(xy != null && quality >= Position.QUALITY_USABLE){
+            xyCurrent = xy;
             positionMarker.setHeading(heading);
             doUpdate = true;
         }

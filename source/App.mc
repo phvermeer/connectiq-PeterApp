@@ -127,16 +127,13 @@ class App extends Application.AppBase {
             positionManager.addPosition(null);
         }
 
-        var x = xy != null ? xy[0] : null;
-        var y = xy != null ? xy[1] : null;
-
         if(track != null){
             // Update Track
-            track.onPosition(x, y, info.accuracy);
+            track.onPosition(xy, info.accuracy);
         }
 
         // Inform Datafields
-        fieldManager.onPosition(x, y, info.heading, info.accuracy);
+        fieldManager.onPosition(xy, info.heading, info.accuracy);
     }
 
     // Return the initial view of your application here

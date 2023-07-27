@@ -64,7 +64,7 @@ class PositionManager
                 }
             }else{
                 // indexFirst -> last array item
-                for(var i=indexFirst; i<=buffer.size(); i++){
+                for(var i=indexFirst; i<buffer.size(); i++){
                     bufferNew[indexNew] = buffer[i];
                     indexNew++;
                 }
@@ -121,7 +121,7 @@ class PositionManager
                     for(var i=0; i<buffer.size(); i++){
                         var xy = buffer[i];
                         if(xy != null){
-                            buffer[i] = [xy[0]+dx, xy[1]+dy] as XyPoint;
+                            buffer[i] = [xy[0]-dx, xy[1]-dy] as XyPoint;
                         }
                     }
                 }
@@ -196,7 +196,7 @@ class PositionManager
         }
     }
 
-    function getXyValues() as Array<XyPoint>{
+    function getXyValues() as Array<XyPoint|Null>{
         if(self.indexFirst != null && self.indexLast != null){
             var indexFirst = self.indexFirst as Number;
             var indexLast = self.indexLast as Number;
@@ -205,10 +205,10 @@ class PositionManager
                 return buffer.slice(indexFirst, indexLast+1) as Array<XyPoint>;
             }else{
                 var values = buffer.slice(indexFirst, buffer.size());
-                return values.addAll(buffer.slice(0, indexLast+1)) as Array<XyPoint>;
+                return values.addAll(buffer.slice(0, indexLast+1)) as Array<XyPoint|Null>;
             }
         }else{
-            return [] as Array<XyPoint>;
+            return [] as Array<XyPoint|Null>;
         }
     }
 

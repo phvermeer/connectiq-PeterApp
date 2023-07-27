@@ -14,8 +14,7 @@ class TrackOverviewField extends MyDataField{
 
     hidden var zoomFactor as Float = 0.1f;
     hidden var markerSize as Number = 0;
-    hidden var xCurrent as Float?;
-    hidden var yCurrent as Float?;
+    hidden var xyCurrent as Array<Float>|Null;
 
     function initialize(options as {
         :track as Track
@@ -23,9 +22,8 @@ class TrackOverviewField extends MyDataField{
         MyDataField.initialize(options);
         track = options.get(:track);
 
-        if(track != null){
-            xCurrent = track.xCurrent;
-            yCurrent = track.yCurrent;
+        if(track != null && track.xCurrent != null && track.yCurrent != null){
+            xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
         }
 
         // update darkmode
@@ -68,9 +66,9 @@ class TrackOverviewField extends MyDataField{
             }
 
             // Draw current position marker
-            if(xCurrent != null && yCurrent != null){
-                var x = xCenter + zoomFactor * xCurrent;
-                var y = yCenter + zoomFactor * yCurrent;
+            if(xyCurrent != null){
+                var x = xCenter + zoomFactor * xyCurrent[0];
+                var y = yCenter + zoomFactor * xyCurrent[1];
                 var color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_BLUE;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x as Float, y as Float, markerSize);
@@ -114,10 +112,11 @@ class TrackOverviewField extends MyDataField{
         var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
         zoomFactor = factorHor < factorVert ? factorHor : factorVert;
 
-        // draw the track
+        // draw the track and buffered breadcrumps
         var dc = bitmap.getDc();
 
         if(dc != null){
+            dc.clear();
 
             var xOffset = xCenter - xBitmap;
             var yOffset = yCenter - yBitmap;
@@ -127,13 +126,15 @@ class TrackOverviewField extends MyDataField{
             var penWidth = getTrackThickness(zoomFactor);
             dc.setPenWidth(penWidth);
             dc.setColor(trackColor, backgroundColor);
-            dc.clear();
 
             var x1 = xOffset + zoomFactor * track.xValues[0];
             var y1 = yOffset + zoomFactor * track.yValues[0];
+            var x2;
+            var y2;
+
             for(var i=1; i<count; i++){
-                var x2 = xOffset + zoomFactor * track.xValues[i];
-                var y2 = yOffset + zoomFactor * track.yValues[i];
+                x2 = xOffset + zoomFactor * track.xValues[i];
+                y2 = yOffset + zoomFactor * track.yValues[i];
 
                 dc.drawLine(x1, y1, x2, y2);
 
@@ -159,9 +160,13 @@ class TrackOverviewField extends MyDataField{
     }
 
     hidden function getTrackColor() as ColorType{
-        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
+        return darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
     }
-
+    /*
+    hidden function getBreadcrumpColor() as ColorType{
+        return darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+    }
+    */
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
         var trackThickness = 1;
@@ -206,11 +211,19 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(x as Float?, y as Float?, heading as Float?, quality as Position.Quality) as Void{
-        if(x != xCurrent || y != yCurrent){
-            xCurrent = x;
-            yCurrent = y;
-            doUpdate = true;
+    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+        if(xy != null){
+            if(xyCurrent != null){
+                if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
+
+                    // save and show new position
+                    xyCurrent = xy;
+                    doUpdate = true;
+                }
+            }else{
+                xyCurrent = xy;
+                doUpdate = true;
+            }
         }
     }
 }
