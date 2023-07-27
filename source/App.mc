@@ -33,8 +33,16 @@ class App extends Application.AppBase {
         AppBase.initialize();
 
         fieldManager = new FieldManager();
-        session = new Session({ :onStateChange => method(:onSessionState) });
         settings = new Settings({ :onValueChange => method(:onSetting) });
+
+        var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
+            ? settings.get(SETTING_AUTOLAP) as Float 
+            : null;
+        session = new Session({
+            :onStateChange => method(:onSessionState),
+            :autoLap => autoLap,
+            :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
+        });
         positionManager = new PositionManager({
             :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
             :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
@@ -65,7 +73,14 @@ class App extends Application.AppBase {
     }
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
-        if(id == SETTING_BREADCRUMPS){
+        if(id == SETTING_AUTOPAUSE){
+            session.setAutoPause(value as Boolean);
+        }else if(id == SETTING_AUTOLAP || id == SETTING_AUTOLAP_DISTANCE){
+            var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
+                ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float
+                : null;
+            session.setAutoLap(autoLap);
+        }else if(id == SETTING_BREADCRUMPS){
             positionManager.setLoggingEnabled(value as Boolean);
         }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
             positionManager.setMinDistance(value as Number);
@@ -92,6 +107,12 @@ class App extends Application.AppBase {
     }
 
     function onTimer() as Void{
+        // update time based
+        var info = Activity.getActivityInfo();
+        if(info != null){
+            session.onMonitor(info);
+        }
+
         if(delegate != null && delegate has :onTimer){
             (delegate as TimerListener).onTimer();
         }

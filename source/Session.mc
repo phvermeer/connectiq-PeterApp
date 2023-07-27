@@ -68,9 +68,18 @@ class Session{
 		:subSport as ActivityRecording.SubSport, 
 		:name as Lang.String,
 		:onStateChange as Method(state as SessionState) as Void,
+		:autoLap as Float|Null,
+		:autoPause as Boolean,
 	}){
 		mOptions = options;
 		mOnStateChange = options.get(:onStateChange);
+
+		if(options.hasKey(:autoLap)){
+			setAutoLap(options.get(:autoLap));
+		}
+		if(options.hasKey(:autoPause)){
+			setAutoPause(options.get(:autoPause) as Boolean);
+		}
 	}
 
 	public function setSport(sport as Activity.Sport) as Void{
