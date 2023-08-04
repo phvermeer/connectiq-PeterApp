@@ -62,15 +62,23 @@ class App extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        timer.start(method(:onTimer), 1000, true);
-   	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
+        stopEvents();
+    }
+
+    hidden function startEvents() as Void{
+   	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
+        timer.start(method(:onTimer), 1000, true);
+    }
+
+    hidden function stopEvents() as Void{
         Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
         timer.stop();
     }
+
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
         if(id == SETTING_AUTOPAUSE){
@@ -103,6 +111,19 @@ class App extends Application.AppBase {
     function onSessionState(state as SessionState) as Void {
         if(delegate != null && delegate has :onSessionState){
             (delegate as SessionStateListener).onSessionState(state);
+        }
+
+        // start/stop positioning events
+        switch(state){
+            case SESSION_STATE_IDLE:
+            case SESSION_STATE_STOPPED:
+                // stop events
+	            stopEvents();
+                break;
+            case SESSION_STATE_BUSY:
+                startEvents();
+                // start events
+                break;
         }
     }
 
