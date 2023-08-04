@@ -49,6 +49,11 @@ class DataView extends MyViews.MyView{
             :position => MyDrawables.EDGE_ALL,
             :color => Graphics.COLOR_TRANSPARENT,
         });
+
+        var sessionState = options.get(:sessionState) as SessionState?;
+        if(sessionState != null){
+            onSessionState(sessionState);
+        }
     }
 
     // event handler when view becomes visible

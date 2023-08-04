@@ -53,6 +53,7 @@ class ViewDelegate extends MyViews.MyViewDelegate {
             var view = new DataView({
                 :fields => fields,
                 :layout => layout,
+                :sessionState => app.session.getState(),
             });
             switchToView(view, WatchUi.SLIDE_IMMEDIATE);
             return true;
