@@ -123,7 +123,7 @@ class ActivityInfoField extends MySimpleDataField{
             :formatAltitude,
             :formatPercentage,
         ];
-        if(formatId>0 && formatId < formatters.size()){
+        if(formatId>=0 && formatId < formatters.size()){
             var formatter = method(formatters[formatId as Number] as Symbol) as (Method(value as Numeric|Null) as Numeric|Null|String);
             return formatter.invoke(value);
         }else{
