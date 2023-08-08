@@ -44,17 +44,15 @@ class TrackField extends MyDataField{
 
 
         // determine the drawing area's
-        if(track != null){
-            var helper = new MyLayoutHelper.RoundScreenHelper({
-                :xMin => locX,
-                :xMax => locX + width,
-                :yMin => locY,
-                :yMax => locY + height,
-            });
+        var helper = new MyLayoutHelper.RoundScreenHelper({
+            :xMin => locX,
+            :xMax => locX + width,
+            :yMin => locY,
+            :yMax => locY + height,
+        });
 
-            // draw legend (scale indicator)
-            helper.align(legend, MyLayoutHelper.ALIGN_BOTTOM);
-        }
+        // positioning legend (scale indicator)
+        helper.align(legend, MyLayoutHelper.ALIGN_BOTTOM);
 
         positionMarker.locX = locX + width/2;
         positionMarker.locY = locY + height/2;
