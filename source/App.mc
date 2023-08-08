@@ -25,6 +25,7 @@ class App extends Application.AppBase {
     var fieldManager as FieldManager;
     var positionManager as PositionManager;
     var delegate as ViewDelegate?;
+    var started as Boolean = false;
 
 
     hidden var timer as Timer.Timer;
@@ -62,11 +63,13 @@ class App extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
+        started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
         stopEvents();
+        started = false;
     }
 
     hidden function startEvents() as Void{
@@ -81,6 +84,9 @@ class App extends Application.AppBase {
 
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
+        if(!started){
+            return;
+        }
         if(id == SETTING_AUTOPAUSE){
             session.setAutoPause(value as Boolean);
         }else if(id == SETTING_AUTOLAP || id == SETTING_AUTOLAP_DISTANCE){
