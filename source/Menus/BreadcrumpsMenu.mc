@@ -5,7 +5,7 @@ class BreadcrumpsMenu extends MyMenu {
 	hidden var options as Lang.Dictionary;
 
 	function initialize(options as Dictionary){
-		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.autoLap) as String });
+		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.breadcrumps) as String });
 		self.options = options;
 
 		var id = SETTING_BREADCRUMPS;
