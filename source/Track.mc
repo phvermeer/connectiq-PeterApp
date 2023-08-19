@@ -28,14 +28,14 @@ class Track{
     var zValues as Array<Float>|Null;
     var xCurrent as Float?;
     var yCurrent as Float?;
+	var iCurrent as Number?;
+	var lambdaCurrent as Float?;
 	var xMin as Float;
 	var xMax as Float;
 	var yMin as Float;
 	var yMax as Float;
-    var xAligned as Float?;
-    var yAligned as Float?;
     var latlonCenter as Array<Float>;
-    hidden var distances as Array<Float>;
+    var distances as Array<Float>;
     hidden var distanceCorrectionFactor as Float;
     hidden var nearestPointIndex as Float?;
     hidden var onTrack as Boolean = false;
@@ -206,22 +206,8 @@ class Track{
 		var distance = distances[index];
 		var diff = distances[index+1] - distance;
 		self.distanceElapsed = distance + lambda * diff;
-
-		// calculate interpolated position aligned on the track
-		var x1 = xValues[index];
-        var y1 = yValues[index];
-		var x2 = xValues[index+1];
-        var y2 = yValues[index+1];
-		if(lambda == 0.0f){
-			xAligned = x1;
-			yAligned = y1;
-		}else if(index == 1.0f){
-			xAligned = x2;
-			yAligned = y2;
-		}else{
-			xAligned = x1 + lambda * (x2-x1);
-			yAligned = y1 + lambda * (y2-y1);
-		}
+		self.iCurrent = index;
+		self.lambdaCurrent = lambda;
 	}
 
    	hidden function pointDistance(x1 as Float, y1 as Float, x2 as Float, y2 as Float) as Float{
