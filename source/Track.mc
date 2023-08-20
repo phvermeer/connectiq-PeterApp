@@ -67,7 +67,36 @@ class Track{
 			yValues.add((yValuesRaw[i] * -EARTH_RADIUS) as Float);
 		}
         if(rawData.size()>=4){
-            zValues = rawData[3] as Array<Float>;
+            var zValues = rawData[3] as Array<Float>;
+			// replace 0.0 values with interpolated altitude
+			for(var i=0; i<zValues.size(); i++){
+				if(zValues[i] == 0f){
+					// get interpolated value
+					var i0 = i-1;
+					var z0 = 0f;
+					while(i0>0){
+						z0 = zValues[i0];
+						if(z0 != 0f){
+							break;
+						}else{
+							i0--;
+						}
+					}
+					var i1 = i+1;
+					var z1 = 0f;;
+					while(i1<zValues.size()){
+						z1 = zValues[i1];
+						if(z1 != 0f){
+							break;
+						}else{
+							i1++;
+						}
+					}
+					var z = z0 + (z1-z0) * (i-i0)/(i1-i0);
+					zValues[i] = z;
+				}
+			}
+            self.zValues = zValues;
         }
 
         distances = [] as Array<Float>;
