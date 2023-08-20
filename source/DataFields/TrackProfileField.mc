@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Position;
+import Toybox.Application;
 using Toybox.Timer;
 using Toybox.Math;
 import MyGraph;
@@ -88,6 +89,13 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 	
+	function onSetting(id as SettingId, value as PropertyValueType) as Void{
+		if(id == SETTING_TRACK){
+			var track = $.getApp().track;
+			setTrack(track);
+		}
+	}
+
 	function setTrack(track as Track?) as Void{
 		// update profile with set track
 		self.track = track;
@@ -99,7 +107,6 @@ class TrackProfileField extends MyDataField{
 				// fill elevation data
 				var data = new MyGraph.FilteredData({
 					:maxCount => 50,
-					:reducedCount => 30,
 					:onUpdated => updateMethod,
 				});
 				self.data = data;
