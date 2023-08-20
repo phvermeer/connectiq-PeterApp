@@ -54,15 +54,6 @@ class TrackProfileField extends MyDataField{
 		updateBitmap();
 	}
 
-	function onTimer(){
-		if(self.data != null){
-			var data = self.data as MyGraph.FilteredData;
-			if(data.isLoading()){
-				data.bufferProcess();
-			}
-		}
-	}
-
 	function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
 		doUpdate = true;
 	}
@@ -74,7 +65,6 @@ class TrackProfileField extends MyDataField{
 		if(self.track != null){
 			var track = self.track as Track;
 			if(track.zValues != null){
-				var altitudes = track.zValues as Array<Float>;
 				
 				if(bitmap != null){
 					dc.drawBitmap(trend.locX, trend.locY, bitmap);
@@ -84,6 +74,7 @@ class TrackProfileField extends MyDataField{
 					// mark current position
 					var i = track.iCurrent as Number;
 					var lambda = track.lambdaCurrent as Float;
+					var altitudes = track.zValues as Array<Float>;
 
 					var distance = track.distanceElapsed as Float;
 					var altitude = altitudes[i];
@@ -91,13 +82,7 @@ class TrackProfileField extends MyDataField{
 						var altitudeNext = altitudes[i+1];
 						altitude += lambda * (altitudeNext-altitude);
 					}
-
-					var x = trend.locX + trend.width * (distance / track.distanceTotal);
-					var y1 = trend.locY;
-					var y2 = y1 + trend.height;
-					dc.setPenWidth(2);
-					dc.setColor(Graphics.COLOR_PINK, Graphics.COLOR_TRANSPARENT);
-					dc.drawLine(x, y1, x, y2);
+					trend.drawCurrentXY(dc, distance, altitude);
 				}
 			}
 		}
@@ -109,13 +94,13 @@ class TrackProfileField extends MyDataField{
 		if(track != null){
 			if(track.zValues != null){			
 				var altitudes = track.zValues as Array<Float>;
-				var updateMethod = new Lang.Method(self, :updateBitmap);
+				var updateMethod = method(:updateBitmap);
 
 				// fill elevation data
 				var data = new MyGraph.FilteredData({
 					:maxCount => 50,
 					:reducedCount => 30,
-					:onLoaded => updateMethod,
+					:onUpdated => updateMethod,
 				});
 				self.data = data;
 				serie.data = data;
@@ -125,12 +110,13 @@ class TrackProfileField extends MyDataField{
 
 				// draw profile (when data is loaded) in buffered bitmap
 				if(!data.isLoading()){
-					updateMethod.invoke();
+					updateBitmap();
 				}
 			}
 		}else{
 			data = null;
 		}
+		doUpdate = true;
 	}
 
 	function setBackgroundColor(color as Graphics.ColorType) as Void{
