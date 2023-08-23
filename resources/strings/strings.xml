@@ -96,5 +96,10 @@
 	<!-- Additional settings -->
 	<string id="autoLap">Auto Ronde</string>
 	<string id="autoPause">Auto Pause</string>
-	
+
+	<!-- Actions -->
+	<string id="discard">Weggooien</string>
+	<string id="save">Opslaan</string>
+	<string id="cancel">Annuleren</string>
+
 </strings>
