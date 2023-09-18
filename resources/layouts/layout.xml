@@ -28,6 +28,7 @@
 			<param name="position">MyDrawables.EDGE_BOTTOM</param>
 		</drawable>
 
-		<bitmap id="iconChecked" x="center" y="85%" filename="../drawables/checked_24x24.png" />
+		<bitmap id="iconConfirm" x="center" y="85%" filename="../drawables/checked_24x24.png" />
 	</layout>
+
 </layouts>
