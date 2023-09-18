@@ -198,7 +198,9 @@ class StopView extends MyView {
 					? ConfirmDelegate.ACTION_SAVE
 					: ConfirmDelegate.ACTION_CANCEL;
 
-			var message = doDiscard	? "Discard Session?" : "Save Session?";
+			var message = doDiscard
+				? Lang.format("$1$ ?", [WatchUi.loadResource(Rez.Strings.discard)])
+				: Lang.format("$1$ ?", [WatchUi.loadResource(Rez.Strings.save)]);
 			var dialog = new WatchUi.Confirmation(message);
 			confirmation = new ConfirmDelegate(action);
 			WatchUi.pushView(
