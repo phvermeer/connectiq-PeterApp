@@ -26,7 +26,7 @@
 	<string id="maxHeartRate">Max.Hartslag</string>
 	<string id="oxygenSaturation">O2</string>
 	<string id="energyRate">Energie</string>
-	<string id="pressure">Baro</string>
+	<string id="pressure">Druk</string>
 	<string id="lapDistance">Rnd.Afst</string>
 	<string id="lapTime">Rnd.Tijd</string>
 	<string id="lapSpeed">Rnd.Snlh</string>
@@ -34,7 +34,7 @@
 	<string id="batteryConsumption">Batt.Verbr</string>
 	<string id="layoutTest">Layout Test</string>
 	<string id="airPressure">Luchtdruk</string>
-	<string id="seaLevelPressure">Druk NAP</string>
+	<string id="seaLevelPressure">Baro</string>
 	
 	<string id="memory">Geheugen</string>
 	<string id="battery">Batterij</string>
