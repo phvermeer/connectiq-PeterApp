@@ -159,10 +159,10 @@ class ActivityInfoField extends MySimpleDataField{
         return value;
     }
 
-    static function formatPressure(value as Numeric|Null) as Number|Null{
+    static function formatPressure(value as Numeric|Null) as Float|Number|Null{
         // Pa => mBar
         if(value != null){
-            value = (value / 100).toNumber();
+            value = value.toFloat(); //(value / 100).toNumber();
         }
         return value;
     }

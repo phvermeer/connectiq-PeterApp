@@ -96,6 +96,10 @@
 	<!-- Additional settings -->
 	<string id="autoLap">Auto Ronde</string>
 	<string id="autoPause">Auto Pause</string>
+	<string id="altitudeCalibration">Hoogte Calibratie</string>	
+
+	<!-- States-->
+	<string id="calibration">Calibratie</string>
 
 	<!-- Actions -->
 	<string id="discard">Weggooien</string>

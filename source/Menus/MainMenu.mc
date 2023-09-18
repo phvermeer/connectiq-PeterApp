@@ -54,6 +54,10 @@ class MainMenu extends MyMenu {
 			100 => "100",
 			200 => "200",
 		},
+		SETTING_ALTITUDE_CALIBRATED => {
+			false => WatchUi.loadResource(Rez.Strings.off) as String,
+			true => WatchUi.loadResource(Rez.Strings.on) as String,
+		}
 	};
 	
 
@@ -67,7 +71,7 @@ class MainMenu extends MyMenu {
 				"dataScreensMenu",
 				{}
 			)
-		);		
+		);
 
 		var id = SETTING_SPORT;
 		addItem( // index 1
@@ -79,8 +83,17 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		id = SETTING_BACKGROUND_COLOR;
 		addItem(// index 2
+			new WatchUi.MenuItem(
+				WatchUi.loadResource(Rez.Strings.altitudeCalibration) as String,
+				null,
+				"altitudeCalibration",
+				{}
+			)
+		);
+
+		id = SETTING_BACKGROUND_COLOR;
+		addItem(// index 3
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.backgroundColor) as String,
 				null,
@@ -89,7 +102,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		addItem(// index 3
+		addItem(// index 4
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.autoLap) as String,
 				null,
@@ -98,7 +111,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 		
-		addItem(// index 4
+		addItem(// index 5
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.breadcrumps) as String,
 				null,
@@ -108,7 +121,7 @@ class MainMenu extends MyMenu {
 		);
 
 		id = SETTING_AUTOPAUSE;
-		addItem(// index 5
+		addItem(// index 6
 			new WatchUi.ToggleMenuItem(
 				WatchUi.loadResource(Rez.Strings.autoPause) as String,
 				{
@@ -121,7 +134,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 		
-		addItem(// index 6
+		addItem(// index 7
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.clearTrack) as String,
 				null,
@@ -129,7 +142,7 @@ class MainMenu extends MyMenu {
 				{}
 			)
 		);
-		addItem(// index 7
+		addItem(// index 8
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.clearSettings) as String,
 				null,
@@ -137,6 +150,7 @@ class MainMenu extends MyMenu {
 				{}
 			)
 		);
+
 	}
 
 	function getCurrentValueText(id as SettingId) as String{
@@ -150,16 +164,21 @@ class MainMenu extends MyMenu {
 		// Sport
 		(getItem(1) as MenuItem).setSubLabel(getCurrentValueText(SETTING_SPORT));
 
+		// Altitude Calibration
+		var enabled = settings.get(SETTING_ALTITUDE_CALIBRATED) as Boolean;
+		var subLabel = (OPTIONS.get(SETTING_ALTITUDE_CALIBRATED) as Dictionary).get(enabled) as String;
+		(getItem(2) as MenuItem).setSubLabel(subLabel);
+
 		// Background Color
-		(getItem(2) as MenuItem).setSubLabel(getCurrentValueText(SETTING_BACKGROUND_COLOR));
+		(getItem(3) as MenuItem).setSubLabel(getCurrentValueText(SETTING_BACKGROUND_COLOR));
 
 		// Auto Lap
-		var enabled = settings.get(SETTING_AUTOLAP) as Boolean;
+		enabled = settings.get(SETTING_AUTOLAP) as Boolean;
 		var distance = settings.get(SETTING_AUTOLAP_DISTANCE) as Float;
-		var subLabel = enabled
+		subLabel = enabled
 			? (OPTIONS.get(SETTING_AUTOLAP_DISTANCE) as Dictionary).get(distance) as String
 			: (OPTIONS.get(SETTING_AUTOLAP) as Dictionary).get(enabled) as String;
-		(getItem(3) as MenuItem).setSubLabel(subLabel);
+		(getItem(4) as MenuItem).setSubLabel(subLabel);
 
 		// Breadcrump Distance
 		enabled = settings.get(SETTING_BREADCRUMPS) as Boolean;
@@ -168,7 +187,7 @@ class MainMenu extends MyMenu {
 		subLabel = enabled
 			? Lang.format("$1$ x $2$m", [count, distance])
 			: (OPTIONS.get(SETTING_BREADCRUMPS) as Dictionary).get(enabled) as String;
-		(getItem(4) as MenuItem).setSubLabel(subLabel);
+		(getItem(5) as MenuItem).setSubLabel(subLabel);
 	}
 	
 	// this could be modified or overridden for customization
@@ -189,8 +208,8 @@ class MainMenu extends MyMenu {
 				{
 					var menu = new DataScreensMenu();
 					WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
+					break;
 				}
-				return true;	
 			// Option menus
 			case SETTING_SPORT:
 			case SETTING_BACKGROUND_COLOR:
@@ -205,20 +224,26 @@ class MainMenu extends MyMenu {
 			}
 			
 			// Sub menus
+			case "altitudeCalibration":
+			{
+				var menu = new AltitudeCalibrationMenu(OPTIONS);
+				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
+				break;
+			}
+
 			case "autoLapSubmenu":
 			{
 				var menu = new AutoLapMenu(OPTIONS);
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
+				break;
 			}
-			return true;
 
 			case "breadcrumpsSubmenu":
 			{
 				var menu = new BreadcrumpsMenu(OPTIONS);
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
+				break;
 			}
-			return true;
-
 			case "clearTrack":
 				var app = getApp();
 				app.track = null;
@@ -227,6 +252,7 @@ class MainMenu extends MyMenu {
 			case "clearSettings":
 				getApp().settings.clear();
 				break;
+
 			default:
 				result = false;
 		}
