@@ -2,12 +2,13 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Application;
+import Toybox.Activity;
 
 class MyDataField extends WatchUi.Drawable{
-    hidden var doUpdate as Boolean = true;
     hidden var backgroundColor as ColorType;
     hidden var previousLayout as Array<Numeric>?;
     hidden var darkMode as Boolean;
+    hidden var isVisible as Boolean = false;
 
     function initialize(options as {
         :locX as Numeric,
@@ -46,11 +47,20 @@ class MyDataField extends WatchUi.Drawable{
 
         // alway update when called
         onUpdate(dc);
-        doUpdate = false;
     }
 
+
     function onShow() as Void{
-        doUpdate = true;
+        isVisible = true;
+    }
+    function onHide() as Void{
+        isVisible = false;
+    }
+
+    protected function refresh() as Void{
+        if(isVisible){
+            WatchUi.requestUpdate();
+        }
     }
 
     protected function onLayout(dc as Dc) as Void{
@@ -60,21 +70,17 @@ class MyDataField extends WatchUi.Drawable{
         // override this function
     }
 
-    public function onTimer() as Void{
+    public function onActivityInfo(info as Activity.Info) as Void{
         // called periodicly from external
-    }
-
-    // this function will indicate if the value is changed since last onUpdate()
-    function isUpToDate() as Boolean{
-        return !doUpdate;
     }
 
     function setBackgroundColor(color as Graphics.ColorType) as Void{
         backgroundColor = color;
-        doUpdate = true;
 
         // update darkmode status
         darkMode = getDarkMode(color);
+
+        refresh();
     }
 
     private function getDarkMode(backgroundColor as ColorType) as Boolean{

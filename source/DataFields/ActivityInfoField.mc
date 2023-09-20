@@ -94,34 +94,28 @@ class ActivityInfoField extends MySimpleDataField{
 
         options.put(:label, strLabel);
         MySimpleDataField.initialize(options);
-        onTimer();
     }
 
-    function onTimer() as Void{
-        var info = Activity.getActivityInfo();
-        if(info != null){
-            var value
-                = (fieldId == DATAFIELD_ELAPSED_TIME) ? info.timerTime
-                : (fieldId == DATAFIELD_CURRENT_SPEED) ? info.currentSpeed
-                : (fieldId == DATAFIELD_AVG_SPEED) ? info.averageSpeed
-                : (fieldId == DATAFIELD_MAX_SPEED) ? info.maxSpeed
-                : (fieldId == DATAFIELD_ELAPSED_DISTANCE) ? info.elapsedDistance
-                : (fieldId == DATAFIELD_ALTITUDE) ? info.altitude
-                : (fieldId == DATAFIELD_TOTAL_ASCENT) ? info.totalAscent
-                : (fieldId == DATAFIELD_TOTAL_DESCENT) ? info.totalDescent
-                : (fieldId == DATAFIELD_HEART_RATE) ? info.currentHeartRate
-                : (fieldId == DATAFIELD_AVG_HEARTRATE) ? info.averageHeartRate
-                : (fieldId == DATAFIELD_MAX_HEARTRATE) ? info.maxHeartRate
-                : (fieldId == DATAFIELD_OXYGEN_SATURATION) ? info.currentOxygenSaturation
-                : (fieldId == DATAFIELD_ENERGY_RATE) ? info.energyExpenditure
-                : (fieldId == DATAFIELD_PRESSURE) ? info.ambientPressure
-                : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? info.meanSeaLevelPressure
-                : null;
+    function onActivityInfo(info) as Void{
+        var value
+            = (fieldId == DATAFIELD_ELAPSED_TIME) ? info.timerTime
+            : (fieldId == DATAFIELD_CURRENT_SPEED) ? info.currentSpeed
+            : (fieldId == DATAFIELD_AVG_SPEED) ? info.averageSpeed
+            : (fieldId == DATAFIELD_MAX_SPEED) ? info.maxSpeed
+            : (fieldId == DATAFIELD_ELAPSED_DISTANCE) ? info.elapsedDistance
+            : (fieldId == DATAFIELD_ALTITUDE) ? info.altitude
+            : (fieldId == DATAFIELD_TOTAL_ASCENT) ? info.totalAscent
+            : (fieldId == DATAFIELD_TOTAL_DESCENT) ? info.totalDescent
+            : (fieldId == DATAFIELD_HEART_RATE) ? info.currentHeartRate
+            : (fieldId == DATAFIELD_AVG_HEARTRATE) ? info.averageHeartRate
+            : (fieldId == DATAFIELD_MAX_HEARTRATE) ? info.maxHeartRate
+            : (fieldId == DATAFIELD_OXYGEN_SATURATION) ? info.currentOxygenSaturation
+            : (fieldId == DATAFIELD_ENERGY_RATE) ? info.energyExpenditure
+            : (fieldId == DATAFIELD_PRESSURE) ? info.ambientPressure
+            : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? info.meanSeaLevelPressure
+            : null;
 
-            setValue(format(value, formatId));
-        }else{
-            setValue(null);
-        }
+        setValue(format(value, formatId));
     }
 
     function format(value as Numeric|Null, formatId as FormatId) as Numeric|Null|String{
@@ -201,7 +195,7 @@ class ActivityInfoField extends MySimpleDataField{
     static function formatPercentage(value as Numeric|Null, units as UnitsSystem) as String|Null{
         // xxx %
         if(value != null){
-            value = Lang.format("$1$%", [Math.round(value).format("%d")]);
+            value = value.format("%d");
         }
         return value;
     }

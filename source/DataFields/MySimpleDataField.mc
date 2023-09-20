@@ -106,7 +106,7 @@ class MySimpleDataField extends MyDataField{
                     : "---";
         if(!txt.equals(self.value.getText())){
             self.value.setText(txt);
-            doUpdate = true;
+            refresh();
         }
     }
 }

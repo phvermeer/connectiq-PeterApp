@@ -226,7 +226,7 @@ class Session{
 		}
 	}
 
-	function onMonitor(info as Activity.Info) as Void{
+	function onActivityInfo(info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
 		}

@@ -55,8 +55,8 @@ class TrackProfileField extends MyDataField{
 		updateBitmap();
 	}
 
-	function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
-		doUpdate = true;
+	function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+		refresh();
 	}
 
 	function onUpdate(dc as Graphics.Dc){
@@ -123,7 +123,7 @@ class TrackProfileField extends MyDataField{
 		}else{
 			data = null;
 		}
-		doUpdate = true;
+		refresh();
 	}
 
 	function setBackgroundColor(color as Graphics.ColorType) as Void{
@@ -150,6 +150,6 @@ class TrackProfileField extends MyDataField{
 			trend.draw(dc);
 			trend.setLocation(x, y);
 		}
-		self.doUpdate = true;
+		self.refresh();
 	}
 }

@@ -5,17 +5,12 @@ import Toybox.WatchUi;
 import Toybox.Timer;
 import Toybox.Attention;
 import Toybox.Position;
+import Toybox.Activity;
 import MyViews;
 
 // interfaces for generic function support
 typedef SessionStateListener as interface {
     function onSessionState(state as SessionState) as Void;
-};
-typedef TimerListener as interface {
-    function onTimer() as Void;
-};
-typedef PositionListener as interface {
-    function onPosition() as Void;
 };
 
 class App extends Application.AppBase {
@@ -137,11 +132,8 @@ class App extends Application.AppBase {
         // update time based
         var info = Activity.getActivityInfo();
         if(info != null){
-            session.onMonitor(info);
-        }
-
-        if(delegate != null && delegate has :onTimer){
-            (delegate as TimerListener).onTimer();
+            session.onActivityInfo(info);
+            fieldManager.onActivityInfo(info);
         }
     }
 
@@ -181,7 +173,7 @@ class App extends Application.AppBase {
         }
 
         // Inform Datafields
-        fieldManager.onPosition(xy, info.heading, info.accuracy);
+        fieldManager.onPosition(xy, info);
     }
 
     // Return the initial view of your application here

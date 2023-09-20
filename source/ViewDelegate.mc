@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Application;
+import Toybox.Activity;
 import MyViews;
 
 class ViewDelegate extends MyViews.MyViewDelegate {
@@ -70,12 +71,6 @@ class ViewDelegate extends MyViews.MyViewDelegate {
     function onSessionState(state as SessionState) as Void{
         if(mView instanceof DataView){
             (mView as DataView).onSessionState(state);
-        }
-    }
-
-    function onTimer() as Void{
-        if(mView instanceof DataView){
-            (mView as DataView).onTimer();
         }
     }
 

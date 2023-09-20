@@ -155,7 +155,7 @@ class TrackOverviewField extends MyDataField{
             }else{
                 bitmap = null;
             }
-            doUpdate = true;
+            refresh();
         }
     }
 
@@ -211,18 +211,18 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
 
                     // save and show new position
                     xyCurrent = xy;
-                    doUpdate = true;
+                    refresh();
                 }
             }else{
                 xyCurrent = xy;
-                doUpdate = true;
+                refresh();
             }
         }
     }

@@ -2,6 +2,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.System;
+import Toybox.Activity;
 import Toybox.Math;
 import MyViews;
 import MyMath;
@@ -26,7 +27,6 @@ typedef Layout as Array< Array<Number> >;
 //  ]
 
 class DataView extends MyViews.MyView{
-    hidden var upToDate as Boolean = false;
     hidden var layout as Layout;
     hidden var fields as Array<MyDataField>;
     hidden var edge as Edge;
@@ -59,16 +59,20 @@ class DataView extends MyViews.MyView{
     // event handler when view becomes visible
     function onShow(){
         MyView.onShow();
-        upToDate = false;
-
         for(var i=0; i<fields.size(); i++){
             fields[i].onShow();
         }
     }
 
+    function onHide(){
+        for(var i=0; i<fields.size(); i++){
+            fields[i].onHide();
+        }
+    }
+
     // event handler for graphical update request
     function onUpdate(dc as Dc) as Void{
-        upToDate = true;
+        System.print(".");
         var overlay = hasFieldOverlay();
         if(!overlay){
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLUE);
@@ -116,7 +120,6 @@ class DataView extends MyViews.MyView{
     function setFieldsLayout(layout as Layout) as Void{
         self.layout = layout;
         updateFieldsLayout();
-        upToDate = false;
     }
     function getFieldsLayout() as Layout{
         return layout;
@@ -156,34 +159,6 @@ class DataView extends MyViews.MyView{
             break;
         }
         WatchUi.requestUpdate();
-    }
-
-    function isUpToDate() as Boolean{
-        if(!upToDate){
-            return false;
-        }
-        for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
-            if(!field.isUpToDate()){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // event handler for the timer
-    function onTimer() as Void{
-        // update fields
-        for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
-            field.onTimer();
-        }
-        if(isVisible()){
-            if(!isUpToDate()){
-                requestUpdate();
-            }
-
-        }
     }
 
     // event handler for key press

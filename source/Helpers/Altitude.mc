@@ -207,33 +207,6 @@ module Altitude{
             setOnlineState(STATE_ERROR);
         }
 
-        function basicCalibration() as Boolean{
-            var info = Activity.getActivityInfo();
-            if(info != null){
-                var h = info.altitude;
-                var p = info.ambientPressure;
-                if(h != null && p != null){
-                    calibrate(p, h);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        hidden function stateToString(state as State) as String{
-            switch(state){
-                case STATE_IDLE:            return "-";
-                case STATE_BUSY:            return "...";
-                case STATE_READY:           return "OK";
-                case STATE_ERROR:           return "ERR";
-                default:                    return "?";
-            }
-        }
-        function getStateText() as String{
-
-            return Lang.format("GPS $1$, WEB $2$", [gpsState, onlineState]);
-        }
-
         function setAltitude(altitude as Float, accuracy as Quality) as Void{
             // only keep altitude with highest accuracy
             if(accuracy >= self.accuracy){

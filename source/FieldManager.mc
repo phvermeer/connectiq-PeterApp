@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Position;
+import Toybox.Activity;
 
 enum DataFieldId{
     DATAFIELD_TEST = 0,
@@ -44,7 +45,8 @@ class FieldManager{
 
     typedef IMyDataField as interface{
         function updateTrack() as Void;
-        function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void;
+        function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void;
+        function onActivityInfo(info as Activity.Info);
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
@@ -128,19 +130,36 @@ class FieldManager{
         }
     }
 
-    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+    function onActivityInfo(info as Activity.Info) as Void{
+        var fields = getSupportedFields(:onActivityInfo);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onActivityInfo(info);
+        }
+    }
+    function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void{
+        var fields = getSupportedFields(:onPosition);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onPosition(xy, info);
+        }
+    }
+
+    hidden function getSupportedFields(method as Symbol) as Array<IMyDataField>{
         var refs = fieldRefs.values();
+        var fields = [] as Array<IMyDataField>;
         for(var i=refs.size()-1; i>=0; i--){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
-                if((field as IMyDataField) has :onPosition){
-                    (field as IMyDataField).onPosition(xy, heading, quality);
+                if((field as IMyDataField) has method){
+                    fields.add(field as IMyDataField);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;
                 fieldRefs.remove(key);
             }
         }
+        return fields;
     }
 }
