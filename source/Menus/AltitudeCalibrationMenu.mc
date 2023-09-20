@@ -1,6 +1,7 @@
 import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Activity;
+import Toybox.Timer;
 import MyViews;
 
 class AltitudePickerDelegate extends MyViews.NumberPicker2Delegate{
@@ -17,24 +18,21 @@ class AltitudePickerDelegate extends MyViews.NumberPicker2Delegate{
 }
 
 class AltitudeCalibrationMenu extends MyMenu {
+	const ITEM_CALIBRATE_ENABLE = 0;
+	const ITEM_CALIBRATE_MANUAL = 1;
+	const ITEM_CALIBRATE_AUTO = 2;
+
 	hidden var options as Lang.Dictionary;
 	hidden var calibration as Altitude.Calibration;
-	hidden var altitude as Number = 0;
+	hidden var altitude as Number?;
+	var updateTimer as Timer.Timer = new Timer.Timer();
 
 	function initialize(options as Dictionary){
 		var settings = $.getApp().settings;
 		var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
 		var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
-		calibration = new Altitude.Calibration(p0, t0);
 
-		var info = Activity.getActivityInfo();
-		if(info != null){
-			var p = info.ambientPressure;
-			if(p != null){
-				var h = calibration.getAltitude(p);
-				altitude = h.toNumber();
-			}
-		}
+		calibration = new Altitude.Calibration(p0, t0);
 
 		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.altitudeCalibration) as String });
 		self.options = options;
@@ -47,64 +45,100 @@ class AltitudeCalibrationMenu extends MyMenu {
 					:enabled => (options.get(id) as Dictionary).get(true) as String,
 					:disabled => (options.get(id) as Dictionary).get(false) as String,
 				},
-				id,
-				getApp().settings.get(id) as Boolean,
+				ITEM_CALIBRATE_ENABLE,
+				getApp().settings.get(SETTING_ALTITUDE_CALIBRATED) as Boolean,
 				null
 			)
 		);
 
-		id = SETTING_ALTITUDE_P0;
 		addItem(
 			new WatchUi.MenuItem(
-				WatchUi.loadResource(Rez.Strings.altitude) as String,
-				null,
-				id,
+				WatchUi.loadResource(Rez.Strings.manual) as String,
+				"---",
+				ITEM_CALIBRATE_MANUAL,
 				{}
 			)
 		);
 
+		addItem(
+			new WatchUi.MenuItem(
+					WatchUi.loadResource(Rez.Strings.auto) as String,
+				"---",
+				ITEM_CALIBRATE_AUTO,
+				{}
+			)
+		);
 	}
 
 	function onShow(){
 		// Update status of settings changed in sub menus
-		// Altitude calibration state
-		var id = SETTING_ALTITUDE_CALIBRATED;
-		var enabled = getApp().settings.get(id) as Lang.Boolean;
-		(getItem(0) as MenuItem).setSubLabel((options.get(id) as Dictionary).get(enabled) as String);
+		var settings = $.getApp().settings;
 
-		// Current calibrated altitude
-		(getItem(1) as MenuItem).setSubLabel(altitude.toString() as String);
+		// Altitude calibration state
+		var i = findItemById(ITEM_CALIBRATE_ENABLE);
+		var item = getItem(i);
+		if(item != null){
+			var id = SETTING_ALTITUDE_CALIBRATED;
+			var value = settings.get(id) as Lang.Boolean;
+			var valueName = (options.get(id) as Dictionary).get(value) as String;
+			item.setSubLabel(valueName);
+		}
+
+		// start getting current position to retrieve the sealevel temperature and altitude for current location
+		calibration.start();
+		// respond to recommended altitude
+		calibration.onAltitude = method(:updateAltitudeAuto);
+
+		// start timer to update altitude values
+		onTimer();
+		updateTimer.start(method(:onTimer), 2000, true);
+	}
+
+	function onHide(){
+		calibration.stop();
+		calibration.onAltitude = null;
+		updateTimer.stop();
 	}
 
 	// this could be modified or overridden for customization
 	function onSelect(item as MenuItem) as Boolean{
-		var id = item.getId() as SettingId;
+		var info = Activity.getActivityInfo();
+		var settings = $.getApp().settings;
 
-		switch(id){
+
+		switch(item.getId() as Number){
 		
 		// Option menus (auto/manual)
-		case SETTING_ALTITUDE_CALIBRATED:
+		case ITEM_CALIBRATE_ENABLE:
 			// save toggled value
 			var enabled = (item as ToggleMenuItem).isEnabled();
-			var settings = $.getApp().settings;
 			settings.set(SETTING_ALTITUDE_CALIBRATED, enabled);
 
 			// update displayed altitude value
-			var info = Activity.getActivityInfo();;
 			if(info != null){
 				var p = info.ambientPressure;
 				if(p != null){
-					altitude = Math.round(calibration.getAltitude(p)).toNumber();
+					altitude = calibration.calculateAltitude(p).toNumber();
 				}
 			}
-			(getItem(1) as MenuItem).setSubLabel(altitude.toString() as String);
 			break;
 
 		// Select Number menu
-		case SETTING_ALTITUDE_P0:
-			var numberPicker = new MyViews.NumberPicker2(altitude);
+		case ITEM_CALIBRATE_MANUAL:
+			var numberPicker = new MyViews.NumberPicker2(altitude != null ? altitude : 0);
 			var delegate = new AltitudePickerDelegate(numberPicker, self);
 			WatchUi.pushView(numberPicker, delegate, WatchUi.SLIDE_IMMEDIATE);
+			break;
+		case ITEM_CALIBRATE_AUTO:
+			if(info != null){
+				var p = info.ambientPressure;
+				var h = calibration.altitude;
+				if(p != null && h != null){
+					calibration.calibrate(p, h);
+					settings.set(SETTING_ALTITUDE_P0, calibration.p0 as Float);
+					settings.set(SETTING_ALTITUDE_T0, calibration.t0 as Float);
+				}
+			}
 			break;
 		default:
 			return false;
@@ -122,12 +156,60 @@ class AltitudeCalibrationMenu extends MyMenu {
 			var p = info.ambientPressure;
 			if(p != null){
 				self.altitude = altitude;
-				var results = calibration.calibrate(p, altitude.toFloat());
+				calibration.calibrate(p, altitude.toFloat());
 
 				var settings = $.getApp().settings;
-				settings.set(SETTING_ALTITUDE_P0, results.get(:p0) as Float);
-				settings.set(SETTING_ALTITUDE_T0, results.get(:t0) as Float);
+				settings.set(SETTING_ALTITUDE_P0, calibration.p0);
+				settings.set(SETTING_ALTITUDE_T0, calibration.t0);
 			}
+		}
+	}
+
+	function setAltitude(altitude as Float, accuracy as Altitude.Calibration.Quality) as Void{
+		var i = findItemById(ITEM_CALIBRATE_AUTO);
+		if(i >= 0){
+			var menuItem = getItem(i);
+			if(menuItem != null){
+				menuItem.setSubLabel(altitude.format("%i"));
+				WatchUi.requestUpdate();
+			}
+		}
+	}
+
+	function updateSubLabel(itemId as Number, value as String|Numeric|Null) as Void{
+		var i = findItemById(itemId);
+		if(i>=0){
+			var menuItem = getItem(i);
+			var str = (value != null) ? value.toString() : "---";
+			if(menuItem != null){
+				menuItem.setSubLabel(str);
+				WatchUi.requestUpdate();
+			}
+		}
+	}
+	function updateAltitudeManual(info as Activity.Info) as Void{
+		// update altitude from pressure (Manual calibration)
+		var newValue = null;
+		var p = info.ambientPressure;
+		if(p != null){
+			newValue = calibration.calculateAltitude(p).toNumber();
+		}
+
+		// update menu item
+		if(newValue != null && newValue != altitude){
+			altitude = newValue;
+			updateSubLabel(ITEM_CALIBRATE_MANUAL, altitude);
+		}
+	}
+
+	function updateAltitudeAuto(altitude as Float, accuracy as Altitude.Calibration.Quality) as Void{
+		updateSubLabel(ITEM_CALIBRATE_AUTO, altitude.toNumber());
+	}
+
+	function onTimer() as Void{
+		var info = Activity.getActivityInfo();
+		if(info != null){
+			updateAltitudeManual(info);
 		}
 	}
 }

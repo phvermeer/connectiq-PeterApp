@@ -6,19 +6,18 @@ import Toybox.Math;
 import Toybox.Timer;
 
 module Altitude{
-    function validPosition(position as Location?) as Boolean{
+    function validatePositionInfo(positionInfo as Position.Info) as Void{
+        var position = positionInfo.position;
         if(position != null){
             var latlon = position.toDegrees();
             if(
-                latlon[0] >= -90d && latlon[0] <= 90d &&
-                latlon[1] >= -90d && latlon[1] <= 90d)
+                latlon[0] < -90d || latlon[0] > 90d ||
+                latlon[1] < -90d || latlon[1] > 90d)
             {
-                return true;
-            }else{
-                Toybox.System.println(Lang.format("latlon = $1$, $2$", [latlon]));
+                positionInfo.accuracy = Position.QUALITY_NOT_AVAILABLE;
+                positionInfo.position = null;
             }
         }
-        return false;
     }
 
     class Calculator{
@@ -37,7 +36,7 @@ module Altitude{
             t0 = sealevelTemperature;
         }
 
-        function getAltitude(pressure as Float) as Float{
+        function calculateAltitude(pressure as Float) as Float{
             var t0_kelvin = t0 + Tkelvin;
             var h = ((t0_kelvin/Lb)*(Math.pow(pressure/p0, (-R*Lb)/(G*M))-1)).toFloat();
             return h;
@@ -53,35 +52,30 @@ module Altitude{
             STATE_ERROR = 3,
         }
 
-        var gpsState as State = STATE_IDLE;
-        var gpsAccuracy as Position.Quality = Position.QUALITY_NOT_AVAILABLE;
-        var onlineState as State = STATE_IDLE;
+        enum WebQuality{
+            WEB_QUALITY_NOT_AVAILABLE = 0,
+            WEB_QUALITY_GOOD = 16,
+        }
+        typedef Quality as WebQuality|Position.Quality|Number;
 
-        var onGpsStateChange as Null|Method(state as State) as Void;
-        var onGpsAccuracyChange as Null|Method(accuracy as Position.Quality) as Void;
-        var onOnlineStateChange as Null|Method(state as State) as Void;
+        hidden var gpsState as State = STATE_IDLE;
+        hidden var onlineState as State = STATE_IDLE;
 
-        var gpsData as Null|Position.Info;
-        var onlineData as Null|{
-            :altitude as Float, // altitude
-            :pressure as Float, // pressure
-            :sealevelPressure as Float, // pressure at sealevel
-            :sealevelTemperature as Float, // temperature at sealevel
-        };
+        var altitude as Float?;
+        var accuracy as Quality = Position.QUALITY_NOT_AVAILABLE|WEB_QUALITY_NOT_AVAILABLE;
+        hidden var gpsData as Null|Position.Info;
+
+        var onAltitude as Null|Method(altitude as Float, quality as Quality) as Void;
 
         hidden var retryTimer as Timer.Timer = new Timer.Timer();
 
-        function initialize(sealevelPressure as Float, sealevelTemperature as Float){
-            Calculator.initialize(sealevelPressure, sealevelTemperature);
+        function initialize(p0 as Float, t0 as Float){
+            Calculator.initialize(p0, t0);
         }
 
         function start() as Void{
             setGpsState(STATE_IDLE);
             setOnlineState(STATE_IDLE);
-
-            gpsData = null;
-            onlineData = null;
-
             requestGpsData();
         }
 
@@ -100,61 +94,31 @@ module Altitude{
             if(gpsState != state){
                 gpsState = state;
 
-                if(state == STATE_IDLE){
-                    // reset gps data
-                    gpsData = null;
-                    setGpsAccuracy(Position.QUALITY_NOT_AVAILABLE);
-                }
-
-                if(onGpsStateChange != null){
-                    onGpsStateChange.invoke(state);
-                }
                 // additional actions
-                switch(state){
-                    case STATE_READY:
-                        // start new gps action?
-                        if(gpsData == null || gpsData.accuracy < Position.QUALITY_GOOD){
-                            // retry after 1 second to get more acurate position
-                            retryTimer.start(method(:requestGpsData), 1000, false);
-                        }
-                        break;
-                }
-            }
-        }
-        hidden function setGpsAccuracy(accuracy as Position.Quality) as Void{
-            if(accuracy != gpsAccuracy){
-                gpsAccuracy = accuracy;
-                if(onGpsAccuracyChange != null){
-                    onGpsAccuracyChange.invoke(accuracy);
+                if(state == STATE_READY){
+                    // start retrieving web data
+                    if(gpsData != null && gpsData.accuracy >= Position.QUALITY_POOR){
+                        requestOnlineData(gpsData.position as Location);
+                    }
+
+                    // start new gps action?
+                    if(gpsData == null || gpsData.accuracy < Position.QUALITY_GOOD){
+                        // retry after 1 second to get more acurate position
+                        retryTimer.start(method(:requestGpsData), 1000, false);
+                    }
                 }
             }
         }
         hidden function setOnlineState(state as State) as Void{
             if(onlineState != state){
                 onlineState = state;
-
-                if(state == STATE_IDLE){
-                    // reset online data
-                    onlineData = null;
-                }
-
-                if(onOnlineStateChange != null){
-                    onOnlineStateChange.invoke(state);
-                }
             }
         }
 
-        function calibrate(p as Float,  h as Float?) as { :t0 as Float, :p0 as Float } {
-            h = (h == null) ? getAltitude(p) : h;
-
+        function calibrate(p as Float,  h as Float) as Void {
             // redefine the p0 to compensate P deviations
             var t0_kelvin = t0 + Tkelvin;
             p0 = (p / Math.pow(1 + (Lb/t0_kelvin) * h, (-G*M)/(R*Lb))).toFloat();
-
-            return {
-                :t0 => t0,
-                :p0 => p0,
-            };
         }
 
         function requestGpsData() as Void{
@@ -167,18 +131,12 @@ module Altitude{
             );
         }
         function onGpsData(info as Position.Info) as Void{
-            // check if new position is valid
-            if(!validPosition(info.position)){
-                info.accuracy = Position.QUALITY_NOT_AVAILABLE;
-            }
+            validatePositionInfo(info);
 
             // keep most accurate data
-            if(info.accuracy > gpsAccuracy){
+            var prevAccuracy = (gpsData != null) ? gpsData.accuracy : Position.QUALITY_NOT_AVAILABLE;
+            if(info.accuracy > prevAccuracy){
                 gpsData = info;
-                setGpsAccuracy(info.accuracy);
-
-                // update online data
-                requestOnlineData(info.position as Location);
             }
             setGpsState(STATE_READY);
         }
@@ -217,33 +175,35 @@ module Altitude{
                     if(hourly instanceof Dictionary){
                         // var time_hourly = hourly.get("time");
                         var t_hourly = hourly.get("temperature_2m");
-                        var p0_hourly = hourly.get("pressure_msl");
-                        var p_hourly = hourly.get("surface_pressure");
 
-                        if(h instanceof Float && t_hourly instanceof Array && p0_hourly instanceof Array && p_hourly instanceof Array){
+                        if(h instanceof Float && t_hourly instanceof Array){
 
                             // use average values for now
                             var t = Math.mean(t_hourly as Array<Numeric>).toFloat(); // temperature 2m above surface
-                            var p = Math.mean(p_hourly as Array<Numeric>).toFloat(); // pressure at surface
-                            var p0 = Math.mean(p0_hourly as Array<Numeric>).toFloat(); // pressure at sealevel
 
                             // calculate temperature at sealevel
                             t0 = t + Lb * -(h+2);
 
-                            onlineData = {
-                                :altitude => h,
-                                :pressure => p,
-                                :sealevelPressure => p0,
-                                :sealevelTemperature => t0,
-                            };
+                            // determine accuracy (combination of gps quality and web availability)
+                            var accuracy = (gpsData != null) ? gpsData.accuracy : Position.QUALITY_NOT_AVAILABLE;
+                            accuracy |= WEB_QUALITY_GOOD;
 
+                            setAltitude(h, accuracy);
                             setOnlineState(STATE_READY);
                             return;
                         }
                     }
                 }
             }
-            // internet call failed -> use old values
+            // internet call failed -> use gps altitude
+            if(gpsData != null){
+                var altitude = gpsData.altitude;
+                if(altitude != null){
+                    var accuracy = gpsData.accuracy | WEB_QUALITY_NOT_AVAILABLE;
+                    setAltitude(altitude, accuracy);
+                }
+            }
+
             setOnlineState(STATE_ERROR);
         }
 
@@ -274,23 +234,15 @@ module Altitude{
             return Lang.format("GPS $1$, WEB $2$", [gpsState, onlineState]);
         }
 
-        function getAltitude2() as Float{
-            // get the most accurate altitude for current state
-            // 1 - altitude from web
-            if(onlineData != null){
-                return onlineData.get(:altitude) as Float;
-            }else{
-                // 2 - gps altitude
-                if(gpsAccuracy >= Position.QUALITY_USABLE && gpsData != null && gpsData.altitude != null){
-                    return gpsData.altitude as Float;
-                }else{
-                    // 3 - activity altitude (not calibrated)
-                    var info = Activity.getActivityInfo();
-                    if(info != null && info.altitude != null){
-                        return info.altitude as Float;
-                    }else{
-                        return 0f;
-                    }
+        function setAltitude(altitude as Float, accuracy as Quality) as Void{
+            // only keep altitude with highest accuracy
+            if(accuracy >= self.accuracy){
+                self.altitude = altitude;
+                self.accuracy = accuracy;
+        
+                // set event to listener
+                if(onAltitude != null){
+                    onAltitude.invoke(altitude, accuracy);
                 }
             }
         }

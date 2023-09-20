@@ -45,7 +45,7 @@ class AltitudeField extends MySimpleDataField{
                 // calibrated altitude value (using air pressure)
                 var pressure = info.ambientPressure;
                 if(pressure != null){
-                    altitude = calculator.getAltitude(pressure);
+                    altitude = calculator.calculateAltitude(pressure);
                 }
             }else{
                 // standard altitude value
