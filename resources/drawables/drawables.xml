@@ -1,6 +1,7 @@
 <drawables>
     <bitmap id="LauncherIcon" filename="launcher_36x36.png" />
     <bitmap id="iconConfirm" filename="checked_24x24.png" />
+    <bitmap id="iconDelete" filename="delete_24x24.png" />
 
     <bitmap id="walking" filename="walking_36x36.png" />
     <bitmap id="running" filename="running_36x36.png" />

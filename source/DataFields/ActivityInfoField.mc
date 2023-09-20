@@ -1,8 +1,12 @@
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Graphics;
+import Toybox.System;
 
 class ActivityInfoField extends MySimpleDataField{
+    static const M_TO_FEET = 3.28084;
+    static const KM_TO_MILES = 0.621371192;
+
     enum FormatId {
         FORMAT_NONE = -1,
         FORMAT_SPEED = 0,
@@ -15,6 +19,7 @@ class ActivityInfoField extends MySimpleDataField{
 
     hidden var fieldId as DataFieldId;
     hidden var formatId as FormatId = FORMAT_NONE;
+    hidden var units as System.UnitsSystem = System.UNIT_METRIC;
 
     function initialize(fieldId as DataFieldId, options as {
         :locX as Numeric,
@@ -24,6 +29,7 @@ class ActivityInfoField extends MySimpleDataField{
         :backgroundColor as ColorType,
     }){
         self.fieldId = fieldId;
+        var ds = System.getDeviceSettings();
 
         // determine the label
         var strLabel
@@ -41,7 +47,7 @@ class ActivityInfoField extends MySimpleDataField{
             : (fieldId == DATAFIELD_OXYGEN_SATURATION) ? WatchUi.loadResource(Rez.Strings.oxygenSaturation)
             : (fieldId == DATAFIELD_ENERGY_RATE) ? WatchUi.loadResource(Rez.Strings.energyRate)
             : (fieldId == DATAFIELD_PRESSURE) ? WatchUi.loadResource(Rez.Strings.pressure)
-            : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? WatchUi.loadResource(Rez.Strings.pressure)
+            : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? WatchUi.loadResource(Rez.Strings.seaLevelPressure)
             : "???";
 
         // determin the formatter
@@ -52,11 +58,13 @@ class ActivityInfoField extends MySimpleDataField{
             fieldId == DATAFIELD_MAX_SPEED
         ){
             formatId = FORMAT_SPEED;
+            units = ds.distanceUnits;
         }else if(
             // distance
             fieldId == DATAFIELD_ELAPSED_DISTANCE
         ){
             formatId = FORMAT_DISTANCE;
+            units = ds.distanceUnits;
         }else if(
             // time
             fieldId == DATAFIELD_ELAPSED_TIME
@@ -75,6 +83,8 @@ class ActivityInfoField extends MySimpleDataField{
             fieldId == DATAFIELD_TOTAL_DESCENT
         ){
             formatId = FORMAT_ALTITUDE;
+            units = ds.heightUnits;
+
         }else if(
             // percentage
             fieldId == DATAFIELD_OXYGEN_SATURATION
@@ -124,28 +134,34 @@ class ActivityInfoField extends MySimpleDataField{
             :formatPercentage,
         ];
         if(formatId>=0 && formatId < formatters.size()){
-            var formatter = method(formatters[formatId as Number] as Symbol) as (Method(value as Numeric|Null) as Numeric|Null|String);
-            return formatter.invoke(value);
+            var formatter = method(formatters[formatId as Number] as Symbol) as (Method(value as Numeric|Null, units as UnitsSystem) as Numeric|Null|String);
+            return formatter.invoke(value, units);
         }else{
             return value;
         }
     }
 
-    static function formatSpeed(value as Numeric|Null) as Numeric|Null{
+    static function formatSpeed(value as Numeric|Null, units as UnitsSystem) as Numeric|Null{
         if(value != null){
             value *= 3.6f;
         }
         return value;
     }
 
-    static function formatDistance(value as Numeric|Null) as Numeric|Null{
+    static function formatDistance(value as Numeric|Null, units as UnitsSystem) as Numeric|Null{
         if(value != null){
-            value /= 1000;
+            if(units == System.UNIT_METRIC){
+                value /= 1000;
+            }else if(units == System.UNIT_STATUTE){
+                value = KM_TO_MILES * (value/1000);
+            }else{
+                value = null;
+            }
         }
         return value;
     }
 
-    static function formatTime(value as Numeric|Null) as String|Null{
+    static function formatTime(value as Numeric|Null, units as UnitsSystem) as String|Null{
         if(value != null){
             var seconds = (value / 1000).toNumber(); // msec => seconds
             var minutes = (seconds / 60).toNumber(); // seconds => minutes
@@ -159,7 +175,7 @@ class ActivityInfoField extends MySimpleDataField{
         return value;
     }
 
-    static function formatPressure(value as Numeric|Null) as Number|Null{
+    static function formatPressure(value as Numeric|Null, units as UnitsSystem) as Float|Number|Null{
         // Pa => mBar
         if(value != null){
             value = (value / 100).toNumber();
@@ -167,15 +183,22 @@ class ActivityInfoField extends MySimpleDataField{
         return value;
     }
 
-    static function formatAltitude(value as Numeric|Null) as Number|Null{
-        // m (no digits)
+    static function formatAltitude(value as Numeric|Null, units as UnitsSystem) as Number|Null{
         if(value != null){
-            value = value.toNumber();
+            if(units == System.UNIT_METRIC){
+                // m (no digits)
+                value = value.toNumber();
+            }else if(units == System.UNIT_STATUTE){
+                // feet (no digits)
+                value = (M_TO_FEET * value).toNumber();
+            }else{
+                value = null;
+            }
         }
         return value;
     }
 
-    static function formatPercentage(value as Numeric|Null) as String|Null{
+    static function formatPercentage(value as Numeric|Null, units as UnitsSystem) as String|Null{
         // xxx %
         if(value != null){
             value = Lang.format("$1$%", [Math.round(value).format("%d")]);

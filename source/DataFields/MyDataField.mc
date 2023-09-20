@@ -31,7 +31,6 @@ class MyDataField extends WatchUi.Drawable{
             for(var i=0; i<layout.size(); i++){
                 if(layout[i] != prevLayout[i]){
                     doLayout = true;
-                    doUpdate = true;
                     break;
                 }
             }

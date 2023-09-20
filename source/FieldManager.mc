@@ -74,13 +74,12 @@ class FieldManager{
             : (id == DATAFIELD_ELAPSED_TIME) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
-            //: (id == DATAFIELD_TRACK_PROFILE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_REMAINING_DISTANCE) ? new TrackInfoField(id, options)
-            : (id == DATAFIELD_ALTITUDE) ? new ActivityInfoField(id, options)
             //: (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_ASCENT) ?  new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_DESCENT) ?  new ActivityInfoField(id, options)
@@ -95,6 +94,7 @@ class FieldManager{
             : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
+            : (id == DATAFIELD_ALTITUDE) ? new AltitudeField(options)
             : new EmptyField(options);
 
         // keep weak link in buffer for new requests

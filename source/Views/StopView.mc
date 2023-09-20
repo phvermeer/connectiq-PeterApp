@@ -4,7 +4,30 @@ import Toybox.WatchUi;
 using Toybox.Activity as Activity;
 import MyViews;
 
+class ConfirmDelegate extends WatchUi.ConfirmationDelegate{
+	enum Action {
+		ACTION_CANCEL = 0,
+		ACTION_SAVE = 1,
+		ACTION_DISCARD = 2,
+	}
+
+	var nextAction as Action|Null;
+	hidden var requestedAction as Action;
+
+	function initialize(action as Action){
+		self.requestedAction = action;
+		ConfirmationDelegate.initialize();
+	}
+	function onResponse(response as WatchUi.Confirm) as Boolean{
+		self.nextAction = (response == WatchUi.CONFIRM_YES)
+			? requestedAction
+			: null;
+		return true;
+	}
+}
+
 class StopView extends MyView {
+	var confirmation as ConfirmDelegate?;
 
     function initialize() {
         MyView.initialize();
@@ -127,7 +150,29 @@ class StopView extends MyView {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() as Void {
-    	
+		if(confirmation != null){
+	    	// continu action after confirmation result
+			if(confirmation.nextAction != null){
+				// Stop and close session
+				var action = confirmation.nextAction as ConfirmDelegate.Action;
+				var session = getApp().session;
+				switch(action){
+					case ConfirmDelegate.ACTION_SAVE:
+						session.save();
+						break;
+					case ConfirmDelegate.ACTION_DISCARD:
+						session.discard();
+						break;
+				}
+
+				// Switch to start views
+				var delegate = $.getApp().delegate;
+				if(delegate != null){
+					var view = new StartView();
+					delegate.switchToView(view, WatchUi.SLIDE_IMMEDIATE);	
+				}
+			}
+		}
     }
 
     // Called when this View is removed from the screen. Save the
@@ -147,17 +192,22 @@ class StopView extends MyView {
 		var doSave = (y > height*2/3);
 
 	    if(doDiscard || doSave){
-			// Stop and close session
-			var session = getApp().session;
-			if (doDiscard){
-				session.discard();
-			} else if(doSave){
-				session.save();
-			}
-		
-			// Switch to start views
-			var view = new StartView();
-			sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
+			var action = doDiscard
+				? ConfirmDelegate.ACTION_DISCARD
+				: doSave
+					? ConfirmDelegate.ACTION_SAVE
+					: ConfirmDelegate.ACTION_CANCEL;
+
+			var message = doDiscard
+				? Lang.format("$1$ ?", [WatchUi.loadResource(Rez.Strings.discard)])
+				: Lang.format("$1$ ?", [WatchUi.loadResource(Rez.Strings.save)]);
+			var dialog = new WatchUi.Confirmation(message);
+			confirmation = new ConfirmDelegate(action);
+			WatchUi.pushView(
+				dialog,
+				confirmation,
+				WatchUi.SLIDE_IMMEDIATE
+			);
 			return true;
 		}else{
 			return false;
