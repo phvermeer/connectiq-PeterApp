@@ -2,7 +2,7 @@ import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Graphics;
 
-class TrackInfoField extends MySimpleDataField{
+class RemainingDistanceField extends MySimpleDataField{
     hidden var fieldId as DataFieldId;
 
     function initialize(fieldId as DataFieldId, options as {

@@ -79,7 +79,7 @@ class FieldManager{
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
-            : (id == DATAFIELD_REMAINING_DISTANCE) ? new TrackInfoField(id, options)
+            : (id == DATAFIELD_REMAINING_DISTANCE) ? new RemainingDistanceField(id, options)
             //: (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_ASCENT) ?  new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_DESCENT) ?  new ActivityInfoField(id, options)
