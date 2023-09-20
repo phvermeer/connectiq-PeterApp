@@ -100,6 +100,8 @@
 
 	<!-- States-->
 	<string id="calibration">Calibratie</string>
+	<string id="manual">Handmatig</string>
+	<string id="auto">Auto</string>
 
 	<!-- Actions -->
 	<string id="discard">Weggooien</string>
