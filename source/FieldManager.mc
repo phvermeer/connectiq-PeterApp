@@ -42,6 +42,7 @@ enum DataFieldId{
 
 class FieldManager{
     hidden var fieldRefs as Dictionary<DataFieldId, WeakReference>;
+    hidden var lastActivityInfo as Activity.Info?;
 
     typedef IMyDataField as interface{
         function updateTrack() as Void;
@@ -99,6 +100,13 @@ class FieldManager{
             : (id == DATAFIELD_ALTITUDE) ? new AltitudeField(options)
             : new EmptyField(options);
 
+        // update field with latest Activity Info
+        if(lastActivityInfo != null){
+            if((field as IMyDataField) has :onActivityInfo){
+                (field as IMyDataField).onActivityInfo(lastActivityInfo);
+            }
+        }
+
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
         return field;
@@ -131,6 +139,7 @@ class FieldManager{
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
+        lastActivityInfo = info;
         var fields = getSupportedFields(:onActivityInfo);
         for(var i=0; i<fields.size(); i++){
             var field = fields[i];
