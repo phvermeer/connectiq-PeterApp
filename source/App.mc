@@ -32,7 +32,7 @@ class App extends Application.AppBase {
         settings = new Settings({ :onValueChange => method(:onSetting) });
 
         var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
-            ? settings.get(SETTING_AUTOLAP) as Float 
+            ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float 
             : null;
         session = new Session({
             :onStateChange => method(:onSessionState),
