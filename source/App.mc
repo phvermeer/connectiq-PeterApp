@@ -58,23 +58,23 @@ class App extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
+        timer.start(method(:onTimer), 1000, true);
         started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
         stopEvents();
+        timer.stop();
         started = false;
     }
 
     hidden function startEvents() as Void{
    	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
-        timer.start(method(:onTimer), 1000, true);
     }
 
     hidden function stopEvents() as Void{
         Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
-        timer.stop();
     }
 
 
@@ -129,11 +129,10 @@ class App extends Application.AppBase {
     }
 
     function onTimer() as Void{
-        // update time based
-        var info = Activity.getActivityInfo();
-        if(info != null){
-            session.onActivityInfo(info);
-            fieldManager.onActivityInfo(info);
+        // update time based info
+        var stats = System.getSystemStats();
+        if(stats != null){
+            fieldManager.onSystemInfo(stats);
         }
     }
 
@@ -174,6 +173,11 @@ class App extends Application.AppBase {
 
         // Inform Datafields
         fieldManager.onPosition(xy, info);
+        var activityInfo = Activity.getActivityInfo();
+        if(activityInfo != null){
+            session.onActivityInfo(activityInfo);
+            fieldManager.onActivityInfo(activityInfo);
+        }
     }
 
     // Return the initial view of your application here

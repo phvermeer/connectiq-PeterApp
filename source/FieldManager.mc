@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Position;
 import Toybox.Activity;
+import Toybox.System;
 
 enum DataFieldId{
     DATAFIELD_TEST = 0,
@@ -47,7 +48,8 @@ class FieldManager{
     typedef IMyDataField as interface{
         function updateTrack() as Void;
         function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void;
-        function onActivityInfo(info as Activity.Info);
+        function onActivityInfo(info as Activity.Info) as Void;
+        function onSystemInfo(stats as System.Stats) as Void;
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
@@ -137,7 +139,6 @@ class FieldManager{
             }
         }
     }
-
     function onActivityInfo(info as Activity.Info) as Void{
         lastActivityInfo = info;
         var fields = getSupportedFields(:onActivityInfo);
@@ -151,6 +152,13 @@ class FieldManager{
         for(var i=0; i<fields.size(); i++){
             var field = fields[i];
             field.onPosition(xy, info);
+        }
+    }
+    function onSystemInfo(stats as System.Stats) as Void{
+        var fields = getSupportedFields(:onSystemInfo);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onSystemInfo(stats);
         }
     }
 

@@ -26,8 +26,7 @@ class SystemInfoField extends MySimpleDataField{
         MySimpleDataField.initialize(options);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
-        var stats = System.getSystemStats();
+    function onSystemInfo(stats as System.Stats) as Void{
         var value
             = (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
             : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100 * stats.usedMemory / stats.totalMemory)
