@@ -199,5 +199,4 @@ class ActivityInfoField extends MySimpleDataField{
         }
         return value;
     }
-
 }

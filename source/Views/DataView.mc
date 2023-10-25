@@ -72,7 +72,6 @@ class DataView extends MyViews.MyView{
 
     // event handler for graphical update request
     function onUpdate(dc as Dc) as Void{
-        System.print(".");
         var overlay = hasFieldOverlay();
         if(!overlay){
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLUE);
