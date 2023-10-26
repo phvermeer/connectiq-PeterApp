@@ -1,7 +1,34 @@
 <layouts>
 	<layout id="start">
 		<drawable id="backgroundBlack" />
-		<drawable id="hintStart" class="HintStart" />
+		<drawable id="hintStart" class="MyDrawables.HintStart" />
 		<label id="text1" x="center" y="60%" text="@Strings.start" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
+		<drawable id="icon" class="Icon" >
+			<param name="locX">100</param>
+			<param name="locY">70</param>
+			<param name="width">60</param>
+			<param name="height">60</param>
+		</drawable>
+
 	</layout>
+	<layout id="stopped">
+		<drawable id="backgroundBlack" />
+		
+		<!-- Top: delete action area -->
+		<drawable id="edgeTop" class="MyDrawables.Edge">
+			<param name="color">Graphics.COLOR_RED</param>
+			<param name="position">MyDrawables.EDGE_TOP</param>
+		</drawable>
+		
+		<bitmap id="iconDelete" x="center" y="5%" filename="../drawables/delete_24x24.png" />
+
+		<!-- Bottom: save action area -->
+		<drawable id="edgeBottom" class="MyDrawables.Edge">
+			<param name="color">Graphics.COLOR_GREEN</param>
+			<param name="position">MyDrawables.EDGE_BOTTOM</param>
+		</drawable>
+
+		<bitmap id="iconConfirm" x="center" y="85%" filename="../drawables/checked_24x24.png" />
+	</layout>
+
 </layouts>

@@ -1,227 +1,155 @@
 import Toybox.Lang;
-import Toybox.Application;
 import Toybox.Activity;
+import Toybox.Application;
+import Toybox.Application.Storage;
+import Toybox.Graphics;
+import MyTools;
 
-enum SettingDefinition{
-	// Current Profile / Sport
-	SETTING_SPORT = "Sp",
-	
-	// Global settings
-	SETTING_TRACK_DATA = "trackData",
-	SETTING_TRACK_ZOOM = "Zl",
-
-	// Profile settings for each sport INPUT: Activity.Sport OUTPUT EXAMPLE: "P11Bg"
-	SETTING_AUTO_LAP_ENABLED = "AlEn",
-	SETTING_AUTO_LAP_DISTANCE = "AlDi",
-	SETTING_AUTO_PAUSE_ENABLED = "ApEn",
-	SETTING_BACKGROUND_COLOR = "BgCl",
-	SETTING_SCREEN_COUNT = "Sc",
-	SETTING_BREADCRUMPS_ENABLED = "BcEn",
-	SETTING_BREADCRUMPS_MIN_DISTANCE = "BcDi",
-	SETTING_BREADCRUMPS_MAX_COUNT = "BcCn",
-	
-	// screen settings uses PREFIX_SCREEN
-	SETTING_SCREEN_ENABLED = "En",
-	SETTING_SCREEN_LAYOUT = "Sl",
-}
-
-enum LayoutDefinition{
-	LAYOUT_ONE_FIELD = 1,
-	LAYOUT_TWO_FIELDS = 2,
-	LAYOUT_THREE_FIELDS = 3,
-	LAYOUT_FOUR_FIELDS = 4,
-	LAYOUT_FIVE_FIELDS = 5,
+enum SettingId{
+    // global settings
+    SETTING_SPORT = 0,
+    SETTING_TRACK = 1,
+    SETTING_ZOOMFACTOR = 2,
+    SETTING_ALTITUDE_CALIBRATED = 3,
+    SETTING_ALTITUDE_P0 = 4,
+    SETTING_ALTITUDE_T0 = 5,
+    SETTING_GLOBAL_MAX = 5,
+    // profile settings
+    SETTING_BACKGROUND_COLOR = 6,
+    SETTING_AUTOPAUSE = 7,
+    SETTING_AUTOLAP = 8,
+    SETTING_AUTOLAP_DISTANCE = 9,
+    SETTING_DATASCREENS = 10,
+    SETTING_BREADCRUMPS = 11,
+    SETTING_BREADCRUMPS_MIN_DISTANCE = 12,
+    SETTING_BREADCRUMPS_MAX_COUNT = 13,
+    SETTING_PROFILE_MAX = 13,
 }
 
 class Settings{
-	private enum SettingsPrefix{
-		PREFIX_PROFILE = "$1$_",		// INPUT: [sport as Number]
-		PREFIX_SCREEN = "$1$_S$2$_", 	// INPUT: [sport as Number, ScreenIndex as Number]
-	}
-	
-	const DEFAULT_VALUES = {
-		SETTING_SPORT => Activity.SPORT_WALKING,
-		SETTING_TRACK_ZOOM => 1.0,
-		SETTING_BACKGROUND_COLOR => Graphics.COLOR_WHITE,
-		SETTING_AUTO_LAP_ENABLED => true,
-		SETTING_AUTO_LAP_DISTANCE => 1000,
-		SETTING_AUTO_PAUSE_ENABLED => true,
-		SETTING_BREADCRUMPS_ENABLED => true,
-		SETTING_BREADCRUMPS_MIN_DISTANCE => 50,
-		SETTING_BREADCRUMPS_MAX_COUNT => 50,
-		SETTING_SCREEN_COUNT => 1,
-		SETTING_SCREEN_ENABLED => true,
-		SETTING_SCREEN_LAYOUT => [LAYOUT_ONE_FIELD, ["clock"]],
-	};
+    hidden enum ProfileSection{
+        SECTION_GLOBAL = 0,
+        SECTION_PROFILE_WALKING = 1,
+        SECTION_PROFILE_HIKING = 2,
+        SECTION_PROFILE_RUNNING = 3,
+        SECTION_PROFILE_CYCLING = 4
+    }
 
-	hidden var onChanged as Null | Method(screenIndex as Number?, id as String, value as PropertyValueType) as Void;
-	hidden var sport as Sport = Activity.SPORT_WALKING;
+    // default values
+	static const DEFAULT_VALUES = {
+        SETTING_SPORT => Activity.SPORT_WALKING,
+        SETTING_TRACK => null,
+        SETTING_ZOOMFACTOR=> 1.0f,
+        SETTING_ALTITUDE_CALIBRATED => false,
+        SETTING_ALTITUDE_P0 => 100000f,
+        SETTING_ALTITUDE_T0 => 25f,
+        SETTING_BACKGROUND_COLOR => Graphics.COLOR_WHITE,
+        SETTING_AUTOPAUSE => true,
+        SETTING_AUTOLAP => false,
+        SETTING_AUTOLAP_DISTANCE => 1000,
+        SETTING_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true]],
+        SETTING_BREADCRUMPS => true,
+	    SETTING_BREADCRUMPS_MIN_DISTANCE => 50,
+	    SETTING_BREADCRUMPS_MAX_COUNT => 50,
+	};    
 
-	function initialize(options as {
-		:onChanged as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void,
-	}){
-		// load the properties
-		$.getApp().loadProperties();
-		
-		// set the profile / sport
-		var sport = getValue("", SETTING_SPORT) as Sport;
-		setProfile(sport);
+    hidden var globalData as Array<PropertyValueType>;
+    hidden var profileId as ProfileSection;
+    hidden var profileData as Array<PropertyValueType>;
+    hidden var onValueChange as Null|Method(settingId as SettingId, value as PropertyValueType) as Void;
+    hidden var onDefaultRequest as Null|Method(settingId as SettingId) as PropertyValueType;
 
-		// assign listeners
-		if(options.hasKey(:onChanged)){
-			onChanged = options.get(:onChanged) as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void;
-		}
-	}
-	
-	function clear() as Void{
-		$.getApp().clearProperties();
-	}
+    function initialize(options as {
+        :onValueChange as Method(settingId as SettingId, value as PropertyValueType) as Void
+    }){
+        onValueChange = options.get(:onValueChange);
 
-	// raw values
-	hidden function getValue(prefix as String, key as String) as PropertyValueType{
-		var value = $.getApp().getProperty(prefix + key);
-		if(value != null){
-			return value;
-		}else{
-			return DEFAULT_VALUES.get(key as String);
-		}		
-	}
-	hidden function setValue(prefix as String, key as String, value as PropertyValueType) as Void{
-		var app = $.getApp();
-		app.setProperty(prefix + key, value);
-	}
-	
-	// listeners
-	function setListener(callback as Method(screenId as Number?, paramId as String, value as PropertyValueType) as Void) as Void{
-		self.onChanged = callback;
-	}
-	
-	// functions to access the settings
-	hidden function save() as Void{
-		$.getApp().saveProperties();
-	}
-	
-	function getSetting(id as String) as PropertyValueType {
-		if(id == SETTING_SPORT){
-			return sport;
-		}
+        // load global data
+        var size = SETTING_GLOBAL_MAX+1;
+        var data = Storage.getValue(SECTION_GLOBAL);
+        globalData = (data == null || (data as Array).size() != size)
+            ? new Array<PropertyValueType>[size]
+            : data as Array<PropertyValueType>;
 
-		var prefix = 
-			id.equals(SETTING_TRACK_ZOOM) || id.equals(SETTING_TRACK_DATA)
-			? ""
-			: Lang.format(PREFIX_PROFILE, [sport]);
+        // load profile data
+        var sport = get(SETTING_SPORT) as Activity.Sport;
+        profileId = getProfileSection(sport);
+        profileData = getProfileData(profileId);
+    }
+    hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
+        var size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;
+        var data = Storage.getValue(profileId as Number);
+        return (data == null || (data as Array).size() != size)
+            ? new Array<PropertyValueType>[size]
+            : data as Array<PropertyValueType>;
+    }
 
-		return getValue(prefix, id);
-	}
-	function setSetting(id as String, value as PropertyValueType) as Void {
-		var prefix;
-		if(id == SETTING_SPORT){
-			if(value == sport){
-				return;
-			}
-			setProfile(value as Sport);
-			prefix = "";
-		}else{
-			prefix = id.equals(SETTING_TRACK_ZOOM) || id.equals(SETTING_TRACK_DATA) ?
-				 "" :
-				Lang.format(PREFIX_PROFILE, [sport]);
-		}
-		setValue(prefix, id, value);
-		save();
-		
-		if(onChanged != null) {
-			onChanged.invoke(null, id, value);
-		}
-	}
-	
-	function getScreenSetting(screenIndex as Number, id as String) as PropertyValueType {
-		var prefix = Lang.format(PREFIX_SCREEN, [sport, screenIndex]);
-		return getValue(prefix, id);
-	}	
-	function setScreenSetting(screenIndex as Number, id as String, value as PropertyValueType) as Void {
-		var prefix = Lang.format(PREFIX_SCREEN, [sport, screenIndex]);
-		setValue(prefix, id, value);
-		save();
-		
-		if(onChanged != null) {
-			onChanged.invoke(screenIndex, id, value); 
-		}
-	}
-	function deleteScreen(screenIndex as Lang.Number) as Void{
-		// shift settings of screens with a higher index to fill the gap
-		var count = getSetting(SETTING_SCREEN_COUNT) as Number;
-		var ids = [
-			SETTING_SCREEN_ENABLED,
-			SETTING_SCREEN_LAYOUT,
-		] as Array<String>;
-		
-		var id;
-		var prefixOld = Lang.format(PREFIX_SCREEN, [sport, screenIndex]);
-		var prefixNew;
-		
-		for(var si=screenIndex; si<count; si++){
-			prefixNew = prefixOld;
-			prefixOld = Lang.format(PREFIX_SCREEN, [sport, si+1]);
-			for(var i=0; i<ids.size(); i++){
-				id = ids[i];
-				setValue(prefixNew, id, getValue(prefixOld, id));
-			}
-		}
-		// remove absolete settings
-		var app = $.getApp();
-		for(var i=0; i<ids.size(); i++){
-			id = ids[i];
-			app.deleteProperty(prefixOld + id);
-		}
-		
-		//decrease the screen counter
-		var prefix = Lang.format(PREFIX_PROFILE, [sport]);
-		setValue(prefix, SETTING_SCREEN_COUNT, count-1);
-		save();
-	}
-	
-	// special setter for the sport to change profile
-	protected function setProfile(sport as Activity.Sport) as Void{
-		if(self.sport != sport){
-			self.sport = sport;
-			setValue("", SETTING_SPORT, sport as Number);
-			
-			// notify listeners with all new settings
-			if(onChanged != null){
-				// normal settings (for each profile/sport)
-				var notifier = onChanged as Method;
-				notifier.invoke({ :id => SETTING_SPORT, :value => sport });
-				var prefix = Lang.format(PREFIX_PROFILE, [sport]);
-				var ids = [
-					SETTING_AUTO_LAP_ENABLED,
-					SETTING_AUTO_LAP_DISTANCE,
-					SETTING_AUTO_PAUSE_ENABLED,
-					SETTING_BREADCRUMPS_ENABLED,
-					SETTING_BREADCRUMPS_MIN_DISTANCE,
-					SETTING_BREADCRUMPS_MAX_COUNT,					
-					SETTING_BACKGROUND_COLOR,
-					SETTING_SCREEN_COUNT,
-				] as Array<String>;
-				for(var i=0; i<ids.size(); i++){
-					var id = ids[i];
-					notifier.invoke({ :id => id, :value => getValue(prefix, id) });
-				}
-				
-				// screen settings (foreach profile/sport and screen)
-				prefix = Lang.format(PREFIX_PROFILE, [sport]);
-				ids = [
-					SETTING_SCREEN_ENABLED,
-					SETTING_SCREEN_LAYOUT,
-				] as Array<String>;
-				var count = getValue(prefix, SETTING_SCREEN_COUNT) as Number;
-				for(var si=0; si<count; si++){
-					prefix = Lang.format(PREFIX_SCREEN, [sport, si]);
-					for(var i=0; i<ids.size(); i++){
-						var id = ids[i];
-						notifier.invoke({ :screenIndex => si, :id => id, :value => getValue(prefix, id) });
-					}
-				}
-			}
-		}
-	}
+    function get(settingId as SettingId) as PropertyValueType{
+        var id = settingId as Number;
+        var value = null;
+        if(id <= SETTING_GLOBAL_MAX){
+            value = globalData[id] as PropertyValueType;
+        }else if(id <= SETTING_PROFILE_MAX){
+            value =  profileData[id - (SETTING_GLOBAL_MAX + 1)] as PropertyValueType;
+        }
+        if(value == null){
+            // get default value
+            value = DEFAULT_VALUES.get(id) as PropertyValueType?;
+//            if(value == null){
+//                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
+//            }
+            self.set(settingId, value);
+        }
+        return value;
+    }
+
+    function set(settingId as SettingId, value as PropertyValueType) as Void{
+        // update instance and app data
+        var id = settingId as Number;
+        if (id <= SETTING_GLOBAL_MAX){
+            globalData[id] = value;
+            Storage.setValue(SECTION_GLOBAL, globalData);
+        }else if(id <= SETTING_PROFILE_MAX){
+            profileData[id - (SETTING_GLOBAL_MAX + 1)] = value;
+            Storage.setValue(profileId as Number, profileData);
+        }
+
+        // check if the profile is changed
+        if(settingId == SETTING_SPORT){
+            var profileIdNew = getProfileSection(value as Sport);
+            if(profileIdNew != profileId){
+                // profile is changed
+                profileId = profileIdNew;
+                profileData = getProfileData(profileId);
+            }
+        }
+
+        // inform listeners
+        if(onValueChange != null){
+            onValueChange.invoke(settingId, value);
+        }
+    }
+
+    function clear() as Void{
+        globalData = new Array<PropertyValueType>[SETTING_GLOBAL_MAX+1];
+        profileData = new Array<PropertyValueType>[SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX];
+        Storage.clearValues();
+    }
+
+    // hidden helper functions:
+    hidden function getProfileSection(sport as Sport) as ProfileSection{
+        switch(sport){
+            case Activity.SPORT_WALKING:
+                return SECTION_PROFILE_WALKING;
+            case Activity.SPORT_HIKING:
+                return SECTION_PROFILE_HIKING;
+            case Activity.SPORT_RUNNING:
+                return SECTION_PROFILE_RUNNING;
+            case Activity.SPORT_CYCLING:
+                return SECTION_PROFILE_CYCLING;
+            default:
+                return SECTION_PROFILE_WALKING;
+        }
+    }
+
 }

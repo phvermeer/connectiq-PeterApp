@@ -14,25 +14,27 @@
 	<string id="distance">Afstand</string>
 	<string id="time">Tijd</string>
 	<string id="speed">Snelheid</string>
-	<string id="avgSpeed">Gem.Snelheid</string>
-	<string id="maxSpeed">Max.Snelheid</string>
+	<string id="avgSpeed">Gem.Snlh</string>
+	<string id="maxSpeed">Max.Snlh</string>
 	<string id="altitude">Hoogte</string>
 	<string id="ascent">Stijging</string>
 	<string id="descent">Daling</string>
-	<string id="totalAscent">Tot.Stijging</string>
+	<string id="totalAscent">Tot.Stijg</string>
 	<string id="totalDescent">Tot.Daling</string>
 	<string id="heartRate">Hartslag</string>
 	<string id="avgHeartRate">Gem.Hartslag</string>
 	<string id="maxHeartRate">Max.Hartslag</string>
 	<string id="oxygenSaturation">O2</string>
 	<string id="energyRate">Energie</string>
-	<string id="pressure">Baro</string>
-	<string id="lapDistance">R.Afstand</string>
-	<string id="lapTime">R.Tijd</string>
-	<string id="lapSpeed">R.Snelheid</string>
+	<string id="pressure">Druk</string>
+	<string id="lapDistance">Rnd.Afst</string>
+	<string id="lapTime">Rnd.Tijd</string>
+	<string id="lapSpeed">Rnd.Snlh</string>
 	<string id="elevationSpeed">Stijg.Snlh</string>
-	<string id="batteryConsumption">Batt.Verbruik</string>
+	<string id="batteryConsumption">Batt.Verbr</string>
 	<string id="layoutTest">Layout Test</string>
+	<string id="airPressure">Luchtdruk</string>
+	<string id="seaLevelPressure">Baro</string>
 	
 	<string id="memory">Geheugen</string>
 	<string id="battery">Batterij</string>
@@ -40,9 +42,11 @@
 	<string id="profile">Profiel</string>
 	<string id="map">Kaart</string>
 	<string id="counter">Teller</string>
-	<string id="remainingDistance">Rest.Afstand</string>
+	<string id="remainingDistance">Rst.Afst</string>
 	<string id="compass">Kompas</string>
 	<string id="clock">Klok</string>
+	<string id="empty">Leeg</string>
+	<string id="test">Test</string>
 
 	<!-- actions -->
 	<string id="add">Toevoegen</string>
@@ -83,6 +87,7 @@
     <string id="timeFields">Tijd Velden</string>
     <string id="healthFields">Gezondheids Velden</string>
     <string id="altitudeFields">Hoogte Velden</string>
+    <string id="pressureFields">Luchtdruk Velden</string>
     <string id="lapFields">Ronde Velden</string>
 	<string id="breadcrumps">Spoor</string>
 	<string id="maxCount">Max Aantal</string>
@@ -91,5 +96,16 @@
 	<!-- Additional settings -->
 	<string id="autoLap">Auto Ronde</string>
 	<string id="autoPause">Auto Pause</string>
-	
+	<string id="altitudeCalibration">Hoogte Calibratie</string>	
+
+	<!-- States-->
+	<string id="calibration">Calibratie</string>
+	<string id="manual">Handmatig</string>
+	<string id="auto">Auto</string>
+
+	<!-- Actions -->
+	<string id="discard">Weggooien</string>
+	<string id="save">Opslaan</string>
+	<string id="cancel">Annuleren</string>
+
 </strings>

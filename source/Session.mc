@@ -1,9 +1,17 @@
 using Toybox.ActivityRecording;
 import Toybox.Lang;
+import Toybox.WatchUi;
 using Toybox.Timer;
 using Toybox.Activity;
-import MyTools;
 using Toybox.Time;
+import MyTools;
+
+enum SessionState {
+	SESSION_STATE_IDLE,
+	SESSION_STATE_BUSY,
+	SESSION_STATE_PAUSED,
+	SESSION_STATE_STOPPED,
+}
 
 class LapInfo{
 	public var speed as Float?; // [m/s]
@@ -34,13 +42,6 @@ class LapInfo{
 }
 
 class Session{
-	enum SessionState {
-		SESSION_STATE_IDLE,
-		SESSION_STATE_BUSY,
-		SESSION_STATE_PAUSED,
-		SESSION_STATE_STOPPED,
-	}
-
 	public var currentLapInfo as LapInfo?;
 	public var previousLapInfo as LapInfo?;
 
@@ -48,7 +49,6 @@ class Session{
 	hidden var mSession as ActivityRecording.Session? = null;
 	hidden var mOptions as { 
 		:sport as ActivityRecording.Sport, 
-		:subSport as ActivityRecording.SubSport, 
 		:name as Lang.String
 	};
 	hidden var mStateDelayCounter as Number = 0;
@@ -63,13 +63,28 @@ class Session{
 	hidden var mOnStateChange as Null|Method(state as SessionState) as Void;
 
 	function initialize(options as { 
-		:sport as ActivityRecording.Sport, 
-		:subSport as ActivityRecording.SubSport, 
+		:sport as Activity.Sport|ActivityRecording.Sport, 
 		:name as Lang.String,
 		:onStateChange as Method(state as SessionState) as Void,
+		:autoLap as Float|Null,
+		:autoPause as Boolean,
 	}){
-		mOptions = options;
 		mOnStateChange = options.get(:onStateChange);
+
+		// options for session creation
+		mOptions = {};
+		if(options.hasKey(:name)){
+			mOptions.put(:name, options.get(:name));
+		}
+		if(options.hasKey(:sport)){
+			mOptions.put(:sport, options.get(:sport) as Object);
+		}
+		if(options.hasKey(:autoLap)){
+			setAutoLap(options.get(:autoLap));
+		}
+		if(options.hasKey(:autoPause)){
+			setAutoPause(options.get(:autoPause) as Boolean);
+		}
 	}
 
 	public function setSport(sport as Activity.Sport) as Void{
@@ -89,9 +104,9 @@ class Session{
 	}
 	public function getSport() as Activity.Sport{
 		var sport = mOptions.get(:sport) as Activity.Sport?;
-		var settings = $.settings as Settings;
+		var settings = $.getApp().settings;
 		if(sport == null){
-			sport = settings.getSetting(SETTING_SPORT) as Activity.Sport;  
+			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
 		}
 		return sport;
 	}
@@ -115,7 +130,9 @@ class Session{
 					mSession = ActivityRecording.createSession(mOptions);
 					mSession.setTimerEventListener(method(:onEvents));
 				}
-				(mSession as ActivityRecording.Session).start();
+				if(mSession != null){
+					mSession.start();
+				}
 				setState(SESSION_STATE_BUSY);
 				break;
 		}
@@ -165,6 +182,21 @@ class Session{
 		}
 	}
 
+	static public function getIcon(sport as Activity.Sport) as BitmapResource{
+		switch(sport){
+		case Activity.SPORT_WALKING:
+			return WatchUi.loadResource(Rez.Drawables.walking) as WatchUi.BitmapResource;
+		case Activity.SPORT_RUNNING:
+			return WatchUi.loadResource(Rez.Drawables.running) as WatchUi.BitmapResource;
+		case Activity.SPORT_CYCLING:
+			return WatchUi.loadResource(Rez.Drawables.cycling) as WatchUi.BitmapResource;
+		case Activity.SPORT_HIKING:
+			return WatchUi.loadResource(Rez.Drawables.hiking) as WatchUi.BitmapResource;
+		default:
+			return WatchUi.loadResource(Rez.Drawables.unknown) as WatchUi.BitmapResource;
+		}
+	}
+
 //***** Protected functions **************
 
 	protected function setPaused(paused as Boolean) as Void{
@@ -201,7 +233,7 @@ class Session{
 		}
 	}
 
-	function onMonitor(info as Activity.Info) as Void{
+	function onActivityInfo(info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
 		}

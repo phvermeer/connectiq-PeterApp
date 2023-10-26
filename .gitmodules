@@ -7,3 +7,15 @@
 [submodule "source/MyDrawables"]
 	path = source/MyDrawables
 	url = https://github.com/phvermeer/connectiq-MyDrawables.git
+[submodule "source/MyMath"]
+	path = source/MyMath
+	url = https://github.com/phvermeer/connectiq-MyMath.git
+[submodule "source/MyLayoutHelper"]
+	path = source/MyLayoutHelper
+	url = https://github.com/phvermeer/connectiq-MyLayoutHelper
+[submodule "source/MyGraph"]
+	path = source/MyGraph
+	url = https://github.com/phvermeer/connectiq-MyGraph.git
+[submodule "source/MyList"]
+	path = source/MyList
+	url = https://github.com/phvermeer/connectiq-MyList
