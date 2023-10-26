@@ -49,7 +49,6 @@ class Session{
 	hidden var mSession as ActivityRecording.Session? = null;
 	hidden var mOptions as { 
 		:sport as ActivityRecording.Sport, 
-		:subSport as ActivityRecording.SubSport, 
 		:name as Lang.String
 	};
 	hidden var mStateDelayCounter as Number = 0;
@@ -64,16 +63,22 @@ class Session{
 	hidden var mOnStateChange as Null|Method(state as SessionState) as Void;
 
 	function initialize(options as { 
-		:sport as ActivityRecording.Sport, 
-		:subSport as ActivityRecording.SubSport, 
+		:sport as Activity.Sport|ActivityRecording.Sport, 
 		:name as Lang.String,
 		:onStateChange as Method(state as SessionState) as Void,
 		:autoLap as Float|Null,
 		:autoPause as Boolean,
 	}){
-		mOptions = options;
 		mOnStateChange = options.get(:onStateChange);
 
+		// options for session creation
+		mOptions = {};
+		if(options.hasKey(:name)){
+			mOptions.put(:name, options.get(:name));
+		}
+		if(options.hasKey(:sport)){
+			mOptions.put(:sport, options.get(:sport) as Object);
+		}
 		if(options.hasKey(:autoLap)){
 			setAutoLap(options.get(:autoLap));
 		}
@@ -125,7 +130,9 @@ class Session{
 					mSession = ActivityRecording.createSession(mOptions);
 					mSession.setTimerEventListener(method(:onEvents));
 				}
-				(mSession as ActivityRecording.Session).start();
+				if(mSession != null){
+					mSession.start();
+				}
 				setState(SESSION_STATE_BUSY);
 				break;
 		}
@@ -226,7 +233,7 @@ class Session{
 		}
 	}
 
-	function onMonitor(info as Activity.Info) as Void{
+	function onActivityInfo(info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
 		}

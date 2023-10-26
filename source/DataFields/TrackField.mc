@@ -147,7 +147,7 @@ class TrackField extends MyDataField{
             zoomFactor = value;
             trackThickness = getTrackThickness(zoomFactor);
             legend.setZoomFactor(zoomFactor);
-            doUpdate = true;
+            refresh();
             WatchUi.requestUpdate();
         }
     }
@@ -218,11 +218,13 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+        var heading = info.heading;
+        var quality = info.accuracy;
         if(xy != null && quality >= Position.QUALITY_USABLE){
             xyCurrent = xy;
             positionMarker.setHeading(heading);
-            doUpdate = true;
+            refresh();
         }
     }
 

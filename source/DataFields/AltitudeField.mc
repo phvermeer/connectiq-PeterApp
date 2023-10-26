@@ -1,7 +1,6 @@
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Graphics;
-import Toybox.Math;
 
 class AltitudeField extends MySimpleDataField{
     var calculator as Altitude.Calculator?;
@@ -37,26 +36,23 @@ class AltitudeField extends MySimpleDataField{
         }
     }
 
-    function onTimer(){
-        var info = Activity.getActivityInfo();
+    function onActivityInfo(info as Activity.Info){
         var altitude = null;
-        if(info != null){
-            if(calculator != null){
-                // calibrated altitude value (using air pressure)
-                var pressure = info.ambientPressure;
-                if(pressure != null){
-                    altitude = calculator.calculateAltitude(pressure);
-                }
-            }else{
-                // standard altitude value
-                altitude = info.altitude;
+        if(calculator != null){
+            // calibrated altitude value (using air pressure)
+            var pressure = info.ambientPressure;
+            if(pressure != null){
+                altitude = calculator.calculateAltitude(pressure);
             }
-
-            // round to whole number
-            if(altitude != null){
-                altitude = Math.round(altitude).toNumber();
-            }        
+        }else{
+            // standard altitude value
+            altitude = info.altitude;
         }
+
+        // round to whole number
+        if(altitude != null){
+            altitude = altitude.toNumber();
+        }        
         setValue(altitude);
     }
 

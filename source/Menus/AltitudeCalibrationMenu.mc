@@ -24,7 +24,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 	hidden var options as Lang.Dictionary;
 	hidden var calibration as Altitude.Calibration;
-	hidden var altitude as Number?;
+	hidden var altitude as Numeric?;
 	var updateTimer as Timer.Timer = new Timer.Timer();
 
 	function initialize(options as Dictionary){
@@ -105,7 +105,6 @@ class AltitudeCalibrationMenu extends MyMenu {
 		var info = Activity.getActivityInfo();
 		var settings = $.getApp().settings;
 
-
 		switch(item.getId() as Number){
 		
 		// Option menus (auto/manual)
@@ -125,7 +124,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 		// Select Number menu
 		case ITEM_CALIBRATE_MANUAL:
-			var numberPicker = new MyViews.NumberPicker2(altitude != null ? altitude : 0);
+			var numberPicker = new MyViews.NumberPicker2(altitude != null ? altitude.toNumber() : 0);
 			var delegate = new AltitudePickerDelegate(numberPicker, self);
 			WatchUi.pushView(numberPicker, delegate, WatchUi.SLIDE_IMMEDIATE);
 			break;
@@ -150,7 +149,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 		return false;
 	}
 
-	function calibrate(altitude as Number) as Void{
+	function calibrate(altitude as Numeric) as Void{
 		var info = Activity.getActivityInfo();
 		if(info != null){
 			var p = info.ambientPressure;

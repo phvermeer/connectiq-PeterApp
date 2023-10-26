@@ -2,6 +2,8 @@ import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Position;
+import Toybox.Activity;
+import Toybox.System;
 
 enum DataFieldId{
     DATAFIELD_TEST = 0,
@@ -41,10 +43,14 @@ enum DataFieldId{
 
 class FieldManager{
     hidden var fieldRefs as Dictionary<DataFieldId, WeakReference>;
+    hidden var lastActivityInfo as Activity.Info?;
+    hidden var lastSystemStats as System.Stats?;
 
     typedef IMyDataField as interface{
         function updateTrack() as Void;
-        function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void;
+        function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void;
+        function onActivityInfo(info as Activity.Info) as Void;
+        function onSystemInfo(stats as System.Stats) as Void;
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
@@ -79,7 +85,7 @@ class FieldManager{
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ActivityInfoField(id, options)
-            : (id == DATAFIELD_REMAINING_DISTANCE) ? new TrackInfoField(id, options)
+            : (id == DATAFIELD_REMAINING_DISTANCE) ? new RemainingDistanceField(id, options)
             //: (id == DATAFIELD_ELEVATION_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_ASCENT) ?  new ActivityInfoField(id, options)
             : (id == DATAFIELD_TOTAL_DESCENT) ?  new ActivityInfoField(id, options)
@@ -96,6 +102,25 @@ class FieldManager{
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
             : (id == DATAFIELD_ALTITUDE) ? new AltitudeField(options)
             : new EmptyField(options);
+
+        // update field with latest Activity Info
+        if(lastActivityInfo == null){
+            lastActivityInfo = Activity.getActivityInfo();
+        }
+        if(lastActivityInfo != null){
+            if((field as IMyDataField) has :onActivityInfo){
+                (field as IMyDataField).onActivityInfo(lastActivityInfo);
+            }
+        }
+        // update field with latest System stats
+        if(lastSystemStats == null){
+            lastSystemStats = System.getSystemStats();
+        }
+        if(lastSystemStats != null){
+            if((field as IMyDataField) has :onSystemInfo){
+                (field as IMyDataField).onSystemInfo(lastSystemStats);
+            }
+        }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
@@ -127,20 +152,46 @@ class FieldManager{
             }
         }
     }
+    function onActivityInfo(info as Activity.Info) as Void{
+        lastActivityInfo = info;
+        var fields = getSupportedFields(:onActivityInfo);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onActivityInfo(info);
+        }
+    }
+    function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void{
+        var fields = getSupportedFields(:onPosition);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onPosition(xy, info);
+        }
+    }
+    function onSystemInfo(stats as System.Stats) as Void{
+        lastSystemStats = stats;
 
-    function onPosition(xy as Array<Float>|Null, heading as Float?, quality as Position.Quality) as Void{
+        var fields = getSupportedFields(:onSystemInfo);
+        for(var i=0; i<fields.size(); i++){
+            var field = fields[i];
+            field.onSystemInfo(stats);
+        }
+    }
+
+    hidden function getSupportedFields(method as Symbol) as Array<IMyDataField>{
         var refs = fieldRefs.values();
+        var fields = [] as Array<IMyDataField>;
         for(var i=refs.size()-1; i>=0; i--){
             var ref = refs[i];
             if(ref.stillAlive()){
                 var field = ref.get() as MyDataField;
-                if((field as IMyDataField) has :onPosition){
-                    (field as IMyDataField).onPosition(xy, heading, quality);
+                if((field as IMyDataField) has method){
+                    fields.add(field as IMyDataField);
                 }
             }else{
                 var key = fieldRefs.keys()[i] as DataFieldId;
                 fieldRefs.remove(key);
             }
         }
+        return fields;
     }
 }

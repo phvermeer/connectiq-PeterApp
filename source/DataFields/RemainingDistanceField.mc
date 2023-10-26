@@ -1,8 +1,9 @@
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Graphics;
+import Toybox.Position;
 
-class TrackInfoField extends MySimpleDataField{
+class RemainingDistanceField extends MySimpleDataField{
     hidden var fieldId as DataFieldId;
 
     function initialize(fieldId as DataFieldId, options as {
@@ -21,10 +22,9 @@ class TrackInfoField extends MySimpleDataField{
 
         options.put(:label, strLabel);
         MySimpleDataField.initialize(options);
-        onTimer();
     }
 
-    function onTimer() as Void{
+    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
         var track = $.getApp().track;
         var value = null;
         if(track != null){

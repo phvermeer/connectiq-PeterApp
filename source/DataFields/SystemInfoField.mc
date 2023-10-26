@@ -24,23 +24,16 @@ class SystemInfoField extends MySimpleDataField{
 
         options.put(:label, strLabel);
         MySimpleDataField.initialize(options);
-        onTimer();
     }
 
-    function onTimer() as Void{
-        var stats = System.getSystemStats();
-        var info = Activity.getActivityInfo();
-        if(info != null){
-            var value
-                = (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
-                : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100 * stats.usedMemory / stats.totalMemory)
-                : (fieldId == DATAFIELD_BATTERY) ? formatPercentage(stats.battery)
-                : null;
+    function onSystemInfo(stats as System.Stats) as Void{
+        var value
+            = (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
+            : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100 * stats.usedMemory / stats.totalMemory)
+            : (fieldId == DATAFIELD_BATTERY) ? formatPercentage(stats.battery)
+            : null;
 
-            setValue(value);
-        }else{
-            setValue(null);
-        }
+        setValue(value);
     }
 
     static function formatClock(value as ClockTime) as String{
