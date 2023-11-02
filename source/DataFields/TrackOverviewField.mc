@@ -162,11 +162,6 @@ class TrackOverviewField extends MyDataField{
     hidden function getTrackColor() as ColorType{
         return darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
     }
-    /*
-    hidden function getBreadcrumpColor() as ColorType{
-        return darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
-    }
-    */
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
         var trackThickness = 1;

@@ -20,6 +20,7 @@ class App extends Application.AppBase {
     var fieldManager as FieldManager;
     var positionManager as PositionManager;
     var delegate as ViewDelegate?;
+    var altitudeCalculator as Altitude.Calculator;
     var started as Boolean = false;
 
 
@@ -44,6 +45,10 @@ class App extends Application.AppBase {
             :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
             :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
         });
+
+        var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
+        var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
+        altitudeCalculator = new Altitude.Calculator(p0, t0);
 
         timer = new Timer.Timer();
         Communications.registerForPhoneAppMessages(method(:onPhone));
@@ -175,6 +180,12 @@ class App extends Application.AppBase {
         fieldManager.onPosition(xy, info);
         var activityInfo = Activity.getActivityInfo();
         if(activityInfo != null){
+            // modify altitude
+            var pressure = activityInfo.ambientPressure;
+            if(pressure != null){
+                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
+            }
+
             session.onActivityInfo(activityInfo);
             fieldManager.onActivityInfo(activityInfo);
         }
