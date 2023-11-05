@@ -8,13 +8,12 @@ class PositionManager
     typedef XyPoint as Array<Float>;
 
     hidden var loggingEnabled as Boolean;
-    hidden var indexFirst as Number?;
-    hidden var indexLast as Number?;
     hidden var xyCurrent as XyPoint|Null;
-    hidden var buffer as Array<XyPoint|Null>;
+    hidden var buffer as Array<XyPoint|Null> = [] as Array<XyPoint|Null>;
 
     hidden var latlonCenter as Array<Decimal>|Null;
     hidden var minDistance as Number;
+    hidden var sizeMax as Number;
 
     // Collector of historical position data in a register
     function initialize(options as {
@@ -24,78 +23,20 @@ class PositionManager
         :latCenter as Decimal,
         :lonCenter as Decimal,
     }){
-        var size = options.hasKey(:size) ? options.get(:size) as Number : 100;
+        sizeMax = options.hasKey(:size) ? options.get(:size) as Number : 100;
         minDistance = options.hasKey(:minDistance) ? options.get(:minDistance) as Number : 20;
         loggingEnabled = options.hasKey(:loggingEnabled) ? options.get(:loggingEnabled) as Boolean : true;
-
-        // create the buffer
-        buffer = new Array< XyPoint|Null >[size];
     }
 
     function setSize(size as Number) as Void{
-        if(size == buffer.size()){
-            return;
-        }
-
-        // create the new array
-        var bufferNew = new Array< XyPoint|Null >[size];
-
-        // copy data (newest first until new buffer is full or old buffer reached limit)
-        if(self.indexFirst != null && self.indexLast != null){
-            var indexFirst = self.indexFirst as Number;
-            var indexLast = self.indexLast as Number;
-            var sizeOld = getSize();
-
-            if(size < sizeOld){
-                // not all history points will be transfered to the new buffer
-                var diff = sizeOld - size;
-                indexFirst += diff;
-                if(indexFirst >= buffer.size()){
-                    indexFirst -= buffer.size();
-                }
-            }
-            //copy points from old buffer in new buffer
-            var indexNew = 0;
-            if(indexLast >= indexFirst){
-                // indexFirst -> indexLast
-                for(var i=indexFirst; i<=indexLast; i++){
-                    bufferNew[indexNew] = buffer[i];
-                    indexNew++;
-                }
-            }else{
-                // indexFirst -> last array item
-                for(var i=indexFirst; i<buffer.size(); i++){
-                    bufferNew[indexNew] = buffer[i];
-                    indexNew++;
-                }
-                // first array item -> indexLast
-                for(var i=0; i<=indexLast; i++){
-                    bufferNew[indexNew] = buffer[i];
-                    indexNew++;
-                }
-            }
-
-            // update new indexes
-            self.indexFirst = 0;
-            self.indexLast = indexNew-1;
-            self.buffer = bufferNew;
-        }
-
-
-        // reset index pointers
+        self.sizeMax = size;
+        updateSize();
     }
 
-    function getSize() as Number{
-        // returns the number of xy points in the buffer
-        if(indexFirst != null && indexLast != null){
-            var iFirst = indexFirst as Number;
-            var iLast = indexLast as Number;
-
-            return (iFirst<=iLast)
-                ? (iLast + 1) - iFirst
-                : (buffer.size() - iFirst) + (iLast + 1);
-        }else{
-            return 0;
+    hidden function updateSize() as Void{
+        var sizeCurrent = buffer.size();
+        if(sizeCurrent > sizeMax){
+            buffer = buffer.slice(sizeCurrent-sizeMax, sizeCurrent);
         }
     }
 
@@ -116,13 +57,10 @@ class PositionManager
                 var dx = xyOffset[0];
                 var dy = xyOffset[1];
 
-                // only loop through array if there are already some points added
-                if(indexFirst != null && indexLast != null){
-                    for(var i=0; i<buffer.size(); i++){
-                        var xy = buffer[i];
-                        if(xy != null){
-                            buffer[i] = [xy[0]-dx, xy[1]-dy] as XyPoint;
-                        }
+                for(var i=0; i<buffer.size(); i++){
+                    var xy = buffer[i];
+                    if(xy != null){
+                        buffer[i] = [xy[0]-dx, xy[1]-dy] as XyPoint;
                     }
                 }
             }
@@ -138,9 +76,10 @@ class PositionManager
             xy = getXY(latlon);
         }
 
-        // get distance between points (the easy way)
-        if(indexLast != null){
-            var xyPrev = buffer[indexLast] as XyPoint?;
+        // get distance between new point and last recorded point
+        var sizeCurrent = buffer.size();
+        if(sizeCurrent > 0){
+            var xyPrev = buffer[sizeCurrent-1] as XyPoint?;
             if(xyPrev != null){
                 if(xy != null){
                     // calculate distance from previous point
@@ -152,8 +91,7 @@ class PositionManager
                     }
                 }else{
                     // position lost
-
-                    if(xyPrev != xyCurrent){
+                   if(xyPrev != xyCurrent){
                         add(xyCurrent);
                         add(null);
                     }
@@ -161,7 +99,7 @@ class PositionManager
             }else{
                 if(xy != null){
                     // position recovered
-                        add(xy);
+                    add(xy);
                 }
             }
         }else{
@@ -175,41 +113,12 @@ class PositionManager
     }
 
     hidden function add(xy as XyPoint|Null) as Void{
-        if(buffer.size() > 0){
-            // prepare next index
-            if(indexLast != null && indexFirst != null){
-                indexLast = (indexLast as Number < buffer.size()-1)
-                    ? indexLast as Number + 1
-                    : 0;
-                    
-                if(indexFirst == indexLast){
-                    indexFirst = (indexFirst as Number < buffer.size()-1)
-                        ? indexFirst as Number + 1
-                        : 0;
-                }
-            }else{
-                indexLast = 0;
-                indexFirst = 0;
-            }
-
-            buffer[indexLast] = xy;
-        }
+        buffer.add(xy);
+        updateSize();
     }
 
     function getXyValues() as Array<XyPoint|Null>{
-        if(self.indexFirst != null && self.indexLast != null){
-            var indexFirst = self.indexFirst as Number;
-            var indexLast = self.indexLast as Number;
-
-            if(indexFirst <= indexLast){
-                return buffer.slice(indexFirst, indexLast+1) as Array<XyPoint>;
-            }else{
-                var values = buffer.slice(indexFirst, buffer.size());
-                return values.addAll(buffer.slice(0, indexLast+1)) as Array<XyPoint|Null>;
-            }
-        }else{
-            return [] as Array<XyPoint|Null>;
-        }
+        return buffer;
     }
 
     function getXY(latlon as Array<Decimal>) as XyPoint{
