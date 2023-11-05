@@ -32,4 +32,8 @@ class MyHistoryIterator extends SensorHistoryIterator{
             }
         }
     }
+
+    function clear() as Void{
+        mData = null;
+    }
 }

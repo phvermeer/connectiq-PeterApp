@@ -22,6 +22,7 @@ class App extends Application.AppBase {
     var delegate as ViewDelegate?;
     var altitudeCalculator as Altitude.Calculator;
     var started as Boolean = false;
+    var history as MyHistoryIterator = new MyHistoryIterator();
 
 
     hidden var timer as Timer.Timer;
@@ -102,6 +103,7 @@ class App extends Application.AppBase {
             positionManager.setSize(value as Number);
         }else{
             if(id == SETTING_TRACK){
+                history.clear();
                 if(track != null){
                     positionManager.setCenter(track.latlonCenter);
                 }
@@ -161,6 +163,7 @@ class App extends Application.AppBase {
 
     function onPosition(info as Position.Info) as Void{
         var pos = info.position;
+        var activityInfo = Activity.getActivityInfo();
 
         var xy = null;
         if(pos != null && info.accuracy >= Position.QUALITY_USABLE){
@@ -176,9 +179,19 @@ class App extends Application.AppBase {
             track.onPosition(xy, info.accuracy);
         }
 
+        // Update history
+        var distance = (track != null)
+            ? track.isOnTrack()
+                ? (track as Track).distanceElapsed
+                : null
+            : (activityInfo != null)
+                ? activityInfo.elapsedDistance
+                : null;
+            
+        history.add(new MySample(distance));        
+
         // Inform Datafields
         fieldManager.onPosition(xy, info);
-        var activityInfo = Activity.getActivityInfo();
         if(activityInfo != null){
             // modify altitude
             var pressure = activityInfo.ambientPressure;
