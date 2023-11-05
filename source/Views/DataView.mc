@@ -126,11 +126,15 @@ class DataView extends MyViews.MyView{
 
     // setter for DataFields
     function setFields(fields as Array<MyDataField>) as Void{
+        var fieldsOld = self.fields;
         self.fields = fields;
         updateFieldsLayout();
 
         // Notify fields
         if(isVisible()){
+            for(var i=0; i<fieldsOld.size(); i++){
+                fieldsOld[i].onHide();
+            }
             for(var i=0; i<fields.size(); i++){
                 fields[i].onShow();
             }
