@@ -180,13 +180,19 @@ class App extends Application.AppBase {
         }
 
         // Update history
-        var distance = (track != null)
-            ? track.isOnTrack()
-                ? (track as Track).distanceElapsed
-                : null
-            : (activityInfo != null)
-                ? activityInfo.elapsedDistance
-                : null;
+        var distance = 
+            (info.accuracy < Position.QUALITY_USABLE)
+                ? null
+                : (track != null)
+                    ? track.isOnTrack()
+                        ? (track as Track).distanceElapsed
+                        : null
+                    : (activityInfo != null)
+                        ? activityInfo.elapsedDistance
+                        : null;
+
+        // override for testing purposes
+        distance = (activityInfo != null) ? activityInfo.elapsedDistance : null;
             
         history.add(new MySample(distance));        
 

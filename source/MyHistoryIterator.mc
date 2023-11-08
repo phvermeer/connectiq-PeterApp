@@ -11,6 +11,8 @@ class MySample extends SensorSample{
 }
 
 class MyHistoryIterator extends SensorHistoryIterator{
+    hidden var index as Number or Null;
+
     function initialize(){
         SensorHistoryIterator.initialize();
     }
@@ -22,6 +24,7 @@ class MyHistoryIterator extends SensorHistoryIterator{
             mData = [sample];
         }
 
+        // update min/max
         var data = sample.data;
         if(data != null){
             if(mMax == null || mMax < data){
@@ -31,9 +34,42 @@ class MyHistoryIterator extends SensorHistoryIterator{
                 mMin = data;
             }
         }
+
+        // update newest/oldest
+        var when = sample.when;
+        var value = when.value();
+        if(mOldestSampleTime == null || value < mOldestSampleTime.value()){
+            mOldestSampleTime = when;
+        }
+        if(mNewestSampleTime == null || value > mNewestSampleTime.value()){
+            mNewestSampleTime = when;
+        }
     }
 
     function clear() as Void{
         mData = null;
+    }
+
+    function getOldestSampleTime() as Time.Moment or Null{
+        return SensorHistoryIterator.getOldestSampleTime();
+    }
+    function next() as SensorSample|Null{
+        if(mData != null){
+            if(index != null){
+                index++;
+            }else{
+                index = 0;
+            }
+
+            // return sample
+            if(index != null){
+                var arr = mData as Array<SensorSample>;
+                if(index < arr.size()){
+                    return arr[index];
+                }
+            }
+        }
+        index = null;
+        return null;
     }
 }

@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Position;
 import Toybox.Application;
 import Toybox.Activity;
+import Toybox.Time;
 using Toybox.Timer;
 using Toybox.Math;
 import MyList;
@@ -50,7 +51,7 @@ class TrackProfileField extends MyDataField{
 		});
 		trend = new MyGraph.Trend({
 //			:series => [serieTrack, serieLive] as Array<Serie>,
-			:series => [serieTrack] as Array<Serie>,
+			:series => [serieTrack, serieLive] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 			:width => 3,
@@ -66,6 +67,20 @@ class TrackProfileField extends MyDataField{
 		}
 		
 		setBackgroundColor(backgroundColor);
+
+		// Load historical altitude data
+		initElevationHistory();
+	}
+
+	function onShow(){
+		dataTrack.onReady = method(:onTrackLoaded);
+		dataLive.onReady = method(:onNewAltitudeLoaded);
+	}
+
+	function onHide(){
+		// unlink to methods for the garbage collector
+		dataTrack.onReady = null;
+		dataLive.onReady = null;
 	}
 
 	function onLayout(dc as Graphics.Dc){
@@ -101,6 +116,35 @@ class TrackProfileField extends MyDataField{
 				marker.pt = new DataPoint(distance, altitude);
 				refresh();
 			}
+		}
+	}
+
+	function onActivityInfo(info as Activity.Info) as Void{
+		// add altitude to dataLive
+		var distance = 
+			(track != null)
+				? track.distanceElapsed
+				: info.elapsedDistance;
+		if(distance != null){
+			var altitude = info.altitude;
+			if(track != null && !track.isOnTrack()){
+				altitude = null;
+			}
+
+/*			// debug
+			if(altitude != null){
+				var range = yAxis.max - yAxis.min;
+				while(altitude > yAxis.max){
+					altitude -= range;
+				}
+				while(altitude < yAxis.min){
+					altitude += range;
+				}
+			}
+*/
+			var xy = new MyGraph.DataPoint(distance, altitude);
+			dataLive.add(xy);
+			updateAxisLimits(distance, altitude);
 		}
 	}
 
@@ -157,5 +201,81 @@ class TrackProfileField extends MyDataField{
 		yAxis.min = serieTrack.getYmin() as Numeric;
 		yAxis.max = serieTrack.getYmax() as Numeric;
 		refresh();
+	}
+	function onNewAltitudeLoaded() as Void{
+		refresh();
+	}
+
+	// get altitude history
+	function initElevationHistory() as Void{
+		var distanceHist = $.getApp().history;
+		var start = distanceHist.getOldestSampleTime();
+
+		if(start != null){
+			var end = Time.now();
+			var period = end.subtract(start) as Duration;
+			var elevationHist = SensorHistory.getPressureHistory({
+				:period => period,
+				:order => SensorHistory.ORDER_OLDEST_FIRST,
+			});
+
+			// loop through elevation data
+			var xSample = distanceHist.next();
+			var ySample;
+			
+			while(xSample != null){
+				var t0 = xSample.when;
+				// get y-sample after previous x-sample
+				var t = null;
+				do{
+					ySample = elevationHist.next();
+					t = (ySample != null) ? ySample.when : null;
+				}while(t != null && t.lessThan(t0));
+				if(t != null && ySample != null){
+					var y = ySample.data;
+
+					// get x-values before and after found y
+					var x0;
+					do{
+						x0 = xSample.data;
+						t0 = xSample.when;
+						xSample = distanceHist.next();
+					}while(xSample != null && xSample.when.lessThan(t));
+
+					// Check data available
+					if(xSample != null){
+						var x1 = xSample.data;
+						var t1 = xSample.when;
+
+						if(t != null && t0 != null && t1 != null && x0 != null && x1 != null){
+							// now we can interpolate x for y
+							var x = x0 + (x1-x0) * (t.value()-t0.value())/(t1.value()-t0.value());
+							var xy = new DataPoint(x, y);
+							dataLive.add(xy);
+						}
+					}
+				}else{
+					break;
+				}
+			}
+		}
+	}
+
+	// adjust axis limits
+	function updateAxisLimits(x as Numeric?, y as Numeric?) as Void{
+		if(x != null){
+			if(x < xAxis.min){
+				xAxis.min = x;
+			}else if(x > xAxis.max){
+				xAxis.max = x;
+			}
+		}
+		if(y != null){
+			if(y < yAxis.min){
+				yAxis.min = y;
+			}else if(y > yAxis.max){
+				yAxis.max = y;
+			}
+		}
 	}
 }
