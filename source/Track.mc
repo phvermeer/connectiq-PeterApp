@@ -34,6 +34,8 @@ class Track{
 	var xMax as Float;
 	var yMin as Float;
 	var yMax as Float;
+	var zMin as Float?;
+	var zMax as Float?;
     var latlonCenter as Array<Float>;
     var distances as Array<Float>;
     hidden var distanceCorrectionFactor as Float;
@@ -67,6 +69,8 @@ class Track{
 			yValues.add((yValuesRaw[i] * -EARTH_RADIUS) as Float);
 		}
         if(rawData.size()>=4){
+			zMin = info[11] as Float?;
+			zMax = info[14] as Float?;
             var zValues = rawData[3] as Array<Float>;
 			// replace 0.0 values with interpolated altitude
 			for(var i=0; i<zValues.size(); i++){
