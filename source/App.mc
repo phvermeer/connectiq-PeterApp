@@ -46,6 +46,7 @@ class App extends Application.AppBase {
             :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
             :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
         });
+        positionManager.addListener(self);
 
         var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
         var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
@@ -59,6 +60,7 @@ class App extends Application.AppBase {
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
             positionManager.setCenter(track.latlonCenter);
+            positionManager.addListener(track as PositionManager.IListener);
         }
     }
 
@@ -76,11 +78,11 @@ class App extends Application.AppBase {
     }
 
     hidden function startEvents() as Void{
-   	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
+        positionManager.start();
     }
 
     hidden function stopEvents() as Void{
-        Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
+        positionManager.stop();
     }
 
 
@@ -106,6 +108,7 @@ class App extends Application.AppBase {
                 history.clear();
                 if(track != null){
                     positionManager.setCenter(track.latlonCenter);
+                    positionManager.addListener(track as PositionManager.IListener);
                 }
             }
 
@@ -161,6 +164,38 @@ class App extends Application.AppBase {
         }
     }
 
+    function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void{
+        // update elapsed distance history
+        if(xy != null && info.accuracy >= Position.QUALITY_USABLE){
+            // Update elapsed track distance history
+            if(track != null){
+                var distance = 
+                    (info.accuracy < Position.QUALITY_USABLE)
+                        ? null
+                        : track.isOnTrack()
+                            ? (track as Track).distanceElapsed
+                            : null;
+                history.add(new MySample(distance));
+            }
+        }
+
+        // trigger Datafields.onPosition
+        fieldManager.onPosition(xy, info);
+
+        // trigger Datafields.onActivityInfo
+        var activityInfo = Activity.getActivityInfo();
+        if(activityInfo != null){
+            // modify altitude
+            var pressure = activityInfo.ambientPressure;
+            if(pressure != null){
+                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
+            }
+
+            session.onActivityInfo(activityInfo);
+            fieldManager.onActivityInfo(activityInfo);
+        }
+    }
+/*
     function onPosition(info as Position.Info) as Void{
         var pos = info.position;
         var activityInfo = Activity.getActivityInfo();
@@ -209,7 +244,7 @@ class App extends Application.AppBase {
             fieldManager.onActivityInfo(activityInfo);
         }
     }
-
+*/
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
         var view = new StartView();

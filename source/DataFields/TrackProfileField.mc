@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.Graphics;
+import Toybox.WatchUi;
 import Toybox.Position;
 import Toybox.Application;
 import Toybox.Activity;
@@ -12,6 +13,7 @@ import MyLayoutHelper;
 using MyTools;
 
 class TrackProfileField extends MyDataField{
+	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
 	var track as Track?;
 	var xAxis as Axis;
 	var yAxis as Axis;
@@ -30,8 +32,8 @@ class TrackProfileField extends MyDataField{
 	){
 		MyDataField.initialize(options);
 
-		xAxis = new Axis(0, 10000); // distance 0..1km
-		yAxis = new Axis(0, 100); // altitude 0..100m
+		xAxis = new Axis(0, 500); // distance 0..500m
+		yAxis = new Axis(0, 50); // altitude 0..50m
 		dataTrack = new BufferedList({
 			:maxCount => 50,
 			:onReady => method(:onTrackLoaded),
@@ -50,7 +52,7 @@ class TrackProfileField extends MyDataField{
 			:style => MyGraph.DRAW_STYLE_LINE,
 		});
 		trend = new MyGraph.Trend({
-//			:series => [serieTrack, serieLive] as Array<Serie>,
+			:series => [serieTrack, serieLive] as Array<Serie>,
 			:series => [serieTrack, serieLive] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
@@ -126,25 +128,30 @@ class TrackProfileField extends MyDataField{
 				? track.distanceElapsed
 				: info.elapsedDistance;
 		if(distance != null){
-			var altitude = info.altitude;
-			if(track != null && !track.isOnTrack()){
-				altitude = null;
-			}
-
-/*			// debug
-			if(altitude != null){
-				var range = yAxis.max - yAxis.min;
-				while(altitude > yAxis.max){
-					altitude -= range;
-				}
-				while(altitude < yAxis.min){
-					altitude += range;
-				}
-			}
-*/
+			var altitude = (track != null && !track.isOnTrack())
+				? null : info.altitude;
 			var xy = new MyGraph.DataPoint(distance, altitude);
 			dataLive.add(xy);
-			updateAxisLimits(distance, altitude);
+
+			// update statistics
+			var xMin = serieLive.getXmin();
+			var xMax = serieLive.getXmax();
+			if(xMin != null && xMin > distance){ serieLive.ptFirst = xy; }
+			if(xMax != null && xMax < distance){ serieLive.ptLast = xy; }
+
+			if(altitude != null){
+				altitude = altitude as Numeric;
+				var yMin = serieLive.getYmin();
+				if(yMin != null && yMin < altitude){
+					serieLive.ptMin = xy;
+				}
+				var yMax = serieLive.getYmax();
+				if(yMax != null && yMax > altitude){
+					serieLive.ptMax = xy;
+				}
+			}
+
+			updateAxisLimits(trend.series);
 		}
 	}
 
@@ -196,10 +203,7 @@ class TrackProfileField extends MyDataField{
 
 	function onTrackLoaded() as Void{
 		serieTrack.updateStatistics();
-		xAxis.min = serieTrack.getXmin() as Numeric;
-		xAxis.max = serieTrack.getXmax() as Numeric;
-		yAxis.min = serieTrack.getYmin() as Numeric;
-		yAxis.max = serieTrack.getYmax() as Numeric;
+		updateAxisLimits(trend.series);
 		refresh();
 	}
 	function onNewAltitudeLoaded() as Void{
@@ -216,7 +220,6 @@ class TrackProfileField extends MyDataField{
 			var period = end.subtract(start) as Duration;
 			var elevationHist = SensorHistory.getPressureHistory({
 				:period => period,
-				:order => SensorHistory.ORDER_OLDEST_FIRST,
 			});
 
 			// loop through elevation data
@@ -261,21 +264,102 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
+	hidden static function min(value1 as Numeric?, value2 as Numeric?) as Numeric?{
+		return (value1 != null)
+			? (value2 != null)
+				? (value1 <= value2)
+					? value1
+					: value2
+				: value1
+			: value2;
+	}
+	hidden static function max(value1 as Numeric?, value2 as Numeric?) as Numeric?{
+		return (value1 != null)
+			? (value2 != null)
+				? (value1 >= value2)
+					? value1
+					: value2
+				: value1
+			: value2;
+	}
+
 	// adjust axis limits
-	function updateAxisLimits(x as Numeric?, y as Numeric?) as Void{
-		if(x != null){
-			if(x < xAxis.min){
-				xAxis.min = x;
-			}else if(x > xAxis.max){
-				xAxis.max = x;
-			}
+	hidden function updateAxisLimits(series as Array<Serie>) as Void{
+		var xMin = 0;
+		var xMax = null;
+		var yMin = null;
+		var yMax = null;
+
+		for(var i=0; i<series.size(); i++){
+			var serie = series[i];
+			xMin = min(xMin, serie.getXmin());
+			xMax = max(xMax, serie.getXmax());
+			yMin = min(yMin, serie.getYmin());
+			yMax = max(yMax, serie.getYmax());
 		}
-		if(y != null){
-			if(y < yAxis.min){
-				yAxis.min = y;
-			}else if(y > yAxis.max){
-				yAxis.max = y;
+
+		if(xMin != null && xMax != null){
+			// minimal distance range = 500m
+			if(xMax - xMin < 500){
+				xMax = xMin + 500;
 			}
+			// update xRange with zoomFactor with current X within the range
+			var xRange = zoomFactor * (xMax-xMin);
+			var pt = marker.pt;
+			var x = pt != null ? pt.x : 0;
+			var xRange2 = xRange/2;
+			if(x <= xRange2){
+				xMax = xMin + xRange;
+			}else if(x >= xMax-xRange2){
+				xMin = xMax - xRange;
+			}else{
+				xMin = x - xRange2;
+				xMax = x + xRange2;
+			}
+
+			xAxis.min = xMin;
+			xAxis.max = xMax;
 		}
+
+		if(yMin != null && yMax != null) {
+			// minimal altitude range = 50m
+			// prefered yMin = 0
+			if(yMin > 0){
+				if(yMax <= 50){
+					yMin = 0;
+				}
+			}
+			if(yMax - yMin < 50){
+				yMax = yMin + 50;
+			}
+
+			yAxis.min = yMin;
+			yAxis.max = yMax;
+		}
+	}
+
+	// change zoomFactor from click event
+    function onTap(clickEvent as ClickEvent) as Boolean{
+        // zoom in/out
+        // |   40%    |  20%  |   40%   |
+        // | zoom out |       | zoom in |
+        var area = 0.4 * width;
+        var x = clickEvent.getCoordinates()[0];
+        if(x <= locX + area){
+            // zoom out
+			zoomFactor *= 1.3;
+        }else if(x >= locX + width - area){
+            // zoom in
+			zoomFactor /= 1.3;
+        }else{
+            return false;
+        }
+		if(zoomFactor > 1f){
+			zoomFactor = 1f;
+		}
+		updateAxisLimits(trend.series);
+		refresh();
+        WatchUi.requestUpdate();		
+        return true;
 	}
 }

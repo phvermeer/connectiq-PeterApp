@@ -58,18 +58,35 @@ module Altitude{
         }
         typedef Quality as WebQuality|Position.Quality|Number;
 
+        typedef IListener as interface{
+            function onAltitude(altitude as Float, accuracy as Quality) as Void;
+            function test() as Void;
+        };
+
         hidden var gpsState as State = STATE_IDLE;
         hidden var onlineState as State = STATE_IDLE;
+        hidden var listener as WeakReference|Null;
 
         var altitude as Float?;
         var accuracy as Quality = Position.QUALITY_NOT_AVAILABLE|WEB_QUALITY_NOT_AVAILABLE;
         hidden var gpsData as Null|Position.Info;
 
-        var onAltitude as Null|Method(altitude as Float, quality as Quality) as Void;
-
         hidden var retryTimer as Timer.Timer = new Timer.Timer();
 
-        function initialize(p0 as Float, t0 as Float){
+        function initialize(options as {
+                :p0 as Float, 
+                :t0 as Float,
+                :listener as Object,
+            })
+        {
+            var p0 = options.hasKey(:p0) ? options.get(:p0) as Float : 10000f;
+            var t0 = options.hasKey(:t0) ? options.get(:t0) as Float : 15f;
+            if(options.hasKey(:listener)){
+                var l = options.get(:listener);
+                if(l != null && (l as IListener) has :onAltitude){
+                    self.listener = l.weak();
+                }
+            }
             Calculator.initialize(p0, t0);
         }
 
@@ -81,11 +98,9 @@ module Altitude{
 
         function stop() as Void{
             // abort pending operations
-            Position.enableLocationEvents(
-                {
-                    :acquisitionType => Position.LOCATION_DISABLE,
-                }, method(:onGpsData)
-            );
+            var positionManager = $.getApp().positionManager;
+            positionManager.removeListener(self);
+
             Communications.cancelAllRequests();
             retryTimer.stop();
         }
@@ -122,14 +137,18 @@ module Altitude{
         }
 
         function requestGpsData() as Void{
+            // let the positionManager handle the gps request, otherwise the positionManager is overruled and will stop
             setGpsState(STATE_BUSY);
-            Position.enableLocationEvents(
-                {
-                    :acquisitionType => Position.LOCATION_ONE_SHOT,
-                },
-                method(:onGpsData)
-            );
+            var positionManager = $.getApp().positionManager;
+            positionManager.addListener(self);
+            positionManager.trigger();
         }
+        function onPosition(xy as PositionManager.XyPoint|Null, info as Position.Info) as Void{
+            var positionManager = $.getApp().positionManager;
+            positionManager.removeListener(self);
+            onGpsData(info);
+        }
+
         function onGpsData(info as Position.Info) as Void{
             validatePositionInfo(info);
 
@@ -214,8 +233,11 @@ module Altitude{
                 self.accuracy = accuracy;
         
                 // set event to listener
-                if(onAltitude != null){
-                    onAltitude.invoke(altitude, accuracy);
+                if(listener != null){
+                    var l = listener.get();
+                    if(l != null && (l as IListener) has :onAltitude){
+                        (l as IListener).onAltitude(altitude, accuracy);
+                    }
                 }
             }
         }
