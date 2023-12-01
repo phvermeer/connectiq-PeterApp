@@ -184,12 +184,12 @@ class PositionManager
     }
 
     // Listeners
-    function addListener(listener as IListener) as Void{
-        if(listener has :onPosition){
+    function addListener(listener as Object) as Void{
+        if((listener as IListener) has :onPosition){
             listeners.add(listener.weak());
         }
     }
-    function removeListener(listener as IListener) as Void{
+    function removeListener(listener as Object) as Void{
         // loop through array to look for listener
         for(var i=listeners.size()-1; i>=0; i--){
             var ref = listeners[i];

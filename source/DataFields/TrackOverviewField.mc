@@ -28,6 +28,9 @@ class TrackOverviewField extends MyDataField{
 
         // update darkmode
         setBackgroundColor(backgroundColor);
+
+        // subscribe to position events
+        $.getApp().positionManager.addListener(self);
     }
 
     function onLayout(dc as Dc){

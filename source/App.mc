@@ -60,7 +60,7 @@ class App extends Application.AppBase {
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
             positionManager.setCenter(track.latlonCenter);
-            positionManager.addListener(track as PositionManager.IListener);
+            positionManager.addListener(track as Object);
         }
     }
 
@@ -85,7 +85,6 @@ class App extends Application.AppBase {
         positionManager.stop();
     }
 
-
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
         if(!started){
             return;
@@ -108,7 +107,7 @@ class App extends Application.AppBase {
                 history.clear();
                 if(track != null){
                     positionManager.setCenter(track.latlonCenter);
-                    positionManager.addListener(track as PositionManager.IListener);
+                    positionManager.addListener(track as Object);
                 }
             }
 
@@ -178,9 +177,6 @@ class App extends Application.AppBase {
                 history.add(new MySample(distance));
             }
         }
-
-        // trigger Datafields.onPosition
-        fieldManager.onPosition(xy, info);
 
         // trigger Datafields.onActivityInfo
         var activityInfo = Activity.getActivityInfo();

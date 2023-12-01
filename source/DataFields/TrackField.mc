@@ -30,6 +30,9 @@ class TrackField extends MyDataField{
         positionMarker = new TrackPositionMarker({
             :darkMode => darkMode,
         });
+
+        // subscribe to position events
+        $.getApp().positionManager.addListener(self);
     }
 
     function onLayout(dc as Dc){

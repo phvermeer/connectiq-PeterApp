@@ -72,6 +72,9 @@ class TrackProfileField extends MyDataField{
 
 		// Load historical altitude data
 		initElevationHistory();
+
+        // subscribe to position events
+        $.getApp().positionManager.addListener(self);
 	}
 
 	function onShow(){
