@@ -209,7 +209,7 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+    function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

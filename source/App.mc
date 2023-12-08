@@ -18,7 +18,7 @@ class App extends Application.AppBase {
     var session as Session;
     var track as Track?;
     var fieldManager as FieldManager;
-    var positionManager as PositionManager;
+    var positionManager as Data;
     var delegate as ViewDelegate?;
     var altitudeCalculator as Altitude.Calculator;
     var started as Boolean = false;
@@ -41,7 +41,7 @@ class App extends Application.AppBase {
             :autoLap => autoLap,
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
-        positionManager = new PositionManager({
+        positionManager = new Data({
             :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
             :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
             :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
@@ -176,7 +176,7 @@ class App extends Application.AppBase {
         }
     }
 
-    function onPosition(xy as PositionManager.XyPoint?, info as Position.Info) as Void{
+    function onPosition(xy as Data.XyPoint?, info as Position.Info) as Void{
         // update elapsed distance history
         if(xy != null && info.accuracy >= Position.QUALITY_USABLE){
             // Update elapsed track distance history

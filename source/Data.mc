@@ -1,7 +1,7 @@
 import Toybox.Position;
 import Toybox.Lang;
 
-class PositionManager
+class Data
 {
    	const EARTH_RADIUS = 6371000f;
     typedef XyPoint as Array<Float>;

@@ -101,7 +101,7 @@ class TrackProfileField extends MyDataField{
 		helper.resizeToMax(trend, true, margin);
 	}
 
-	function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+	function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
 		if(track != null){
 			// get track elapsed distance
 			var distance = track.distanceElapsed;

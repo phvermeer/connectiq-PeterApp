@@ -221,7 +221,7 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+    function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
         var heading = info.heading;
         var quality = info.accuracy;
         if(xy != null && quality >= Position.QUALITY_USABLE){

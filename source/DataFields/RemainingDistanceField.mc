@@ -24,7 +24,7 @@ class RemainingDistanceField extends MySimpleDataField{
         MySimpleDataField.initialize(options);
     }
 
-    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+    function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
         var track = $.getApp().track;
         var value = null;
         if(track != null){

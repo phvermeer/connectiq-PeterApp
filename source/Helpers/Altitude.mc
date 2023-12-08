@@ -143,7 +143,7 @@ module Altitude{
             positionManager.addListener(self);
             positionManager.trigger();
         }
-        function onPosition(xy as PositionManager.XyPoint|Null, info as Position.Info) as Void{
+        function onPosition(xy as Data.XyPoint|Null, info as Position.Info) as Void{
             var positionManager = $.getApp().positionManager;
             positionManager.removeListener(self);
             onGpsData(info);
