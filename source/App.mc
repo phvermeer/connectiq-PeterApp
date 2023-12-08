@@ -143,6 +143,19 @@ class App extends Application.AppBase {
         if(stats != null){
             fieldManager.onSystemInfo(stats);
         }
+
+        // trigger Datafields.onActivityInfo
+        var activityInfo = Activity.getActivityInfo();
+        if(activityInfo != null){
+            // modify altitude
+            var pressure = activityInfo.ambientPressure;
+            if(pressure != null){
+                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
+            }
+
+            session.onActivityInfo(activityInfo);
+            fieldManager.onActivityInfo(activityInfo);
+        }
     }
 
     function onPhone(msg as Communications.Message) as Void{
@@ -176,19 +189,6 @@ class App extends Application.AppBase {
                             : null;
                 history.add(new MySample(distance));
             }
-        }
-
-        // trigger Datafields.onActivityInfo
-        var activityInfo = Activity.getActivityInfo();
-        if(activityInfo != null){
-            // modify altitude
-            var pressure = activityInfo.ambientPressure;
-            if(pressure != null){
-                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
-            }
-
-            session.onActivityInfo(activityInfo);
-            fieldManager.onActivityInfo(activityInfo);
         }
     }
 /*
