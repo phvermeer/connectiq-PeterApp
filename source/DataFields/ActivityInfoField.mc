@@ -96,7 +96,8 @@ class ActivityInfoField extends MySimpleDataField{
         MySimpleDataField.initialize(options);
     }
 
-    function onActivityInfo(info) as Void{
+    function onData(data as Data) as Void{
+        var info = data.activityInfo;
         var value
             = (fieldId == DATAFIELD_ELAPSED_TIME) ? info.timerTime
             : (fieldId == DATAFIELD_CURRENT_SPEED) ? info.currentSpeed

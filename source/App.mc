@@ -18,14 +18,10 @@ class App extends Application.AppBase {
     var session as Session;
     var track as Track?;
     var fieldManager as FieldManager;
-    var positionManager as Data;
+    var data as Data;
     var delegate as ViewDelegate?;
-    var altitudeCalculator as Altitude.Calculator;
-    var started as Boolean = false;
     var history as MyHistoryIterator = new MyHistoryIterator();
-
-
-    hidden var timer as Timer.Timer;
+    var started as Boolean = false;
 
     function initialize() {
         AppBase.initialize();
@@ -36,53 +32,40 @@ class App extends Application.AppBase {
         var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
             ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float 
             : null;
+        data = new Data({
+            :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
+            :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+        });
         session = new Session({
             :onStateChange => method(:onSessionState),
             :autoLap => autoLap,
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
-        positionManager = new Data({
-            :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
-            :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
-            :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
-        });
-        positionManager.addListener(self);
+        data.addListener(session);
 
-        var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
-        var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
-        altitudeCalculator = new Altitude.Calculator(p0, t0);
-
-        timer = new Timer.Timer();
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
         var trackData = settings.get(SETTING_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
-            positionManager.setCenter(track.latlonCenter);
-            positionManager.addListener(track as Object);
+            data.setCenter(track.latlonCenter);
+            data.addListener(track as Object);
         }
+
     }
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        timer.start(method(:onTimer), 1000, true);
+        data.start();
         started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
-        stopEvents();
-        timer.stop();
+        data.stop();
         started = false;
-    }
-
-    hidden function startEvents() as Void{
-        positionManager.start();
-    }
-
-    hidden function stopEvents() as Void{
-        positionManager.stop();
     }
 
     function onSetting(id as SettingId, value as PropertyValueType) as Void {
@@ -97,17 +80,17 @@ class App extends Application.AppBase {
                 : null;
             session.setAutoLap(autoLap);
         }else if(id == SETTING_BREADCRUMPS){
-            positionManager.setLoggingEnabled(value as Boolean);
+            data.setLoggingEnabled(value as Boolean);
         }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
-            positionManager.setMinDistance(value as Number);
+            data.setMinDistance(value as Number);
         }else if(id == SETTING_BREADCRUMPS_MAX_COUNT){
-            positionManager.setSize(value as Number);
+            data.setSize(value as Number);
         }else{
             if(id == SETTING_TRACK){
                 history.clear();
                 if(track != null){
-                    positionManager.setCenter(track.latlonCenter);
-                    positionManager.addListener(track as Object);
+                    data.setCenter(track.latlonCenter);
+                    data.addListener(track as Object);
                 }
             }
 
@@ -128,33 +111,12 @@ class App extends Application.AppBase {
             case SESSION_STATE_IDLE:
             case SESSION_STATE_STOPPED:
                 // stop events
-	            stopEvents();
+	            data.stop();
                 break;
             case SESSION_STATE_BUSY:
-                startEvents();
                 // start events
+                data.start();
                 break;
-        }
-    }
-
-    function onTimer() as Void{
-        // update time based info
-        var stats = System.getSystemStats();
-        if(stats != null){
-            fieldManager.onSystemInfo(stats);
-        }
-
-        // trigger Datafields.onActivityInfo
-        var activityInfo = Activity.getActivityInfo();
-        if(activityInfo != null){
-            // modify altitude
-            var pressure = activityInfo.ambientPressure;
-            if(pressure != null){
-                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
-            }
-
-            session.onActivityInfo(activityInfo);
-            fieldManager.onActivityInfo(activityInfo);
         }
     }
 
@@ -176,71 +138,7 @@ class App extends Application.AppBase {
         }
     }
 
-    function onPosition(xy as Data.XyPoint?, info as Position.Info) as Void{
-        // update elapsed distance history
-        if(xy != null && info.accuracy >= Position.QUALITY_USABLE){
-            // Update elapsed track distance history
-            if(track != null){
-                var distance = 
-                    (info.accuracy < Position.QUALITY_USABLE)
-                        ? null
-                        : track.isOnTrack()
-                            ? (track as Track).distanceElapsed
-                            : null;
-                history.add(new MySample(distance));
-            }
-        }
-    }
-/*
-    function onPosition(info as Position.Info) as Void{
-        var pos = info.position;
-        var activityInfo = Activity.getActivityInfo();
 
-        var xy = null;
-        if(pos != null && info.accuracy >= Position.QUALITY_USABLE){
-            // Update Breadcrump
-            var latlon = pos.toRadians();
-            xy = positionManager.addPosition(latlon);
-        }else{
-            positionManager.addPosition(null);
-        }
-
-        if(track != null){
-            // Update Track
-            track.onPosition(xy, info.accuracy);
-        }
-
-        // Update history
-        var distance = 
-            (info.accuracy < Position.QUALITY_USABLE)
-                ? null
-                : (track != null)
-                    ? track.isOnTrack()
-                        ? (track as Track).distanceElapsed
-                        : null
-                    : (activityInfo != null)
-                        ? activityInfo.elapsedDistance
-                        : null;
-
-        // override for testing purposes
-        distance = (activityInfo != null) ? activityInfo.elapsedDistance : null;
-            
-        history.add(new MySample(distance));        
-
-        // Inform Datafields
-        fieldManager.onPosition(xy, info);
-        if(activityInfo != null){
-            // modify altitude
-            var pressure = activityInfo.ambientPressure;
-            if(pressure != null){
-                activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
-            }
-
-            session.onActivityInfo(activityInfo);
-            fieldManager.onActivityInfo(activityInfo);
-        }
-    }
-*/
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
         var view = new StartView();

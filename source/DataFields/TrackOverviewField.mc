@@ -30,7 +30,7 @@ class TrackOverviewField extends MyDataField{
         setBackgroundColor(backgroundColor);
 
         // subscribe to position events
-        $.getApp().positionManager.addListener(self);
+        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -209,7 +209,8 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
+    function onData(data as Data) as Void{
+        var xy = data.xy;
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

@@ -233,7 +233,8 @@ class Session{
 		}
 	}
 
-	function onActivityInfo(info as Activity.Info) as Void{
+	function onData(data as Data) as Void{
+		var info = data.activityInfo;
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
 		}

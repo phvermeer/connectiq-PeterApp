@@ -32,7 +32,7 @@ class TrackField extends MyDataField{
         });
 
         // subscribe to position events
-        $.getApp().positionManager.addListener(self);
+        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -102,8 +102,7 @@ class TrackField extends MyDataField{
         color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-        var posManager = $.getApp().positionManager;
-        var points = posManager.getXyValues();
+        var points = $.getApp().data.getXyValues();
         var count = points.size();
         if(count >= 2){
             var p1 = points[0];
@@ -221,7 +220,9 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
+    function onData(data as Data) as Void{
+        var xy = data.xy;
+        var info = data.positionInfo;
         var heading = info.heading;
         var quality = info.accuracy;
         if(xy != null && quality >= Position.QUALITY_USABLE){

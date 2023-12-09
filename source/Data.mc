@@ -1,15 +1,21 @@
 import Toybox.Position;
+import Toybox.Activity;
+import Toybox.System;
 import Toybox.Lang;
+import Toybox.Timer;
 
 class Data
 {
    	const EARTH_RADIUS = 6371000f;
     typedef XyPoint as Array<Float>;
     typedef IListener as interface{
-        function onPosition(xy as XyPoint|Null, info as Position.Info) as Void;
+        function onData(data as Data) as Void;
     };
 
-    public var info as Position.Info = new Position.Info();
+    public var positionInfo as Position.Info = new Position.Info();
+    public var activityInfo as Activity.Info = new Activity.Info();
+    public var stats as System.Stats = new System.Stats();
+
     public var xy as XyPoint|Null;
 
     hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
@@ -22,6 +28,9 @@ class Data
     hidden var minDistance as Number;
     hidden var sizeMax as Number;
 
+    hidden var timer as Timer.Timer = new Timer.Timer();
+    hidden var altitudeCalculator as Altitude.Calculator|Null;
+
     // Collector of historical position data in a register
     function initialize(options as {
         :loggingEnabled as Boolean,
@@ -33,26 +42,27 @@ class Data
         sizeMax = options.hasKey(:size) ? options.get(:size) as Number : 100;
         minDistance = options.hasKey(:minDistance) ? options.get(:minDistance) as Number : 20;
         loggingEnabled = options.hasKey(:loggingEnabled) ? options.get(:loggingEnabled) as Boolean : true;
+
+        var settings = $.getApp().settings;
+        if(SETTING_ALTITUDE_CALIBRATED){
+            var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
+            var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
+            altitudeCalculator = new Altitude.Calculator(p0, t0);
+        }
     }
 
     function start() as Void{
         // enable location events
         if(!started){
             started = true;
-            Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));
+            timer.start(method(:onTimer), 1000, true);
         }
     }
     function stop() as Void{
         // disable location events
         if(started){
             started = false;
-            Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
-        }
-    }
-    function trigger() as Void{
-        // one shot
-        if(!started){
-            Position.enableLocationEvents(Position.LOCATION_ONE_SHOT, method(:onPosition));
+            timer.stop();
         }
     }
 
@@ -98,7 +108,7 @@ class Data
         latlonCenter = latlon;
     }
 
-    hidden function processInfo(info as Position.Info) as Void{
+    hidden function processPositionInfo(info as Position.Info) as Void{
         // get latitude and longtitude
         var pos = info.position;
 
@@ -145,11 +155,22 @@ class Data
 
         // keep last position
         self.xy = xyNew;
-        self.info = info;
+        self.positionInfo = info;
     }
 
-    function onPosition(info as Position.Info) as Void{
-        processInfo(info);
+    hidden function processActivityInfo(info as Activity.Info) as Void{
+        if(altitudeCalculator != null){
+            // modify altitude
+            var pressure = info.ambientPressure;
+            if(pressure != null){
+                info.altitude = altitudeCalculator.calculateAltitude(pressure);
+            }
+        }
+        self.activityInfo = info;
+    }
+
+    function onTimer() as Void{
+        processPositionInfo(Position.getInfo());
 
         // notify listeners
         notifyListeners();
@@ -185,7 +206,7 @@ class Data
 
     // Listeners
     function addListener(listener as Object) as Void{
-        if((listener as IListener) has :onPosition){
+        if((listener as IListener) has :onData){
             listeners.add(listener.weak());
         }
     }
@@ -204,7 +225,7 @@ class Data
             var ref = listeners[i];
             var l = ref.get();
             if(l != null){
-                (l as IListener).onPosition(xy, info);
+                (l as IListener).onData(self);
             }else{
                 listeners.remove(ref);
             }

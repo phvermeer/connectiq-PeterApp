@@ -48,8 +48,6 @@ class FieldManager{
 
     typedef IMyDataField as interface{
         function updateTrack() as Void;
-        function onActivityInfo(info as Activity.Info) as Void;
-        function onSystemInfo(stats as System.Stats) as Void;
         function onSetting(id as SettingId, value as PropertyValueType) as Void;
     };
 
@@ -95,31 +93,12 @@ class FieldManager{
             : (id == DATAFIELD_ENERGY_RATE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_PRESSURE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_ALTITUDE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_CLOCK) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
-            : (id == DATAFIELD_ALTITUDE) ? new AltitudeField(options)
             : new EmptyField(options);
-
-        // update field with latest Activity Info
-        if(lastActivityInfo == null){
-            lastActivityInfo = Activity.getActivityInfo();
-        }
-        if(lastActivityInfo != null){
-            if((field as IMyDataField) has :onActivityInfo){
-                (field as IMyDataField).onActivityInfo(lastActivityInfo);
-            }
-        }
-        // update field with latest System stats
-        if(lastSystemStats == null){
-            lastSystemStats = System.getSystemStats();
-        }
-        if(lastSystemStats != null){
-            if((field as IMyDataField) has :onSystemInfo){
-                (field as IMyDataField).onSystemInfo(lastSystemStats);
-            }
-        }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
@@ -150,40 +129,5 @@ class FieldManager{
                 fieldRefs.remove(key);
             }
         }
-    }
-    function onActivityInfo(info as Activity.Info) as Void{
-        lastActivityInfo = info;
-        var fields = getSupportedFields(:onActivityInfo);
-        for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
-            field.onActivityInfo(info);
-        }
-    }
-    function onSystemInfo(stats as System.Stats) as Void{
-        lastSystemStats = stats;
-
-        var fields = getSupportedFields(:onSystemInfo);
-        for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
-            field.onSystemInfo(stats);
-        }
-    }
-
-    hidden function getSupportedFields(method as Symbol) as Array<IMyDataField>{
-        var refs = fieldRefs.values();
-        var fields = [] as Array<IMyDataField>;
-        for(var i=refs.size()-1; i>=0; i--){
-            var ref = refs[i];
-            if(ref.stillAlive()){
-                var field = ref.get() as MyDataField;
-                if((field as IMyDataField) has method){
-                    fields.add(field as IMyDataField);
-                }
-            }else{
-                var key = fieldRefs.keys()[i] as DataFieldId;
-                fieldRefs.remove(key);
-            }
-        }
-        return fields;
     }
 }

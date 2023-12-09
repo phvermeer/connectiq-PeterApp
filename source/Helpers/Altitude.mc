@@ -98,10 +98,13 @@ module Altitude{
 
         function stop() as Void{
             // abort pending operations
-            var positionManager = $.getApp().positionManager;
-            positionManager.removeListener(self);
+            if(gpsState == STATE_BUSY){
+                Position.enableLocationEvents({ :acquisitionType => Position.LOCATION_DISABLE }, method(:onGpsData));
+            }
 
-            Communications.cancelAllRequests();
+            if(onlineState == STATE_BUSY){
+                Communications.cancelAllRequests();
+            }
             retryTimer.stop();
         }
 
@@ -139,14 +142,7 @@ module Altitude{
         function requestGpsData() as Void{
             // let the positionManager handle the gps request, otherwise the positionManager is overruled and will stop
             setGpsState(STATE_BUSY);
-            var positionManager = $.getApp().positionManager;
-            positionManager.addListener(self);
-            positionManager.trigger();
-        }
-        function onPosition(xy as Data.XyPoint|Null, info as Position.Info) as Void{
-            var positionManager = $.getApp().positionManager;
-            positionManager.removeListener(self);
-            onGpsData(info);
+            Position.enableLocationEvents({:acquisitionType => Position.LOCATION_ONE_SHOT}, method(:onGpsData));
         }
 
         function onGpsData(info as Position.Info) as Void{
@@ -162,6 +158,7 @@ module Altitude{
 
         function requestOnlineData(position as Location) as Void{
             Communications.cancelAllRequests();
+            setOnlineState(STATE_BUSY);
 
             var latlon = position.toDegrees();
             var url = "https://api.open-meteo.com/v1/forecast";                         // set the url

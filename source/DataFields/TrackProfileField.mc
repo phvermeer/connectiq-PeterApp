@@ -74,7 +74,7 @@ class TrackProfileField extends MyDataField{
 		initElevationHistory();
 
         // subscribe to position events
-        $.getApp().positionManager.addListener(self);
+        $.getApp().data.addListener(self);
 	}
 
 	function onShow(){
@@ -101,7 +101,13 @@ class TrackProfileField extends MyDataField{
 		helper.resizeToMax(trend, true, margin);
 	}
 
-	function onPosition(xy as Data.XyPoint, info as Position.Info) as Void{
+	function onData(data as Data) as Void{
+		updateMarker();
+		onActivityInfo(data.activityInfo);
+
+	}
+
+	hidden function updateMarker() as Void{
 		if(track != null){
 			// get track elapsed distance
 			var distance = track.distanceElapsed;
@@ -124,7 +130,7 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
-	function onActivityInfo(info as Activity.Info) as Void{
+	hidden function onActivityInfo(info as Activity.Info) as Void{
 		// add altitude to dataLive
 		var distance = 
 			(track != null)

@@ -127,8 +127,9 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-	function onPosition(xy as Array<Float>|Null, info as Position.Info) as Void{
-		var accuracy = info.accuracy;
+	function onData(data as Data) as Void{
+		var xy = data.xy;
+		var accuracy = data.positionInfo.accuracy;
 		if(accuracy >= Position.QUALITY_USABLE && xy != null){
 			// update the currentIndex of the track
 			if(xy != null){
