@@ -175,14 +175,11 @@ class TrackProfileField extends MyDataField{
 	
 	function onSetting(id as SettingId, value as PropertyValueType) as Void{
 		if(id == SETTING_TRACK){
-			var track = $.getApp().track;
-			if(track != null){
-				setTrack(track);
-			}
+			setTrack(value as Track|Null);
 		}
 	}
 
-	function setTrack(track as Track) as Void{
+	function setTrack(track as Track?) as Void{
 
 		// update profile with set track
 		self.track = track;

@@ -4,21 +4,17 @@ import Toybox.Application;
 class DataScreensSettings{
     var items as Array<DataScreenSettings>;
 
-    function initialize(screensData as PropertyValueType){
-        if(screensData instanceof Array){
-            var screensData_ = screensData as Array;
-            var count = screensData_.size();
-            items = new Array<DataScreenSettings>[count];
-            for(var i=0; i<count; i++){
-                var screenData = screensData_[i];
-                if(screenData instanceof Array){
-                    items[i] = new DataScreenSettings(screenData as Array);
-                }else{
-                    throw new MyTools.MyException(Lang.format("Setting values for DataView[$1$] should be of type array", [i]));
-                }
+    function initialize(screensData as Array){
+        var screensData_ = screensData as Array;
+        var count = screensData_.size();
+        items = new Array<DataScreenSettings>[count];
+        for(var i=0; i<count; i++){
+            var screenData = screensData_[i];
+            if(screenData instanceof Array){
+                items[i] = new DataScreenSettings(screenData as Array);
+            }else{
+                throw new MyTools.MyException(Lang.format("Setting values for DataView[$1$] should be of type array", [i]));
             }
-        }else{
-            throw new MyTools.MyException("Setting values for DataViews should be of type array");
         }
     }
 

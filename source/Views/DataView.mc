@@ -54,6 +54,9 @@ class DataView extends MyViews.MyView{
         if(sessionState != null){
             onSessionState(sessionState);
         }
+
+        var settings = $.getApp().settings;
+        settings.addListener(self);
     }
 
     // event handler when view becomes visible
@@ -296,5 +299,9 @@ class DataView extends MyViews.MyView{
         }else{
             return false;
         }
+    }
+
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
+        // ToDO
     }
 }

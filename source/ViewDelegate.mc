@@ -47,7 +47,7 @@ class ViewDelegate extends MyViews.MyViewDelegate {
         }else if(mView instanceof StopView){
             // Open DataView with correct fields
             var app = $.getApp();
-            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS));
+            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS) as Array);
             var screenSettings = screensSettings.items[dataViewIndex];
             var fields = app.fieldManager.getFields(screenSettings.fieldIds);
             var layout = DataView.getLayoutById(screenSettings.layoutId);
@@ -80,7 +80,7 @@ class ViewDelegate extends MyViews.MyViewDelegate {
 
             // get screens settings
             var app = $.getApp();
-            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS));
+            var screensSettings = new DataScreensSettings(app.settings.get(SETTING_DATASCREENS) as Array);
             var count = screensSettings.items.size();
 
             // swipe up or down to next dataview
@@ -117,12 +117,12 @@ class ViewDelegate extends MyViews.MyViewDelegate {
     }
 
     // external trigger to update DataView with changed settings
-    function onSettingChange(id as SettingId, value as PropertyValueType) as Void{
+    function onSetting(id as SettingId, value as PropertyValueType) as Void{
         if(mView instanceof DataView){
             var view = mView as DataView;
             if(id == SETTING_DATASCREENS){
                 // decode settings with helpers
-                var screensSettings = new DataScreensSettings(value);
+                var screensSettings = new DataScreensSettings(value as Array);
                 var screenSettings = screensSettings.items[dataViewIndex];
 
                 var layout = DataView.getLayoutById(screenSettings.layoutId);

@@ -25,9 +25,12 @@ class App extends Application.AppBase {
 
     function initialize() {
         AppBase.initialize();
+        settings = new Settings();
 
         fieldManager = new FieldManager();
-        settings = new Settings({ :onValueChange => method(:onSetting) });
+        settings.addListener(fieldManager);
+
+
 
         var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
             ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float 
@@ -54,6 +57,7 @@ class App extends Application.AppBase {
             data.addListener(track as Object);
         }
 
+        settings.addListener(self);
     }
 
     // onStart() is called on application start up
@@ -68,7 +72,13 @@ class App extends Application.AppBase {
         started = false;
     }
 
-    function onSetting(id as SettingId, value as PropertyValueType) as Void {
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void {
+        if(id == SETTING_TRACK){
+            track = value as Track|Null;
+        }
+
+/*
+
         if(!started){
             return;
         }
@@ -96,9 +106,10 @@ class App extends Application.AppBase {
 
             fieldManager.onSetting(id, value);
             if(delegate != null){
-                delegate.onSettingChange(id, value);
+                delegate.onSetting(id, value);
             }
         }
+*/        
     }
 
     function onSessionState(state as SessionState) as Void {
@@ -126,18 +137,16 @@ class App extends Application.AppBase {
         // receive track data
         if(msg.data instanceof Array){
             var data = msg.data as Array;
-            track = new Track(data);
 
             // vibrate when track is received
             if(Attention has :vibrate){
                 Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
             }
 
-            // save track data in storage
+            // save track data in storage and inform listeners
             settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
         }
     }
-
 
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
