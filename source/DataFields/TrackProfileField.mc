@@ -179,7 +179,7 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
-	function setTrack(track as Track?) as Void{
+	hidden function setTrack(track as Track?) as Void{
 
 		// update profile with set track
 		self.track = track;

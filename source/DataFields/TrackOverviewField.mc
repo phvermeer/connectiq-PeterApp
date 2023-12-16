@@ -40,14 +40,8 @@ class TrackOverviewField extends MyDataField{
         var fieldSize = (width > height) ? height : width;
         markerSize = MyMath.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
-        // create bitmap
-        if(track != null){
-            // the following vars will be updated in initBitmap
-            //  - bitmap
-            //  - xBitmap
-            //  - yBitmap
-            updateBitmap(track);
-        }
+        // update the bitmap
+        updateBitmap(track);
     }
 
     function onUpdate(dc as Dc){
@@ -148,14 +142,7 @@ class TrackOverviewField extends MyDataField{
             }
         }else{
             // clear bitmap
-            var bitmap = self.bitmap;
-            if(bitmap != null){
-                var dc = bitmap.getDc();
-                if(dc != null){
-                    dc.clear();
-                }
-            }
-
+            self.bitmap = null;
         }
     }
 

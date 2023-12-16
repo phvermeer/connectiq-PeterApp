@@ -181,8 +181,7 @@ class TrackField extends MyDataField{
             // update zoomfactor
             setZoomFactor(value as Float);
         }else if(id == SETTING_TRACK){
-            var track = $.getApp().track;
-            self.track = track;
+            self.track = value as Track?;
         }
     }
 
