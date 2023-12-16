@@ -5,14 +5,14 @@ import Toybox.Application;
 class FieldsSubMenu extends MyMenu{
 	hidden var dataView as DataView;
 	hidden var screenIndex as Number; 
-	hidden var screensSettings as DataScreensSettings;
+	hidden var screensSettings as DataView.ScreensSettings;
 	hidden var fieldIndex as Number; 
 
 	function initialize(
 		settings as {:title as String, :items as Dictionary },
 		dataView as DataView, 
 		screenIndex as Number,
-		screensSettings as DataScreensSettings,
+		screensSettings as DataView.ScreensSettings,
 		fieldIndex as Number
 	){
 		self.dataView = dataView;
@@ -42,15 +42,15 @@ class FieldsSubMenu extends MyMenu{
 
 	function onSelect(item as MenuItem) as Boolean{
 		var fieldId = item.getId() as DataFieldId;
+
 		// save to settings
-		var screenSettings = screensSettings.items[screenIndex];
-		screenSettings.fieldIds[fieldIndex] = fieldId;
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings.export());
-		
-		
-		// update view
-		var fields = getApp().fieldManager.getFields(screenSettings.fieldIds);
-		dataView.setFields(fields);
+		var screenSettings = screensSettings[screenIndex] as DataView.ScreenSettings;
+		var fieldIds = screenSettings[DataView.SETTING_FIELDS] as Array<DataFieldId>;
+		fieldIds[fieldIndex] = fieldId;
+		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
+		screensSettings[screenIndex] = screenSettings;
+
+		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
 		
 		// close field select menu's
 		WatchUi.popView(WatchUi.SLIDE_IMMEDIATE); // close FieldsSubMenu		

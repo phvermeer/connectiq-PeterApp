@@ -1,6 +1,6 @@
 import Toybox.Lang;
 import Toybox.Application;
-
+/*
 class DataScreensSettings{
     var items as Array<DataScreenSettings>;
 
@@ -59,3 +59,4 @@ class DataScreensSettings{
         return data as PropertyValueType;
     }
 }
+*/

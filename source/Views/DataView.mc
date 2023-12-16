@@ -19,44 +19,49 @@ enum LayoutId {
 	LAYOUT_MAX = 6,
 }
 
-typedef Layout as Array< Array<Number> >;
-//  array of [
-//      [x, y, width, height]   (field 1)
-//      ...
-//      [x, y, width, height]   (field n)
-//  ]
-
 class DataView extends MyViews.MyView{
-    hidden var layout as Layout;
-    hidden var fields as Array<MyDataField>;
+	enum SettingId {
+		SETTING_LAYOUT = 0,
+		SETTING_FIELDS = 1,
+		SETTING_ENABLED = 2,
+	}
+    typedef ScreenSettings as Array< Boolean | LayoutId | Array<DataFieldId> >; // [enabled as Boolean, layoutId as LayoutId, fieldIds as Array<DataField>]
+    typedef ScreensSettings as Array<ScreenSettings>; // array of [screenSettings as ScreenSettings]
+    typedef Layout as Array< Array<Number> >;
+    //  [
+    //      [x, y, width, height]   (field 1)
+    //      ...
+    //      [x, y, width, height]   (field n)
+    //  ]
+
+    hidden var screenIndex as Number = 0;
+    hidden var screensSettings as ScreensSettings;
+    hidden var layout as Layout = [] as Layout;
+    hidden var fields as Array<MyDataField> = [] as Array<MyDataField>;
     hidden var edge as Edge;
 
-    typedef IMyDataField as interface{
-        // optional field functions
-        function onTap(clickEvent as ClickEvent) as Boolean;
-    };
-
-    function initialize(options as {
-        :layout as Layout,
-        :fields as Array<MyDataField>
-    }){
+    function initialize(screenIndex as Number, screensSettings as ScreensSettings){
         MyView.initialize();
-        layout = (options.hasKey(:layout) ? options.get(:layout) : []) as Layout;
-        fields = (options.hasKey(:fields) ? options.get(:fields) : []) as Array<MyDataField>;
-        updateFieldsLayout();
+
+        self.screenIndex = MyMath.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
+        self.screensSettings = screensSettings;
+
+        var screenSettings = screensSettings[screenIndex];
+        applyScreenSettings(screenSettings); // fields and layout
 
         edge = new MyDrawables.Edge({
             :position => MyDrawables.EDGE_ALL,
             :color => Graphics.COLOR_TRANSPARENT,
         });
 
-        var sessionState = options.get(:sessionState) as SessionState?;
-        if(sessionState != null){
-            onSessionState(sessionState);
-        }
-
+        // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
         settings.addListener(self);
+
+        // listen to session changes with "onSessionState()"
+        var session = $.getApp().session;
+        onSessionState(session.getState());
+        session.addListener(self);
     }
 
     // event handler when view becomes visible
@@ -151,7 +156,6 @@ class DataView extends MyViews.MyView{
 
     // event handler for session state changes
     function onSessionState(state as SessionState) as Void{
-
         System.println("Session state changed to " + state.toString());
         switch(state){
         case SESSION_STATE_STOPPED:
@@ -198,12 +202,41 @@ class DataView extends MyViews.MyView{
                 xy[1] >= field.locY && 
                 xy[1] <= field.locY + field.height
             ){
-                if((field as IMyDataField) has :onTap){
-                    return (field as IMyDataField).onTap(clickEvent);
-                }
+                return field.onTap(clickEvent);
             }            
         }
         return false;
+    }
+
+    function onSwipe(sender as MyViewDelegate, swipeEvent as WatchUi.SwipeEvent) as Lang.Boolean{
+        var count = screensSettings.size();
+
+        switch(swipeEvent.getDirection()){
+            case WatchUi.SWIPE_DOWN:
+                // next screen id
+                do{
+                    screenIndex++;
+                    if(screenIndex >= count){
+                        screenIndex = 0;
+                    }
+                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
+                break;
+            case WatchUi.SWIPE_UP:
+                do{
+                    screenIndex--;
+                    if(screenIndex <0){
+                        screenIndex = count-1;
+                    }
+                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
+                break;
+            default:
+                return false;
+        }
+        // show new screen
+        var screenSettings = screensSettings[screenIndex] as ScreenSettings;
+        applyScreenSettings(screenSettings);
+        WatchUi.requestUpdate();
+        return true;
     }
 
     // get the field layout from the identifier
@@ -302,6 +335,25 @@ class DataView extends MyViews.MyView{
     }
 
     function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        // ToDO
+        if(id == SETTING_DATASCREENS){
+            var screensSettings = value as ScreensSettings;
+            if(screenIndex >= screensSettings.size()){
+                // current screen is removed, jump to first screen
+                screenIndex = 0;
+            }else if(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean)){
+               // current is disabled -> jump to first screen
+                screenIndex = 0;
+            }
+
+            var screenSettings = screensSettings[screenIndex] as ScreenSettings;
+            applyScreenSettings(screenSettings);
+        }
+    }
+
+    hidden function applyScreenSettings(screenSettings as ScreenSettings) as Void{
+        var fields = $.getApp().fieldManager.getFields(screenSettings[SETTING_FIELDS] as Array<DataFieldId>);
+        var layout = DataView.getLayoutById(screenSettings[SETTING_LAYOUT] as LayoutId);
+        setFields(fields);
+        setFieldsLayout(layout);
     }
 }

@@ -21,7 +21,6 @@ class MyDataField extends WatchUi.Drawable{
         var color = options.get(:backgroundColor);
         backgroundColor = (color != null) ? color : Graphics.COLOR_WHITE;
         darkMode = getDarkMode(backgroundColor);
-        $.getApp().data.addListener(self);
     }
 
     function draw(dc as Dc) as Void{
@@ -73,6 +72,11 @@ class MyDataField extends WatchUi.Drawable{
 
     public function onData(data as Data) as Void{
         // called periodicly from external
+    }
+
+    public function onTap(clickEvent as ClickEvent) as Boolean{
+        // override this function
+        return false;
     }
 
     function setBackgroundColor(color as Graphics.ColorType) as Void{

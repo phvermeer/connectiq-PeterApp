@@ -42,9 +42,14 @@ class LapInfo{
 }
 
 class Session{
+    typedef IListener as interface{
+        function onSessionState(state as SessionState) as Void;
+    };
+
 	public var currentLapInfo as LapInfo?;
 	public var previousLapInfo as LapInfo?;
 
+    hidden var mListeners as Array<WeakReference> = [] as Array<WeakReference>;
 	hidden var mState as SessionState = SESSION_STATE_IDLE;
 	hidden var mSession as ActivityRecording.Session? = null;
 	hidden var mOptions as { 
@@ -59,9 +64,6 @@ class Session{
 	hidden var mAutoPause as Boolean = true;
 	hidden var mLastLapDistance as Float = 0f;
 
-	// Listeners
-	hidden var mOnStateChange as Null|Method(state as SessionState) as Void;
-
 	function initialize(options as { 
 		:sport as Activity.Sport|ActivityRecording.Sport, 
 		:name as Lang.String,
@@ -69,8 +71,6 @@ class Session{
 		:autoLap as Float|Null,
 		:autoPause as Boolean,
 	}){
-		mOnStateChange = options.get(:onStateChange);
-
 		// options for session creation
 		mOptions = {};
 		if(options.hasKey(:name)){
@@ -114,9 +114,7 @@ class Session{
 	hidden function setState(state as SessionState) as Void{
 		if(mState != state){
 			mState = state;
-			if(mOnStateChange != null){
-				mOnStateChange.invoke(state);
-			}
+			notifyListeners(state);
 		}
 	}
 	public function getState() as SessionState{
@@ -235,14 +233,16 @@ class Session{
 
 	function onData(data as Data) as Void{
 		var info = data.activityInfo;
-		if(currentLapInfo != null){
-			currentLapInfo.update(info);
-		}
-		if(mAutoPause){
-			checkPaused(info);
-		}
-		if(mAutoLap){
-			checkAutoLap(info);
+		if(info != null){
+			if(currentLapInfo != null){
+				currentLapInfo.update(info);
+			}
+			if(mAutoPause){
+				checkPaused(info);
+			}
+			if(mAutoLap){
+				checkAutoLap(info);
+			}
 		}
 	}
 
@@ -284,4 +284,32 @@ class Session{
 			}
 		}
 	}
+
+    // Listeners
+    function addListener(listener as Object) as Void{
+        if((listener as IListener) has :onSessionState){
+            mListeners.add(listener.weak());
+        }
+    }
+    function removeListener(listener as Object) as Void{
+        // loop through array to look for listener
+        for(var i=mListeners.size()-1; i>=0; i--){
+            var ref = mListeners[i];
+            var l = ref.get();
+            if(l == null || l.equals(listener)){
+                mListeners.remove(ref);
+            }
+        }
+    }
+    hidden function notifyListeners(state as SessionState) as Void{
+        for(var i=mListeners.size()-1; i>=0; i--){
+            var ref = mListeners[i];
+            var l = ref.get();
+            if(l != null){
+                (l as IListener).onSessionState(state);
+            }else{
+                mListeners.remove(ref);
+            }
+        }
+    }
 }

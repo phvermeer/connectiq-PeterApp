@@ -35,17 +35,10 @@ class StartView extends MyViews.MyView {
 				session.start();
 
                 // Show DataView
-                var screens = settings.get(SETTING_DATASCREENS) as Array;
-                var screen = screens[0] as Array;
-                var layout = DataView.getLayoutById(screen[0] as LayoutId);
-                var fieldIds = screen[1] as Array<DataFieldId>;
-                var fields = app.fieldManager.getFields(fieldIds);
+                var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
-				var view = new DataView({
-                    :fields => fields,
-                    :layout => layout
-                });
+				var view = new DataView(0, screensSettings);
 				sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
 				return true;
 			}

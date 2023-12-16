@@ -6,10 +6,10 @@ class FieldsMainMenu extends MyMenu{
 	hidden var fieldsSections as Dictionary;
 	hidden var dataView as DataView;
 	hidden var screenIndex as Number;
-	hidden var screensSettings as DataScreensSettings;
+	hidden var screensSettings as DataView.ScreensSettings;
 	hidden var fieldIndex as Number;
 
-	function initialize(dataView as DataView, screenIndex as Number, screensSettings as DataScreensSettings, fieldIndex as Number){
+	function initialize(dataView as DataView, screenIndex as Number, screensSettings as DataView.ScreensSettings, fieldIndex as Number){
 		self.dataView = dataView;
 		self.screenIndex = screenIndex;
 		self.screensSettings = screensSettings;

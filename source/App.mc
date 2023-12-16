@@ -113,10 +113,6 @@ class App extends Application.AppBase {
     }
 
     function onSessionState(state as SessionState) as Void {
-        if(delegate != null && delegate has :onSessionState){
-            (delegate as SessionStateListener).onSessionState(state);
-        }
-
         // start/stop positioning events
         switch(state){
             case SESSION_STATE_IDLE:

@@ -103,8 +103,10 @@ class TrackProfileField extends MyDataField{
 
 	function onData(data as Data) as Void{
 		updateMarker();
-		onActivityInfo(data.activityInfo);
-
+		var info = data.activityInfo;
+		if(info != null){
+			onActivityInfo(info);
+		}
 	}
 
 	hidden function updateMarker() as Void{

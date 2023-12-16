@@ -12,9 +12,9 @@ class Data
         function onData(data as Data) as Void;
     };
 
-    public var positionInfo as Position.Info = new Position.Info();
-    public var activityInfo as Activity.Info = new Activity.Info();
-    public var stats as System.Stats = new System.Stats();
+    public var positionInfo as Position.Info;
+    public var activityInfo as Activity.Info|Null;
+    public var stats as System.Stats;
 
     public var xy as XyPoint|Null;
 
@@ -49,6 +49,10 @@ class Data
             var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
             altitudeCalculator = new Altitude.Calculator(p0, t0);
         }
+
+        activityInfo = Activity.getActivityInfo();
+        positionInfo = Position.getInfo();
+        stats = System.getSystemStats();
     }
 
     function start() as Void{
@@ -170,6 +174,12 @@ class Data
     }
 
     function onTimer() as Void{
+        var activityInfo = Activity.getActivityInfo();
+        if(activityInfo != null){
+            self.activityInfo = activityInfo;
+        }
+
+        stats = System.getSystemStats();
         processPositionInfo(Position.getInfo());
 
         // notify listeners
@@ -208,6 +218,9 @@ class Data
     function addListener(listener as Object) as Void{
         if((listener as IListener) has :onData){
             listeners.add(listener.weak());
+
+            // initial trigger
+            (listener as IListener).onData(self);
         }
     }
     function removeListener(listener as Object) as Void{

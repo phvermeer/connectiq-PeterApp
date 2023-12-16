@@ -43,13 +43,6 @@ enum DataFieldId{
 
 class FieldManager{
     hidden var fieldRefs as Dictionary<DataFieldId, WeakReference>;
-    hidden var lastActivityInfo as Activity.Info?;
-    hidden var lastSystemStats as System.Stats?;
-
-    typedef IMyDataField as interface{
-        function updateTrack() as Void;
-        function onSetting(id as SettingId, value as PropertyValueType) as Void;
-    };
 
     function initialize(){
         fieldRefs = {} as Dictionary<DataFieldId, WeakReference>;
@@ -102,6 +95,10 @@ class FieldManager{
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
+
+        // keep fields up-to-date
+        app.data.addListener(field);
+        app.settings.addListener(field);
         return field;
     }
 
@@ -112,22 +109,5 @@ class FieldManager{
             fields[i] = getField(ids[i]);
         }
         return fields;
-    }
-
-    function onSetting(id as SettingId, value as PropertyValueType) as Void{
-        var refs = fieldRefs.values();
-
-        for(var i=refs.size()-1; i>=0; i--){
-            var ref = refs[i];
-            if(ref.stillAlive()){
-                var field = ref.get() as MyDataField;
-                if((field as IMyDataField) has :onSetting){
-                    (field as IMyDataField).onSetting(id, value);
-                }
-            }else{
-                var key = fieldRefs.keys()[i] as DataFieldId;
-                fieldRefs.remove(key);
-            }
-        }
     }
 }
