@@ -20,31 +20,28 @@ class App extends Application.AppBase {
     var fieldManager as FieldManager;
     var data as Data;
     var delegate as ViewDelegate?;
-    var history as MyHistoryIterator = new MyHistoryIterator();
+//    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
 
-        fieldManager = new FieldManager();
-        settings.addListener(fieldManager);
-
-
-
-        var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
-            ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float 
-            : null;
         data = new Data({
-            :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
-            :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
-            :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+            :breadcrumpsEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
+            :breadcrumpsDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :breadCrumpsMax => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
         });
+
+        fieldManager = new FieldManager();
+
         session = new Session({
-            :onStateChange => method(:onSessionState),
-            :autoLap => autoLap,
+            :sport => settings.get(SETTING_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(SETTING_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(SETTING_AUTOLAP_DISTANCE) as Float,
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
+
         data.addListener(session);
 
         Communications.registerForPhoneAppMessages(method(:onPhone));
@@ -57,7 +54,9 @@ class App extends Application.AppBase {
             data.addListener(track as Object);
         }
 
-        settings.addListener(self);
+        settings.addListener(self); // track
+        settings.addListener(data); // breadcrumps settings
+        session.addListener(self); // modify data interval/start/stop
     }
 
     // onStart() is called on application start up
@@ -75,41 +74,10 @@ class App extends Application.AppBase {
     function onSetting(id as SettingId, value as Settings.ValueType) as Void {
         if(id == SETTING_TRACK){
             track = value as Track|Null;
-        }
-
-/*
-
-        if(!started){
-            return;
-        }
-        if(id == SETTING_AUTOPAUSE){
-            session.setAutoPause(value as Boolean);
-        }else if(id == SETTING_AUTOLAP || id == SETTING_AUTOLAP_DISTANCE){
-            var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
-                ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float
-                : null;
-            session.setAutoLap(autoLap);
-        }else if(id == SETTING_BREADCRUMPS){
-            data.setLoggingEnabled(value as Boolean);
-        }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
-            data.setMinDistance(value as Number);
-        }else if(id == SETTING_BREADCRUMPS_MAX_COUNT){
-            data.setSize(value as Number);
-        }else{
-            if(id == SETTING_TRACK){
-                history.clear();
-                if(track != null){
-                    data.setCenter(track.latlonCenter);
-                    data.addListener(track as Object);
-                }
-            }
-
-            fieldManager.onSetting(id, value);
-            if(delegate != null){
-                delegate.onSetting(id, value);
+            if(track != null){
+                data.setCenter(track.latlonCenter);
             }
         }
-*/        
     }
 
     function onSessionState(state as SessionState) as Void {
@@ -118,11 +86,13 @@ class App extends Application.AppBase {
             case SESSION_STATE_IDLE:
             case SESSION_STATE_STOPPED:
                 // stop events
-	            data.stop();
+	            // data.stop();
+                data.setInterval(5000);
                 break;
             case SESSION_STATE_BUSY:
                 // start events
-                data.start();
+                // data.start();
+                data.setInterval(1000);
                 break;
         }
     }

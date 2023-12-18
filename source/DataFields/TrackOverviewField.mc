@@ -97,7 +97,7 @@ class TrackOverviewField extends MyDataField{
 
             // create the bitmap
             var trackColor = getTrackColor();
-            var colorPalette = [trackColor, backgroundColor] as Array<ColorValue>;
+            var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
                 :width => wBitmap,
                 :height => hBitmap,
@@ -114,8 +114,6 @@ class TrackOverviewField extends MyDataField{
             var dc = bitmap.getDc();
 
             if(dc != null){
-                dc.clear();
-
                 var xOffset = xCenter - xBitmap;
                 var yOffset = yCenter - yBitmap;
 

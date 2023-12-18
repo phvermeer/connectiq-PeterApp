@@ -108,6 +108,14 @@ class Settings{
         // update instance and app data
         var id = settingId as Number;
         if (id <= SETTING_GLOBAL_MAX){
+            if(id == SETTING_SPORT){
+                //disable changing a profile during an active session
+                var session = $.getApp().session;
+                if(session.getState() != SESSION_STATE_IDLE){
+                    return;
+                }
+            }
+
             globalData[id] = value;
             Storage.setValue(SECTION_GLOBAL, globalData);
         }else if(id <= SETTING_PROFILE_MAX){

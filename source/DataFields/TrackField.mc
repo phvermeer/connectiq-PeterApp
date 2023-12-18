@@ -102,7 +102,7 @@ class TrackField extends MyDataField{
         color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-        var points = $.getApp().data.getXyValues();
+        var points = $.getApp().data.getBreadcrumps();
         var count = points.size();
         if(count >= 2){
             var p1 = points[0];
@@ -150,8 +150,12 @@ class TrackField extends MyDataField{
             trackThickness = getTrackThickness(zoomFactor);
             legend.setZoomFactor(zoomFactor);
             refresh();
-            WatchUi.requestUpdate();
         }
+    }
+
+    hidden function setTrack(track as Track?) as Void{
+        self.track = track;
+        refresh();
     }
 
     function onTap(clickEvent as ClickEvent) as Boolean{
@@ -173,7 +177,7 @@ class TrackField extends MyDataField{
         return true;
     }
 
-    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
         // internal background updates
         MyDataField.onSetting(id, value);
 
@@ -181,7 +185,7 @@ class TrackField extends MyDataField{
             // update zoomfactor
             setZoomFactor(value as Float);
         }else if(id == SETTING_TRACK){
-            self.track = value as Track?;
+            setTrack(value as Track?);
         }
     }
 
@@ -222,9 +226,9 @@ class TrackField extends MyDataField{
     function onData(data as Data) as Void{
         var xy = data.xy;
         var info = data.positionInfo;
-        var heading = info.heading;
         var quality = info.accuracy;
-        if(xy != null && quality >= Position.QUALITY_USABLE){
+        if(xy != null && quality >= Position.QUALITY_USABLE && xy != xyCurrent){
+            var heading = info.heading;
             xyCurrent = xy;
             positionMarker.setHeading(heading);
             refresh();

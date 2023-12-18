@@ -2,7 +2,7 @@ using Toybox.ActivityRecording;
 import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Timer;
-using Toybox.Activity;
+import Toybox.Activity;
 using Toybox.Time;
 import MyTools;
 
@@ -53,62 +53,43 @@ class Session{
 	hidden var mState as SessionState = SESSION_STATE_IDLE;
 	hidden var mSession as ActivityRecording.Session? = null;
 	hidden var mOptions as { 
-		:sport as ActivityRecording.Sport, 
+		:sport as Activity.Sport, 
 		:name as Lang.String
 	};
 	hidden var mStateDelayCounter as Number = 0;
 
 	// Auto lap variables
-	hidden var mAutoLap as Boolean = true;
-	hidden var mAutoLapDistance as Float? = null;
+	hidden var mAutoLapEnabled as Boolean = true;
+	hidden var mAutoLapDistance as Float = 1000f;
 	hidden var mAutoPause as Boolean = true;
 	hidden var mLastLapDistance as Float = 0f;
 
 	function initialize(options as { 
 		:sport as Activity.Sport|ActivityRecording.Sport, 
-		:name as Lang.String,
 		:onStateChange as Method(state as SessionState) as Void,
-		:autoLap as Float|Null,
+		:autoLapEnabled as Boolean,
+		:autoLapDistance as Float,
 		:autoPause as Boolean,
 	}){
+		// default values
+		mOptions = {
+			:sport => Activity.SPORT_WALKING,
+			:name => WatchUi.loadResource(Rez.Strings.walking) as String,
+		};
+
 		// options for session creation
-		mOptions = {};
-		if(options.hasKey(:name)){
-			mOptions.put(:name, options.get(:name));
-		}
 		if(options.hasKey(:sport)){
-			mOptions.put(:sport, options.get(:sport) as Object);
+			setSport(options.get(:sport) as Sport);
 		}
 		if(options.hasKey(:autoLap)){
-			setAutoLap(options.get(:autoLap));
+			setAutoLapEnabled(options.get(:autoLapEnabled) as Boolean);
+		}
+		if(options.hasKey(:autoLap)){
+			setAutoLapDistance(options.get(:autoLapDistance) as Float);
 		}
 		if(options.hasKey(:autoPause)){
 			setAutoPause(options.get(:autoPause) as Boolean);
 		}
-	}
-
-	public function setSport(sport as Activity.Sport) as Void{
-		if(mSession != null){
-			throw new MyTools.MyException("Session options can only be set if the session is not started before");
-		}
-	
-		var name =
-			(sport == Activity.SPORT_WALKING) ? WatchUi.loadResource(Rez.Strings.walking) :
-			(sport == Activity.SPORT_RUNNING) ? WatchUi.loadResource(Rez.Strings.running) :
-			(sport == Activity.SPORT_HIKING) ? WatchUi.loadResource(Rez.Strings.hiking) :
-			(sport == Activity.SPORT_CYCLING) ? WatchUi.loadResource(Rez.Strings.cycling) :
-			WatchUi.loadResource(Rez.Strings.unknownActivity);
-		
-		mOptions.put(:name, name);
-		mOptions.put(:sport, sport as Number);
-	}
-	public function getSport() as Activity.Sport{
-		var sport = mOptions.get(:sport) as Activity.Sport?;
-		var settings = $.getApp().settings;
-		if(sport == null){
-			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
-		}
-		return sport;
 	}
 
 	hidden function setState(state as SessionState) as Void{
@@ -166,20 +147,6 @@ class Session{
 		setState(SESSION_STATE_IDLE);
 	}
 
-	public function setAutoLap(distance as Float or Null) as Void{
-		mAutoLapDistance = distance;
-		mAutoLap = (distance != null);
-	}
-
-	public function setAutoPause(enabled as Boolean) as Void{
-		if(mAutoPause != enabled){
-			mAutoPause = enabled;
-			if(!mAutoPause && mState == SESSION_STATE_PAUSED){
-				setPaused(false);
-			}			
-		}
-	}
-
 	static public function getIcon(sport as Activity.Sport) as BitmapResource{
 		switch(sport){
 		case Activity.SPORT_WALKING:
@@ -195,7 +162,58 @@ class Session{
 		}
 	}
 
-//***** Protected functions **************
+	// **** Settings *****
+	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
+        if(id == SETTING_AUTOPAUSE){
+            setAutoPause(value as Boolean);
+        }else if(id == SETTING_AUTOLAP){
+            setAutoLapEnabled(value as Boolean);
+		}else if(id == SETTING_AUTOLAP_DISTANCE){
+			setAutoLapDistance(value as Float);
+		}else if(id == SETTING_SPORT){
+			setSport(value as Sport);
+		}
+	}
+
+	public function setSport(sport as Activity.Sport) as Void{
+		if(mSession != null){
+			throw new MyTools.MyException("Session options can only be set if the session is not started before");
+		}
+		var name =
+			(sport == Activity.SPORT_WALKING) ? WatchUi.loadResource(Rez.Strings.walking) :
+			(sport == Activity.SPORT_RUNNING) ? WatchUi.loadResource(Rez.Strings.running) :
+			(sport == Activity.SPORT_HIKING) ? WatchUi.loadResource(Rez.Strings.hiking) :
+			(sport == Activity.SPORT_CYCLING) ? WatchUi.loadResource(Rez.Strings.cycling) :
+			WatchUi.loadResource(Rez.Strings.unknownActivity);
+		
+		mOptions.put(:name, name);
+		mOptions.put(:sport, sport as Number);
+	}
+	public function getSport() as Activity.Sport{
+		var sport = mOptions.get(:sport) as Activity.Sport?;
+		var settings = $.getApp().settings;
+		if(sport == null){
+			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
+		}
+		return sport;
+	}
+	public function setAutoLapEnabled(enabled as Boolean) as Void{
+		mAutoLapEnabled = enabled;
+	}
+	public function setAutoLapDistance(distance as Float) as Void{
+		mAutoLapDistance = distance;
+	}
+
+	public function setAutoPause(enabled as Boolean) as Void{
+		if(mAutoPause != enabled){
+			mAutoPause = enabled;
+			if(!mAutoPause && mState == SESSION_STATE_PAUSED){
+				setPaused(false);
+			}			
+		}
+	}
+
+	//***** Events and State functions ******
 
 	protected function setPaused(paused as Boolean) as Void{
 		// will be initiated by a low speed (auto stop)
@@ -240,7 +258,7 @@ class Session{
 			if(mAutoPause){
 				checkPaused(info);
 			}
-			if(mAutoLap){
+			if(mAutoLapEnabled){
 				checkAutoLap(info);
 			}
 		}
@@ -271,16 +289,15 @@ class Session{
 	}
 
 	function checkAutoLap(info as Activity.Info) as Void{
-		if((mSession != null) && (mAutoLapDistance != null)  && (mAutoLapDistance as Float > 0) && (info.elapsedDistance != null)){
+		if((mSession != null) && mAutoLapEnabled && (mAutoLapDistance as Number > 0) && (info.elapsedDistance != null)){
 			var distance = info.elapsedDistance as Float;
-			var autoLapDistance = mAutoLapDistance as Float;
-			var nextDistance = mLastLapDistance + autoLapDistance;
+			var nextDistance = mLastLapDistance + mAutoLapDistance;
 			if(nextDistance <= distance){
 				mSession.addLap();
 				
 				var lapDistance = (distance - self.mLastLapDistance);
-				var lapCount = Math.floor(lapDistance / autoLapDistance).toNumber();
-				mLastLapDistance += lapCount * autoLapDistance;
+				var lapCount = Math.floor(lapDistance / mAutoLapDistance).toNumber();
+				mLastLapDistance += lapCount * mAutoLapDistance;
 			}
 		}
 	}

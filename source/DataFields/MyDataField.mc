@@ -98,7 +98,7 @@ class MyDataField extends WatchUi.Drawable{
         return backgroundColor;
     }
 
-    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
         if(id == SETTING_BACKGROUND_COLOR){
             setBackgroundColor(value as ColorType);
         }

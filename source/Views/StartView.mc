@@ -29,12 +29,10 @@ class StartView extends MyViews.MyView {
 	    switch(keyEvent.getKey()){
 			case WatchUi.KEY_ENTER:{
 				// Start the session
-				var settings = app.settings as Settings;
-				var sport = settings.get(SETTING_SPORT) as Sport;
-				session.setSport(sport);
 				session.start();
 
                 // Show DataView
+                var settings = $.getApp().settings;
                 var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen

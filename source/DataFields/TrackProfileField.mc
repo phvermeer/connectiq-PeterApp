@@ -71,7 +71,7 @@ class TrackProfileField extends MyDataField{
 		setBackgroundColor(backgroundColor);
 
 		// Load historical altitude data
-		initElevationHistory();
+		//initElevationHistory();
 
         // subscribe to position events
         $.getApp().data.addListener(self);
@@ -175,7 +175,7 @@ class TrackProfileField extends MyDataField{
 
 	}
 	
-	function onSetting(id as SettingId, value as PropertyValueType) as Void{
+	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
 		if(id == SETTING_TRACK){
 			setTrack(value as Track|Null);
 		}
@@ -217,7 +217,7 @@ class TrackProfileField extends MyDataField{
 	function onNewAltitudeLoaded() as Void{
 		refresh();
 	}
-
+/*
 	// get altitude history
 	function initElevationHistory() as Void{
 		var distanceHist = $.getApp().history;
@@ -271,7 +271,7 @@ class TrackProfileField extends MyDataField{
 			}
 		}
 	}
-
+*/
 	hidden static function min(value1 as Numeric?, value2 as Numeric?) as Numeric?{
 		return (value1 != null)
 			? (value2 != null)
