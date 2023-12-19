@@ -80,6 +80,11 @@ class TrackField extends MyDataField{
         var y1 = 0f;
         var x2 = 0f;
         var y2 = 0f;
+        var xMin = locX;
+        var xMax = locX + width;
+        var yMin = locY;
+        var yMax = locY + height;
+
         if(self.track != null){
             var track = self.track as Track;
             color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
@@ -87,18 +92,24 @@ class TrackField extends MyDataField{
 
             x1 = xOffset + zoomFactor * track.xValues[0];
             y1 = yOffset + zoomFactor * track.yValues[0];
+            var skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
+
             for(var i=1; i<track.count; i++){
                 x2 = xOffset + zoomFactor * track.xValues[i];
                 y2 = yOffset + zoomFactor * track.yValues[i];
 
-                dc.drawLine(x1, y1, x2, y2);
+                var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+                if(!skip1 || !skip2){
+                    dc.drawLine(x1, y1, x2, y2);
+                }
 
+                skip1 = skip2;
                 x1 = x2;
                 y1 = y2;
             }
         }
 
-        // draw bread crumps
+        // draw bread crumps (with interpolation of points outside viewers range)
         color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
@@ -106,24 +117,45 @@ class TrackField extends MyDataField{
         var count = points.size();
         if(count >= 2){
             var p1 = points[0];
+            var skip1 = true;
             if(p1 != null){
                 x1 = xOffset + zoomFactor * p1[0];
                 y1 = yOffset + zoomFactor * p1[1];
+                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
             }
 
             for(var i=1; i<count; i++){
                 var p2 = points[i];
+                var skip2 = true;
                 if(p2 != null){
                     x2 = xOffset + zoomFactor * p2[0];
                     y2 = yOffset + zoomFactor * p2[1];
 
+                    skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+
                     if(p1 != null){
-                        dc.drawLine(x1, y1, x2, y2);
+
+                        // interpolate
+                        if(skip1 && !skip2){
+                            var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                            x1 = xy[0];
+                            y1 = xy[1];
+                        }else if(!skip1 && skip2){
+                            var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                            x2 = xy[0];
+                            y2 = xy[1];
+                        }
+                        
+                        // draw
+                        if(!skip1 || !skip2){
+                            dc.drawLine(x1, y1, x2, y2);
+                        }
                     }
                     x1 = x2;
                     y1 = y2;
                 }
                 p1 = p2;
+                skip1 = skip2;
             }
         }
 
