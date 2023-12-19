@@ -28,6 +28,9 @@ class TrackOverviewField extends MyDataField{
 
         // update darkmode
         setBackgroundColor(backgroundColor);
+
+        // subscribe to position events
+        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -37,14 +40,8 @@ class TrackOverviewField extends MyDataField{
         var fieldSize = (width > height) ? height : width;
         markerSize = MyMath.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
-        // create bitmap
-        if(track != null){
-            // the following vars will be updated in initBitmap
-            //  - bitmap
-            //  - xBitmap
-            //  - yBitmap
-            updateBitmap(track);
-        }
+        // update the bitmap
+        updateBitmap(track);
     }
 
     function onUpdate(dc as Dc){
@@ -75,86 +72,84 @@ class TrackOverviewField extends MyDataField{
             }
         }
     }
-    hidden function updateBitmap(track as Track) as Void{
-        var helper = new MyLayoutHelper.RoundScreenHelper({
-            :xMin => locX,
-            :xMax => locX + width,
-            :yMin => locY,
-            :yMax => locY + height,
-        });
+    hidden function updateBitmap(track as Track?) as Void{
+        if(track != null){
+            var helper = new MyLayoutHelper.RoundScreenHelper({
+                :xMin => locX,
+                :xMax => locX + width,
+                :yMin => locY,
+                :yMax => locY + height,
+            });
 
-        var dummy = new Drawable({
-            :width => track.xMax - track.xMin,
-            :height => track.yMax - track.yMin,
-        });
+            var dummy = new Drawable({
+                :width => track.xMax - track.xMin,
+                :height => track.yMax - track.yMin,
+            });
 
-        var margin = markerSize;
-        helper.resizeToMax(dummy, false, margin);
-        xBitmap = dummy.locX.toNumber() - margin;
-        yBitmap = dummy.locY.toNumber() - margin;
-        wBitmap = dummy.width.toNumber() + 2 * margin;
-        hBitmap = dummy.height.toNumber() + 2 * margin;
-        xCenter = xBitmap + wBitmap/2;
-        yCenter = yBitmap + hBitmap/2;
+            var margin = markerSize;
+            helper.resizeToMax(dummy, false, margin);
+            xBitmap = dummy.locX.toNumber() - margin;
+            yBitmap = dummy.locY.toNumber() - margin;
+            wBitmap = dummy.width.toNumber() + 2 * margin;
+            hBitmap = dummy.height.toNumber() + 2 * margin;
+            xCenter = xBitmap + wBitmap/2;
+            yCenter = yBitmap + hBitmap/2;
 
-        // create the bitmap
-        var trackColor = getTrackColor();
-        var colorPalette = [trackColor, backgroundColor] as Array<ColorValue>;
-        var bitmap = new Graphics.BufferedBitmap({
-            :width => wBitmap,
-            :height => hBitmap,
-            :palette => colorPalette,
-        });
-        self.bitmap = bitmap;
+            // create the bitmap
+            var trackColor = getTrackColor();
+            var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor] as Array<ColorValue>;
+            var bitmap = new Graphics.BufferedBitmap({
+                :width => wBitmap,
+                :height => hBitmap,
+                :palette => colorPalette,
+            });
+            self.bitmap = bitmap;
 
-        // calculate the zoom factor to show the whole track
-        var factorHor = (wBitmap-2*margin) / (track.xMax - track.xMin);
-        var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
-        zoomFactor = factorHor < factorVert ? factorHor : factorVert;
+            // calculate the zoom factor to show the whole track
+            var factorHor = (wBitmap-2*margin) / (track.xMax - track.xMin);
+            var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
+            zoomFactor = factorHor < factorVert ? factorHor : factorVert;
 
-        // draw the track and buffered breadcrumps
-        var dc = bitmap.getDc();
+            // draw the track and buffered breadcrumps
+            var dc = bitmap.getDc();
 
-        if(dc != null){
-            dc.clear();
+            if(dc != null){
+                var xOffset = xCenter - xBitmap;
+                var yOffset = yCenter - yBitmap;
 
-            var xOffset = xCenter - xBitmap;
-            var yOffset = yCenter - yBitmap;
+                var count = track.count;
 
-            var count = track.count;
+                var penWidth = getTrackThickness(zoomFactor);
+                dc.setPenWidth(penWidth);
+                dc.setColor(trackColor, backgroundColor);
 
-            var penWidth = getTrackThickness(zoomFactor);
-            dc.setPenWidth(penWidth);
-            dc.setColor(trackColor, backgroundColor);
+                var x1 = xOffset + zoomFactor * track.xValues[0];
+                var y1 = yOffset + zoomFactor * track.yValues[0];
+                var x2;
+                var y2;
 
-            var x1 = xOffset + zoomFactor * track.xValues[0];
-            var y1 = yOffset + zoomFactor * track.yValues[0];
-            var x2;
-            var y2;
+                for(var i=1; i<count; i++){
+                    x2 = xOffset + zoomFactor * track.xValues[i];
+                    y2 = yOffset + zoomFactor * track.yValues[i];
 
-            for(var i=1; i<count; i++){
-                x2 = xOffset + zoomFactor * track.xValues[i];
-                y2 = yOffset + zoomFactor * track.yValues[i];
+                    dc.drawLine(x1, y1, x2, y2);
 
-                dc.drawLine(x1, y1, x2, y2);
-
-                x1 = x2;
-                y1 = y2;
+                    x1 = x2;
+                    y1 = y2;
+                }
             }
+        }else{
+            // clear bitmap
+            self.bitmap = null;
         }
     }
 
     function onSetting(id, value){
         MyDataField.onSetting(id, value);
         if(id == SETTING_TRACK){
-            // update the track
-            track = $.getApp().track;
-            if(track != null){
-                // create new bitmap
-                updateBitmap(track);
-            }else{
-                bitmap = null;
-            }
+            // update the track bitmap
+            track = value as Track?;
+            updateBitmap(track);
             refresh();
         }
     }
@@ -162,11 +157,6 @@ class TrackOverviewField extends MyDataField{
     hidden function getTrackColor() as ColorType{
         return darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
     }
-    /*
-    hidden function getBreadcrumpColor() as ColorType{
-        return darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
-    }
-    */
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
         var trackThickness = 1;
@@ -211,7 +201,8 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
+    function onData(data as Data) as Void{
+        var xy = data.xy;
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

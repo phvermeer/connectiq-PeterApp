@@ -18,121 +18,82 @@ class App extends Application.AppBase {
     var session as Session;
     var track as Track?;
     var fieldManager as FieldManager;
-    var positionManager as PositionManager;
+    var data as Data;
     var delegate as ViewDelegate?;
+//    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
-
-
-    hidden var timer as Timer.Timer;
 
     function initialize() {
         AppBase.initialize();
+        settings = new Settings();
+
+        data = new Data({
+            :breadcrumpsEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
+            :breadcrumpsDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :breadCrumpsMax => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+        });
 
         fieldManager = new FieldManager();
-        settings = new Settings({ :onValueChange => method(:onSetting) });
 
-        var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
-            ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float 
-            : null;
         session = new Session({
-            :onStateChange => method(:onSessionState),
-            :autoLap => autoLap,
+            :sport => settings.get(SETTING_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(SETTING_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(SETTING_AUTOLAP_DISTANCE) as Float,
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
-        positionManager = new PositionManager({
-            :loggingEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
-            :minDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
-            :size => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
-        });
 
-        timer = new Timer.Timer();
+        data.addListener(session);
+
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
         var trackData = settings.get(SETTING_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
-            positionManager.setCenter(track.latlonCenter);
+            data.setCenter(track.latlonCenter);
+            data.addListener(track as Object);
         }
+
+        settings.addListener(self); // track
+        settings.addListener(data); // breadcrumps settings
+        session.addListener(self); // modify data interval/start/stop
     }
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        timer.start(method(:onTimer), 1000, true);
+        data.start();
         started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
-        stopEvents();
-        timer.stop();
+        data.stop();
         started = false;
     }
 
-    hidden function startEvents() as Void{
-   	    Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition));   
-    }
-
-    hidden function stopEvents() as Void{
-        Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition));
-    }
-
-
-    function onSetting(id as SettingId, value as PropertyValueType) as Void {
-        if(!started){
-            return;
-        }
-        if(id == SETTING_AUTOPAUSE){
-            session.setAutoPause(value as Boolean);
-        }else if(id == SETTING_AUTOLAP || id == SETTING_AUTOLAP_DISTANCE){
-            var autoLap = (settings.get(SETTING_AUTOLAP) as Boolean)
-                ? settings.get(SETTING_AUTOLAP_DISTANCE) as Float
-                : null;
-            session.setAutoLap(autoLap);
-        }else if(id == SETTING_BREADCRUMPS){
-            positionManager.setLoggingEnabled(value as Boolean);
-        }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
-            positionManager.setMinDistance(value as Number);
-        }else if(id == SETTING_BREADCRUMPS_MAX_COUNT){
-            positionManager.setSize(value as Number);
-        }else{
-            if(id == SETTING_TRACK){
-                if(track != null){
-                    positionManager.setCenter(track.latlonCenter);
-                }
-            }
-
-            fieldManager.onSetting(id, value);
-            if(delegate != null){
-                delegate.onSettingChange(id, value);
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void {
+        if(id == SETTING_TRACK){
+            track = value as Track|Null;
+            if(track != null){
+                data.setCenter(track.latlonCenter);
             }
         }
     }
 
     function onSessionState(state as SessionState) as Void {
-        if(delegate != null && delegate has :onSessionState){
-            (delegate as SessionStateListener).onSessionState(state);
-        }
-
         // start/stop positioning events
         switch(state){
             case SESSION_STATE_IDLE:
             case SESSION_STATE_STOPPED:
                 // stop events
-	            stopEvents();
+	            // data.stop();
+                data.setInterval(5000);
                 break;
             case SESSION_STATE_BUSY:
-                startEvents();
                 // start events
+                // data.start();
+                data.setInterval(1000);
                 break;
-        }
-    }
-
-    function onTimer() as Void{
-        // update time based info
-        var stats = System.getSystemStats();
-        if(stats != null){
-            fieldManager.onSystemInfo(stats);
         }
     }
 
@@ -142,41 +103,14 @@ class App extends Application.AppBase {
         // receive track data
         if(msg.data instanceof Array){
             var data = msg.data as Array;
-            track = new Track(data);
 
             // vibrate when track is received
             if(Attention has :vibrate){
                 Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
             }
 
-            // save track data in storage
+            // save track data in storage and inform listeners
             settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
-        }
-    }
-
-    function onPosition(info as Position.Info) as Void{
-        var pos = info.position;
-
-        var xy = null;
-        if(pos != null && info.accuracy >= Position.QUALITY_USABLE){
-            // Update Breadcrump
-            var latlon = pos.toRadians();
-            xy = positionManager.addPosition(latlon);
-        }else{
-            positionManager.addPosition(null);
-        }
-
-        if(track != null){
-            // Update Track
-            track.onPosition(xy, info.accuracy);
-        }
-
-        // Inform Datafields
-        fieldManager.onPosition(xy, info);
-        var activityInfo = Activity.getActivityInfo();
-        if(activityInfo != null){
-            session.onActivityInfo(activityInfo);
-            fieldManager.onActivityInfo(activityInfo);
         }
     }
 

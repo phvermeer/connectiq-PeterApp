@@ -5,7 +5,7 @@ import Toybox.Application;
 class DataScreensMenu extends MyMenu {
 	
 	const OPTIONS = {
-		DataScreenSettings.SETTING_ENABLED => {
+		DataView.SETTING_ENABLED => {
 			false => WatchUi.loadResource(Rez.Strings.off),		
 			true => WatchUi.loadResource(Rez.Strings.on),		
 		},
@@ -17,9 +17,9 @@ class DataScreensMenu extends MyMenu {
 
 	function onShow(){
 		// Update screen sub items
-		var screens = new DataScreensSettings($.getApp().settings.get(SETTING_DATASCREENS));
-		for(var i=0; i < screens.items.size(); i++){
-			addScreenItem(i, screens.items[i]);
+		var screensSettings = $.getApp().settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+		for(var i=0; i < screensSettings.size(); i++){
+			addScreenItem(i, screensSettings[i]);
 		}
 		
 		// And add an item to add a new one
@@ -30,14 +30,14 @@ class DataScreensMenu extends MyMenu {
 		while(deleteItem(0)){}
 	}
 	
-	hidden function addScreenItem(screenIndex as Number, screenSettings as DataScreenSettings) as Void{
+	hidden function addScreenItem(screenIndex as Number, screenSettings as DataView.ScreenSettings) as Void{
 		// Show sub menu item for each screen
-		var id = DataScreenSettings.SETTING_ENABLED;
+		var id = DataView.SETTING_ENABLED;
 		var options = OPTIONS.get(id) as Dictionary;
 
 		var label = Lang.format("$1$ $2$", [WatchUi.loadResource(Rez.Strings.dataScreen), screenIndex+1]);
 
-		var enabled = screenSettings.enabled;
+		var enabled = screenSettings[DataView.SETTING_ENABLED] as Boolean;
 		var subLabel = (screenIndex == 0) ? null : options.get(enabled) as String;
 		
 		addItem(
@@ -64,29 +64,30 @@ class DataScreensMenu extends MyMenu {
 	function onSelect(item){
 		var id = item.getId() as Number | String;
 		var settings = $.getApp().settings;
-		var screens = new DataScreensSettings(settings.get(SETTING_DATASCREENS));
+		var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 
 		switch(id){
 			case "add":{
 
 				// remove "add" item after current screen items
-				var count = screens.items.size();
+				var count = screensSettings.size();
 				var i = count;
 				deleteItem(count);
 
 				// add new screen with default settings
-				screens.addScreen(null); 
+				var screenSettings = [LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true] as DataView.ScreenSettings;
+				screensSettings.add(screenSettings);
 				count++;
-				addScreenItem(i, screens.items[i]);
+				addScreenItem(i, screenSettings);
 
 				// save to settings
-				settings.set(SETTING_DATASCREENS, screens.export() as PropertyValueType);
+				settings.set(SETTING_DATASCREENS, screensSettings);
 				addAddItem();
 				break;			
 			}
 			default:{
 				var screenIndex = id as Number;
-				var menu = new DataScreenMenu(screenIndex, screens);
+				var menu = new DataScreenMenu(screenIndex, screensSettings);
 				WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_IMMEDIATE);
 				break;
 			}

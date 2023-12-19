@@ -27,6 +27,11 @@ enum SettingId{
 }
 
 class Settings{
+    typedef ValueType as PropertyValueType|Track;
+    typedef IListener as interface{
+        function onSetting(id as SettingId, value as ValueType) as Void;
+    };
+
     hidden enum ProfileSection{
         SECTION_GLOBAL = 0,
         SECTION_PROFILE_WALKING = 1,
@@ -56,14 +61,10 @@ class Settings{
     hidden var globalData as Array<PropertyValueType>;
     hidden var profileId as ProfileSection;
     hidden var profileData as Array<PropertyValueType>;
-    hidden var onValueChange as Null|Method(settingId as SettingId, value as PropertyValueType) as Void;
-    hidden var onDefaultRequest as Null|Method(settingId as SettingId) as PropertyValueType;
 
-    function initialize(options as {
-        :onValueChange as Method(settingId as SettingId, value as PropertyValueType) as Void
-    }){
-        onValueChange = options.get(:onValueChange);
+    hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
 
+    function initialize(){
         // load global data
         var size = SETTING_GLOBAL_MAX+1;
         var data = Storage.getValue(SECTION_GLOBAL);
@@ -84,7 +85,7 @@ class Settings{
             : data as Array<PropertyValueType>;
     }
 
-    function get(settingId as SettingId) as PropertyValueType{
+    function get(settingId as SettingId) as ValueType{
         var id = settingId as Number;
         var value = null;
         if(id <= SETTING_GLOBAL_MAX){
@@ -94,7 +95,7 @@ class Settings{
         }
         if(value == null){
             // get default value
-            value = DEFAULT_VALUES.get(id) as PropertyValueType?;
+            value = DEFAULT_VALUES.get(id) as ValueType?;
 //            if(value == null){
 //                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
 //            }
@@ -103,10 +104,18 @@ class Settings{
         return value;
     }
 
-    function set(settingId as SettingId, value as PropertyValueType) as Void{
+    function set(settingId as SettingId, value as ValueType) as Void{
         // update instance and app data
         var id = settingId as Number;
         if (id <= SETTING_GLOBAL_MAX){
+            if(id == SETTING_SPORT){
+                //disable changing a profile during an active session
+                var session = $.getApp().session;
+                if(session.getState() != SESSION_STATE_IDLE){
+                    return;
+                }
+            }
+
             globalData[id] = value;
             Storage.setValue(SECTION_GLOBAL, globalData);
         }else if(id <= SETTING_PROFILE_MAX){
@@ -124,10 +133,13 @@ class Settings{
             }
         }
 
-        // inform listeners
-        if(onValueChange != null){
-            onValueChange.invoke(settingId, value);
+        // convert raw track data to Track
+        if(settingId == SETTING_TRACK && value instanceof Array){
+            value = new Track(value as Array);
         }
+
+        // inform listeners
+        notifyListeners(settingId, value);
     }
 
     function clear() as Void{
@@ -152,4 +164,31 @@ class Settings{
         }
     }
 
+    // Listeners
+    function addListener(listener as Object) as Void{
+        if((listener as IListener) has :onSetting){
+            listeners.add(listener.weak());
+        }
+    }
+    function removeListener(listener as Object) as Void{
+        // loop through array to look for listener
+        for(var i=listeners.size()-1; i>=0; i--){
+            var ref = listeners[i];
+            var l = ref.get();
+            if(l == null || l.equals(listener)){
+                listeners.remove(ref);
+            }
+        }
+    }
+    hidden function notifyListeners(id as SettingId, value as ValueType) as Void{
+        for(var i=listeners.size()-1; i>=0; i--){
+            var ref = listeners[i];
+            var l = ref.get();
+            if(l != null){
+                (l as IListener).onSetting(id, value);
+            }else{
+                listeners.remove(ref);
+            }
+        }
+    }
 }

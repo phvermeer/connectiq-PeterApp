@@ -32,7 +32,11 @@ class AltitudeCalibrationMenu extends MyMenu {
 		var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
 		var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
 
-		calibration = new Altitude.Calibration(p0, t0);
+		calibration = new Altitude.Calibration({
+			:p0 => p0,
+			:t0 => t0,
+			:listener => self,
+		});
 
 		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.altitudeCalibration) as String });
 		self.options = options;
@@ -86,8 +90,6 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 		// start getting current position to retrieve the sealevel temperature and altitude for current location
 		calibration.start();
-		// respond to recommended altitude
-		calibration.onAltitude = method(:updateAltitudeAuto);
 
 		// start timer to update altitude values
 		onTimer();
@@ -96,7 +98,6 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 	function onHide(){
 		calibration.stop();
-		calibration.onAltitude = null;
 		updateTimer.stop();
 	}
 
@@ -164,7 +165,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 		}
 	}
 
-	function setAltitude(altitude as Float, accuracy as Altitude.Calibration.Quality) as Void{
+	function onAltitude(altitude as Float, accuracy as Altitude.Calibration.Quality) as Void{
 		var i = findItemById(ITEM_CALIBRATE_AUTO);
 		if(i >= 0){
 			var menuItem = getItem(i);

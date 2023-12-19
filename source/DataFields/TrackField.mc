@@ -30,6 +30,9 @@ class TrackField extends MyDataField{
         positionMarker = new TrackPositionMarker({
             :darkMode => darkMode,
         });
+
+        // subscribe to position events
+        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -99,8 +102,7 @@ class TrackField extends MyDataField{
         color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-        var posManager = $.getApp().positionManager;
-        var points = posManager.getXyValues();
+        var points = $.getApp().data.getBreadcrumps();
         var count = points.size();
         if(count >= 2){
             var p1 = points[0];
@@ -148,8 +150,12 @@ class TrackField extends MyDataField{
             trackThickness = getTrackThickness(zoomFactor);
             legend.setZoomFactor(zoomFactor);
             refresh();
-            WatchUi.requestUpdate();
         }
+    }
+
+    hidden function setTrack(track as Track?) as Void{
+        self.track = track;
+        refresh();
     }
 
     function onTap(clickEvent as ClickEvent) as Boolean{
@@ -171,7 +177,7 @@ class TrackField extends MyDataField{
         return true;
     }
 
-    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
         // internal background updates
         MyDataField.onSetting(id, value);
 
@@ -179,8 +185,7 @@ class TrackField extends MyDataField{
             // update zoomfactor
             setZoomFactor(value as Float);
         }else if(id == SETTING_TRACK){
-            var track = $.getApp().track;
-            self.track = track;
+            setTrack(value as Track?);
         }
     }
 
@@ -218,10 +223,12 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(xy as PositionManager.XyPoint, info as Position.Info) as Void{
-        var heading = info.heading;
+    function onData(data as Data) as Void{
+        var xy = data.xy;
+        var info = data.positionInfo;
         var quality = info.accuracy;
-        if(xy != null && quality >= Position.QUALITY_USABLE){
+        if(xy != null && quality >= Position.QUALITY_USABLE && xy != xyCurrent){
+            var heading = info.heading;
             xyCurrent = xy;
             positionMarker.setHeading(heading);
             refresh();

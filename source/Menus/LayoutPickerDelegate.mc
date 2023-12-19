@@ -5,20 +5,20 @@ import Toybox.Application;
 class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 	hidden var screenIndex as Lang.Number;
 	hidden var dataView as DataView;
-	hidden var screensSettings as DataScreensSettings;
+	hidden var screensSettings as DataView.ScreensSettings;
 	hidden var layoutId as LayoutId;
 	hidden var fieldIds as Array<DataFieldId>;
 	hidden var fieldIdsInitial as Array<DataFieldId>;
 
-	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataScreensSettings){
+	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
 		self.dataView = dataView;
 		self.screenIndex = screenIndex;
 		self.screensSettings = screensSettings;
 
 		// get initial values
-		var screenSettings = screensSettings.items[screenIndex];
-		layoutId = screenSettings.layoutId;
-		fieldIds = screenSettings.fieldIds;
+		var screenSettings = screensSettings[screenIndex];
+		layoutId = screenSettings[DataView.SETTING_LAYOUT] as LayoutId;
+		fieldIds = screenSettings[DataView.SETTING_FIELDS] as Array<DataFieldId>;
 		fieldIdsInitial = fieldIds;
 
 		BehaviorDelegate.initialize();
@@ -62,11 +62,11 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 	
 	function onSelect() as Lang.Boolean{
 		// save current layout
-		var screenSettings = screensSettings.items[screenIndex];
-		screenSettings.layoutId = layoutId;
-		screenSettings.fieldIds = fieldIds;
+		var screenSettings = screensSettings[screenIndex];
+		screenSettings[DataView.SETTING_LAYOUT] = layoutId;
+		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
 
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings.export());
+		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
 		return true;
 	}
 }

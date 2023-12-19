@@ -4,9 +4,9 @@ import Toybox.Lang;
 class FieldPickerDelegate extends WatchUi.BehaviorDelegate{
 	protected var dataView as DataView;
 	protected var screenIndex as Number;
-	hidden var screensSettings as DataScreensSettings;
+	hidden var screensSettings as DataView.ScreensSettings;
 
-	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataScreensSettings){
+	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
 		BehaviorDelegate.initialize();
 		self.dataView = dataView;
 		self.screenIndex = screenIndex;

@@ -70,8 +70,13 @@ class MyDataField extends WatchUi.Drawable{
         // override this function
     }
 
-    public function onActivityInfo(info as Activity.Info) as Void{
+    public function onData(data as Data) as Void{
         // called periodicly from external
+    }
+
+    public function onTap(clickEvent as ClickEvent) as Boolean{
+        // override this function
+        return false;
     }
 
     function setBackgroundColor(color as Graphics.ColorType) as Void{
@@ -93,7 +98,7 @@ class MyDataField extends WatchUi.Drawable{
         return backgroundColor;
     }
 
-    function onSetting(id as SettingId, value as PropertyValueType) as Void{
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
         if(id == SETTING_BACKGROUND_COLOR){
             setBackgroundColor(value as ColorType);
         }
