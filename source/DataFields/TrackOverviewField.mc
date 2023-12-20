@@ -5,12 +5,8 @@ import Toybox.Position;
 class TrackOverviewField extends MyDataField{
     hidden var track as Track?;
     hidden var bitmap as BufferedBitmap?;
-    hidden var xBitmap as Number = 0;
-    hidden var yBitmap as Number = 0;
-    hidden var wBitmap as Number = 0;
-    hidden var hBitmap as Number = 0;
-    hidden var xCenter as Numeric = 0;
-    hidden var yCenter as Numeric = 0;
+    hidden var xOffset as Numeric = 0;
+    hidden var yOffset as Numeric = 0;
 
     hidden var zoomFactor as Float = 0.1f;
     hidden var markerSize as Number = 0;
@@ -50,13 +46,13 @@ class TrackOverviewField extends MyDataField{
             var bitmap = self.bitmap as BufferedBitmap;
 
             // Draw the track
-            dc.drawBitmap(xBitmap as Numeric, yBitmap as Numeric, bitmap);
+            dc.drawBitmap(locX as Numeric, locY as Numeric, bitmap);
 
             // Draw the finish marker
             var i = track.count-1;
             if(i>0){
-                var x = xCenter + zoomFactor * track.xValues[i];
-                var y = yCenter + zoomFactor * track.yValues[i];
+                var x = xOffset + zoomFactor * track.xValues[i];
+                var y = yOffset + zoomFactor * track.yValues[i];
                 var color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x, y, markerSize);
@@ -64,8 +60,8 @@ class TrackOverviewField extends MyDataField{
 
             // Draw current position marker
             if(xyCurrent != null){
-                var x = xCenter + zoomFactor * xyCurrent[0];
-                var y = yCenter + zoomFactor * xyCurrent[1];
+                var x = xOffset + zoomFactor * xyCurrent[0];
+                var y = yOffset + zoomFactor * xyCurrent[1];
                 var color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_BLUE;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x as Float, y as Float, markerSize);
@@ -88,36 +84,30 @@ class TrackOverviewField extends MyDataField{
 
             var margin = markerSize;
             helper.resizeToMax(dummy, false, margin);
-            xBitmap = dummy.locX.toNumber() - margin;
-            yBitmap = dummy.locY.toNumber() - margin;
-            wBitmap = dummy.width.toNumber() + 2 * margin;
-            hBitmap = dummy.height.toNumber() + 2 * margin;
-            xCenter = xBitmap + wBitmap/2;
-            yCenter = yBitmap + hBitmap/2;
+
+            xOffset = dummy.locX + dummy.width/2;
+            yOffset = dummy.locY + dummy.height/2;
 
             // create the bitmap
             var trackColor = getTrackColor();
             var breadcrumpColor = getBreadcrumpColor();
             var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor, breadcrumpColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
-                :width => wBitmap,
-                :height => hBitmap,
+                :width => width.toNumber(),
+                :height => height.toNumber(),
                 :palette => colorPalette,
             });
             self.bitmap = bitmap;
 
             // calculate the zoom factor to show the whole track
-            var factorHor = (wBitmap-2*margin) / (track.xMax - track.xMin);
-            var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
+            var factorHor = (dummy.width.toFloat()) / (track.xMax - track.xMin);
+            var factorVert = (dummy.height.toFloat()) / (track.yMax - track.yMin);
             zoomFactor = factorHor < factorVert ? factorHor : factorVert;
 
             // draw the track and buffered breadcrumps
             var dc = bitmap.getDc();
 
             if(dc != null){
-                var xOffset = xCenter - xBitmap;
-                var yOffset = yCenter - yBitmap;
-
                 var count = track.count;
 
                 var penWidth = getTrackThickness(zoomFactor);
@@ -258,9 +248,6 @@ class TrackOverviewField extends MyDataField{
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
                     if(bitmap != null){
                         // add to breadcrump path
-                        var xOffset = xCenter - xBitmap;
-                        var yOffset = yCenter - yBitmap;
-
                         var x1 = xOffset + zoomFactor * xyCurrent[0];
                         var y1 = yOffset + zoomFactor * xyCurrent[1];
                         var x2 = xOffset + zoomFactor * xy[0];
