@@ -72,6 +72,7 @@ class TrackOverviewField extends MyDataField{
                 :xMax => locX + width,
                 :yMin => locY,
                 :yMax => locY + height,
+                :margin => markerSize,
             });
 
             var dummy = new Drawable({
@@ -79,8 +80,7 @@ class TrackOverviewField extends MyDataField{
                 :height => track.yMax - track.yMin,
             });
 
-            var margin = markerSize;
-            helper.resizeToMax(dummy, false, margin);
+            helper.resizeToMax(dummy, false);
 
             xOffset = dummy.locX + dummy.width/2;
             yOffset = dummy.locY + dummy.height/2;

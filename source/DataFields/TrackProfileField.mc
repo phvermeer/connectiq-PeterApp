@@ -88,15 +88,15 @@ class TrackProfileField extends MyDataField{
 
 	function onLayout(dc as Graphics.Dc){
 		// init graph sizes
-		var margin = 1;
-		var helper = new RoundScreenHelper({
+		var helper = MyLayoutHelper.getLayoutHelper({
 			:xMin => locX,
 			:xMax => locX + width,
 			:yMin => locY,
 			:yMax => locY + height,
+			:margin => 1,
 		});
 
-		helper.resizeToMax(trend, true, margin);
+		helper.resizeToMax(trend, true);
 	}
 
 	function onData(data as Data) as Void{

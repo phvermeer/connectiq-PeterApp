@@ -74,7 +74,7 @@ class MySimpleDataField extends MyDataField{
 
         // update the aspect ratio of current value text
         value.adaptSize(dc);
-        helper.resizeToMax(value, true, 0);
+        helper.resizeToMax(value, true);
         value.adaptFont(dc, true);
     }
 
