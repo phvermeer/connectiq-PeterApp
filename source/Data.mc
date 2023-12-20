@@ -209,7 +209,6 @@ class Data
 
         // keep last position
         self.xy = xyNew;
-        self.positionInfo = info;
         return true;
     }
 
@@ -232,7 +231,8 @@ class Data
 
         stats = System.getSystemStats();
 
-        updateXY(Position.getInfo());
+        positionInfo = Position.getInfo();
+        updateXY(positionInfo);
 
         // notify listeners
         notifyListeners();
