@@ -27,13 +27,9 @@ class DataView extends MyViews.MyView{
 	}
     typedef ScreenSettings as Array< Boolean | LayoutId | Array<DataFieldId> >; // [enabled as Boolean, layoutId as LayoutId, fieldIds as Array<DataField>]
     typedef ScreensSettings as Array<ScreenSettings>; // array of [screenSettings as ScreenSettings]
-    typedef Layout as Array< Array<Number> >;
-    //  [
-    //      [x, y, width, height]   (field 1)
-    //      ...
-    //      [x, y, width, height]   (field n)
-    //  ]
 
+    typedef FieldLayout as Array<Number>; // [locX, locY, width, height]
+    typedef Layout as Array<FieldLayout>;
     hidden var screenIndex as Number = 0;
     hidden var screensSettings as ScreensSettings;
     hidden var layout as Layout = [] as Layout;
@@ -241,90 +237,138 @@ class DataView extends MyViews.MyView{
         return true;
     }
 
+    hidden static function distributeSpace(total as Number, margin as Number, parts as Array<Number>) as Array<Number>{
+        var count = parts.size();
+        var total_ = total - (count - 1) * margin;
+        var factor = 1f * total_ / MyMath.sum(parts);
+        var results = [] as Array<Number>;
+        var spare = total_;
+        for(var i=0; i<parts.size(); i++){
+            var result = (factor * parts[i]).toNumber();
+            results.add(result);
+            spare -= result;
+        }
+
+        // divide spare space (n, 1, n-1, 2, n-2, ...)
+        var i = -1;
+        var iReverse = count;
+        var reverse = true;
+        while(spare > 0){
+            if(reverse){
+                iReverse--;
+                results[iReverse] += 1;
+            }else{
+                i++;
+                results[i] += 1;
+            }
+            reverse = !reverse;
+            spare--;
+        }
+
+        return results;
+    }
+
+    hidden static function getFieldLayout(rowSizes as Array, colSizes as Array, margin as Number, row as Number, col as Number) as FieldLayout{
+        var x = 0;
+        for(var i=0; i < col; i++){
+            x += colSizes[i] + margin;
+        }
+
+        var y = 0;
+        for(var i=0; i < row; i++){
+            y += rowSizes[i] + margin;
+        }
+
+        return [x, y, colSizes[col], rowSizes[row]] as FieldLayout;
+    }
+
+    hidden static function mergeFieldLayouts(fieldLayouts as Array<FieldLayout>) as FieldLayout{
+        if(fieldLayouts.size() >= 2){
+            var fl = fieldLayouts[0];
+            var xMin = fl[0];
+            var xMax = xMin + fl[2];
+            var yMin = fl[1];
+            var yMax = yMin + fl[3];
+            for(var i=1; i<fieldLayouts.size(); i++){
+                fl = fieldLayouts[i];
+                var xMin_ = fl[0];
+                var xMax_ = fl[0] + fl[2];
+                var yMin_ = fl[1];
+                var yMax_ = fl[1] + fl[3];
+                if(xMin_ < xMin) { xMin = xMin_; }
+                if(xMax_ > xMax) { xMax = xMax_; }
+                if(yMin_ < xMin) { yMin = yMin_; }
+                if(yMax_ > xMax) { yMax = yMax_; }
+            }
+            return [xMin, yMin, xMax-xMin, yMax-yMin] as FieldLayout;
+        }else{
+            throw new InvalidValueException("At least 2 fieldlayouts are required to merge field layouts");
+        }
+    }
+
     // get the field layout from the identifier
     static function getLayoutById(id as LayoutId) as Layout{
+
         var deviceSettings = System.getDeviceSettings();
-        var width = deviceSettings.screenWidth;
-        var height = deviceSettings.screenHeight;
-        var margin = Math.ceil(width / 150.0f);
-        
+        var width = deviceSettings.screenWidth;      // width
+        var height = deviceSettings.screenHeight;    // height
+        var margin = Math.ceil(width / 150.0f).toNumber();      // margin
+
         var data = [];
         if(id == LAYOUT_ONE_FIELD){
-            data.add([0, 0, width, height]);
+            data.add(getFieldLayout([height], [width], margin, 0, 0));
         }else if(id == LAYOUT_TWO_FIELDS){
-            var h = (height-margin) / 2;
-            data.add([0, 0, width, h]);
-            var y = h + margin;
-            data.add([0, y, width, height-y]);
+            var rowSizes = distributeSpace(height, margin, [1,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width], margin, 1, 0));
         }else if(id == LAYOUT_THREE_FIELDS){
-            var h = (height-2*margin) / 3;
-            data.add([0, 0, width, h]);
-            var y = h + margin;
-            data.add([0, y, width, h]);
-            y += h + margin;
-            data.add([0, y, width, height-y]);
+            var rowSizes = distributeSpace(height, margin, [1,1,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width], margin, 1, 0));
+            data.add(getFieldLayout(rowSizes, [width], margin, 2, 0));
         }else if(id == LAYOUT_FOUR_FIELDS){
-            var h = (height-2*margin) / 3.0;
-            var w = (width-margin) / 2.0;
-            data.add([0, 0,width, h]);
-            var y = h + margin;
-            data.add([0, y, w, h]);
-            var x = w + margin;
-            data.add([x, y, w, h]);
-            y += h + margin;
-            data.add([0, y, width, height-h]);
+            var rowSizes = distributeSpace(height, margin, [1,1,1] as Array<Number>);
+            var colSizes = distributeSpace(width, margin, [1,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 1));
+            data.add(getFieldLayout(rowSizes, [width], margin, 2, 0));
         }else if(id == LAYOUT_SIX_FIELDS){
-            var h = (height-2*margin) / 4.0;
-            var w = (width-margin) / 2.0;
-            data.add([0, 0, width, h]);
-            var y = h + margin;
-            var x = w + margin;
-            data.add([0, y, w, h]);
-            data.add([x, y, w, h]);
-            y += h + margin;
-            data.add([0, y, w, h]);
-            data.add([x, y, w, h]);
-            y += h + margin;
-            data.add([0, y, width, height-y]);
+            var rowSizes = distributeSpace(height, margin, [1,1,1,1] as Array<Number>);
+            var colSizes = distributeSpace(width, margin, [1,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 1));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 1));
+            data.add(getFieldLayout(rowSizes, [width], margin, 3, 0));
         }else if(id == LAYOUT_CUSTOM1){
-            var h = 0.25 * height - 0.5 * margin;
-            data.add([0, 0, width, h]);
-            var y = h + margin;
-            h = 0.5 * height - margin;
-            var w = 0.5 * width - 0.5 * margin;
-            data.add([0, y, w, h]);
-            var x = w + margin;
-            var h1 = 0.5 * h - 0.5 * margin;
-            w = width - w - margin;
-            data.add([x, y, w, h1]);
-            y += h1 + margin;
-            h1 = h - h1 - margin;
-            data.add([x, y, w, h1]);
-            y += h1 + margin;
-            h = height - y;
-            data.add([0, y, width, h]);
+            var rowSizes = distributeSpace(height, margin, [1,1,1,1] as Array<Number>);
+            var colSizes = distributeSpace(width, margin, [1,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(mergeFieldLayouts([
+                getFieldLayout(rowSizes, colSizes, margin, 1, 0),
+                getFieldLayout(rowSizes, colSizes, margin, 2, 0),
+            ] as Array<FieldLayout>));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 1));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 1));
+            data.add(getFieldLayout(rowSizes, [width], margin, 3, 0));
         }else if(id == LAYOUT_CUSTOM2){
-            // full screen
-            data.add([0, 0, width, height]);
-            // top
-            var h = 0.25 * height;
-            var y = 0;
-            data.add([0, y, width, h]);
-            // left
-            y = (height - h)/2;
-            var w = 0.4 * (width);
-            data.add([0, y, w, h]);
-            // right
-            var x = width - w;
-            data.add([x, y, w, h]);
+            margin = 0;
+            var rowSizes = distributeSpace(height, margin, [2,1,2,1,2] as Array<Number>);
+            var colSizes = distributeSpace(width, margin, [2,1,2] as Array<Number>);
+            data.add(getFieldLayout([height], [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 0));
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 2));
         }else{
-            var w2 = 0.5 * width;
-            var h2 = 0.5 * height;
-            data.add([w2/2, h2/2, w2, h2]);
+            var rowSizes = distributeSpace(height, margin, [1,2,1] as Array<Number>);
+            var colSizes = distributeSpace(width, margin, [1,2,1] as Array<Number>);
+            data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 1));
         }
         return data as Layout;            
     }
-
+    
     function hasFieldOverlay() as Boolean{
         // more then one fields
         if(layout.size()>1){

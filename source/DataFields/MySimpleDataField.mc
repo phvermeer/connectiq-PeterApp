@@ -40,7 +40,7 @@ class MySimpleDataField extends MyDataField{
         });
 
         var ds = System.getDeviceSettings();
-        if((height / ds.screenHeight) < 0.22){
+        if((1f * height / ds.screenHeight) < 0.22){
             label.setVisible(false);
         }else{
             label.setVisible(true);
