@@ -59,9 +59,9 @@ class FieldManager{
 
         // else create a new datafield
         var app = $.getApp();
-        var backgroundColor = app.settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
+        var darkMode = app.settings.get(SETTING_DARK_MODE) as Boolean;
 
-        var options = { :backgroundColor => backgroundColor };
+        var options = { :darkMode => darkMode };
         if(app.track != null){
             options.put(:track, app.track);
         }

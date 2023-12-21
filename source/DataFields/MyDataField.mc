@@ -5,9 +5,8 @@ import Toybox.Application;
 import Toybox.Activity;
 
 class MyDataField extends WatchUi.Drawable{
-    hidden var backgroundColor as ColorType;
-    hidden var previousLayout as Array<Numeric>?;
     hidden var darkMode as Boolean;
+    hidden var previousLayout as Array<Numeric>?;
     hidden var isVisible as Boolean = false;
 
     function initialize(options as {
@@ -15,12 +14,10 @@ class MyDataField extends WatchUi.Drawable{
         :locY as Numeric,
         :width as Numeric,
         :height as Numeric,
-        :backgroundColor as ColorType,
+        :darkMode as Boolean,
     }){
         Drawable.initialize(options);
-        var color = options.get(:backgroundColor);
-        backgroundColor = (color != null) ? color : Graphics.COLOR_WHITE;
-        darkMode = getDarkMode(backgroundColor);
+        darkMode = options.hasKey(:darkMode) ? options.get(:darkMode) as Boolean : false;
     }
 
     function draw(dc as Dc) as Void{
@@ -79,28 +76,21 @@ class MyDataField extends WatchUi.Drawable{
         return false;
     }
 
-    function setBackgroundColor(color as Graphics.ColorType) as Void{
-        backgroundColor = color;
-
-        // update darkmode status
-        darkMode = getDarkMode(color);
-
+    function setDarkMode(darkMode as Boolean) as Void{
+        self.darkMode = darkMode;
         refresh();
     }
 
-    private function getDarkMode(backgroundColor as ColorType) as Boolean{
-        var rgb = MyTools.colorToRGB(backgroundColor);
-        var intensity = Math.mean(rgb);
-        return (intensity < 100);
+    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
+        if(id == SETTING_DARK_MODE){
+            setDarkMode(value as Boolean);
+        }
     }
 
     function getBackgroundColor() as ColorType{
-        return backgroundColor;
+        return darkMode ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE;
     }
-
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_BACKGROUND_COLOR){
-            setBackgroundColor(value as ColorType);
-        }
+    function getForegroundColor() as ColorType{
+        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
     }
 }

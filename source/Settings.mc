@@ -15,7 +15,7 @@ enum SettingId{
     SETTING_ALTITUDE_T0 = 5,
     SETTING_GLOBAL_MAX = 5,
     // profile settings
-    SETTING_BACKGROUND_COLOR = 6,
+    SETTING_DARK_MODE = 6,
     SETTING_AUTOPAUSE = 7,
     SETTING_AUTOLAP = 8,
     SETTING_AUTOLAP_DISTANCE = 9,
@@ -48,7 +48,7 @@ class Settings{
         SETTING_ALTITUDE_CALIBRATED => false,
         SETTING_ALTITUDE_P0 => 100000f,
         SETTING_ALTITUDE_T0 => 25f,
-        SETTING_BACKGROUND_COLOR => Graphics.COLOR_WHITE,
+        SETTING_DARK_MODE => false,
         SETTING_AUTOPAUSE => true,
         SETTING_AUTOLAP => false,
         SETTING_AUTOLAP_DISTANCE => 1000,
@@ -76,6 +76,18 @@ class Settings{
         var sport = get(SETTING_SPORT) as Activity.Sport;
         profileId = getProfileSection(sport);
         profileData = getProfileData(profileId);
+
+        // compatibility updates
+        // 6: backgroundColor => darkMode
+        var ids = [SETTING_DARK_MODE];
+        for(var i=0; i<ids.size(); i++){
+            var id = ids[i] as SettingId;
+            var value = get(id);
+            if(!(value instanceof Boolean)){
+                value = DEFAULT_VALUES.get(id as Number) as Boolean;
+                set(SETTING_DARK_MODE, value);
+            }
+        }
     }
     hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
         var size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;

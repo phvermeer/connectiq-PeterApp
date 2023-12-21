@@ -39,6 +39,7 @@ class DataView extends MyViews.MyView{
     hidden var layout as Layout = [] as Layout;
     hidden var fields as Array<MyDataField> = [] as Array<MyDataField>;
     hidden var edge as Edge;
+    hidden var darkMode as Boolean;
 
     function initialize(screenIndex as Number, screensSettings as ScreensSettings){
         MyView.initialize();
@@ -57,6 +58,7 @@ class DataView extends MyViews.MyView{
         // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
         settings.addListener(self);
+        darkMode = settings.get(SETTING_DARK_MODE) as Boolean;
 
         // listen to session changes with "onSessionState()"
         var session = $.getApp().session;
@@ -347,9 +349,19 @@ class DataView extends MyViews.MyView{
 
             var screenSettings = screensSettings[screenIndex] as ScreenSettings;
             applyScreenSettings(screenSettings);
+        }else if(id == SETTING_DARK_MODE){
+            setDarkMode(value as Boolean);
         }
     }
 
+    static function getDarkMode(backgroundColor as ColorType) as Boolean{
+        var rgb = MyTools.colorToRGB(backgroundColor);
+        var intensity = Math.mean(rgb);
+        return (intensity < 100);
+    }
+    hidden function setDarkMode(darkMode as Boolean) as Void{
+        self.darkMode = darkMode;
+    }
     hidden function applyScreenSettings(screenSettings as ScreenSettings) as Void{
         var fields = $.getApp().fieldManager.getFields(screenSettings[SETTING_FIELDS] as Array<DataFieldId>);
         var layout = DataView.getLayoutById(screenSettings[SETTING_LAYOUT] as LayoutId);

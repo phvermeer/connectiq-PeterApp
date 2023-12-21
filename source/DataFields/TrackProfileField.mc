@@ -67,8 +67,6 @@ class TrackProfileField extends MyDataField{
 		if(options.hasKey(:track)){
 			setTrack(options.get(:track) as Track);
 		}
-		
-		setBackgroundColor(backgroundColor);
 
 		// Load historical altitude data
 		//initElevationHistory();
@@ -200,13 +198,11 @@ class TrackProfileField extends MyDataField{
 		refresh();
 	}
 
-	function setBackgroundColor(color as Graphics.ColorType) as Void{
-		MyDataField.setBackgroundColor(color);
-		var intensity = Math.mean(MyTools.colorToRGB(color));
-		var isDarkMode = (intensity < 100);
+	function setDarkMode(darkMode as Boolean) as Void{
+		MyDataField.setDarkMode(darkMode);
 		
-		serieTrack.color = isDarkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-		trend.setDarkMode(isDarkMode);
+		serieTrack.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		trend.setDarkMode(darkMode);
 	}
 
 	function onTrackLoaded() as Void{

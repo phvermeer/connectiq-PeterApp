@@ -22,9 +22,6 @@ class TrackOverviewField extends MyDataField{
             xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
         }
 
-        // update darkmode
-        setBackgroundColor(backgroundColor);
-
         // subscribe to position events
         $.getApp().data.addListener(self);
     }
@@ -90,6 +87,7 @@ class TrackOverviewField extends MyDataField{
 
             // create the bitmap
             var trackColor = getTrackColor();
+            var backgroundColor = getBackgroundColor();
             var breadcrumpColor = getBreadcrumpColor();
             var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor, breadcrumpColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
@@ -231,8 +229,8 @@ class TrackOverviewField extends MyDataField{
         return trackThickness;
     }
 
-    function setBackgroundColor(color as ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
 
         // update track bitmap with updated colors
         var track = $.getApp().track;

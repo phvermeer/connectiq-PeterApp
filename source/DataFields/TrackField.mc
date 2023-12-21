@@ -63,7 +63,7 @@ class TrackField extends MyDataField{
     function onUpdate(dc as Dc){
         // draw the legend
         var color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
-        dc.setColor(color, backgroundColor);
+        dc.setColor(color, getBackgroundColor());
         dc.clear();
         legend.draw(dc);
 
@@ -267,8 +267,8 @@ class TrackField extends MyDataField{
         }
     }
 
-    function setBackgroundColor(color as Graphics.ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
         positionMarker.setDarkMode(darkMode);
     }
 }

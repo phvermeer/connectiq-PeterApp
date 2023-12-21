@@ -18,7 +18,7 @@ class TestField extends MyDataField{
 
         label = new MyText({
             :text => "TEST",
-            :color => getTextColor(),
+            :color => getForegroundColor(),
         });
     }
     function onLayout(dc){
@@ -48,11 +48,8 @@ class TestField extends MyDataField{
         label.draw(dc);
     }
 
-    function setBackgroundColor(color as ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
-        label.setColor(getTextColor());
-    }
-    hidden function getTextColor() as ColorType{
-        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
+        label.setColor(getForegroundColor());
     }
 }

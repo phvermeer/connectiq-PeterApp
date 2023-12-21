@@ -23,9 +23,8 @@ class EmptyField extends MyDataField{
     }
     function onUpdate(dc as Dc){
         if(counter > 0){
-            var color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
             dc.setPenWidth(1);
-            dc.setColor(color, backgroundColor);
+            dc.setColor(getForegroundColor(), getBackgroundColor());
             dc.drawRectangle(locX, locY, width, height);
             counter--;
         }

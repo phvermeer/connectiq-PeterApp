@@ -19,7 +19,7 @@ class MySimpleDataField extends MyDataField{
         MyDataField.initialize(options);
         var lbl = options.hasKey(:label) ? (options.get(:label) as String).toUpper() : "LABEL";
 
-        var color = getTextColor();
+        var color = getForegroundColor();
         label = new MyDrawables.MyText({
             :text => lbl,
             :color => color,
@@ -84,16 +84,11 @@ class MySimpleDataField extends MyDataField{
         value.draw(dc);
     }    
 
-    function setBackgroundColor(color as ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
-        
-        var textColor = getTextColor();
-        label.setColor(textColor);
-        value.setColor(textColor);
-    }
-
-    function getTextColor() as Graphics.ColorType{
-        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
+        var color = getForegroundColor();
+        label.setColor(color);
+        value.setColor(color);
     }
 
     function setValue(value as Numeric|String|Null) as Void{
