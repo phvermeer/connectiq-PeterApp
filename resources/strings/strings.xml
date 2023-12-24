@@ -8,6 +8,7 @@
     
 	<!-- General -->
     <string id="state">Status</string>
+    <string id="status">Status</string>
     <string id="on">Aan</string>
     <string id="off">Uit</string>
 

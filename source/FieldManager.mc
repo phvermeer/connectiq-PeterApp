@@ -33,7 +33,7 @@ enum DataFieldId{
     DATAFIELD_MEMORY = 24,
     DATAFIELD_BATTERY = 25,
     DATAFIELD_COUNTER = 26,
-    DATAFIELD_BATTERY_CONSUMPTION = 27,
+    DATAFIELD_STATUS = 27,
     DATAFIELD_LAYOUT_TEST = 28,
     DATAFIELD_FONT_TEST = 29,
     DATAFIELD_PRESSURE = 30,
@@ -91,6 +91,7 @@ class FieldManager{
             : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
+            : (id == DATAFIELD_STATUS) ? new StatusField(options)
             : new EmptyField(options);
 
         // keep weak link in buffer for new requests

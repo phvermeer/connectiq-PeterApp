@@ -101,8 +101,8 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_CLOCK => WatchUi.loadResource(Rez.Strings.clock),
 					DATAFIELD_MEMORY => WatchUi.loadResource(Rez.Strings.memory),
 					DATAFIELD_BATTERY => WatchUi.loadResource(Rez.Strings.battery),
+					DATAFIELD_STATUS => WatchUi.loadResource(Rez.Strings.status),
 //					"counter" => WatchUi.loadResource(Rez.Strings.counter),
-//					"batteryConsumption" => WatchUi.loadResource(Rez.Strings.batteryConsumption),
 				},
 			},
 
