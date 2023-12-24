@@ -91,6 +91,7 @@ class DataScreenMenu extends MyMenu {
 			case DataView.SETTING_LAYOUT:
 			case DataView.SETTING_FIELDS:
 				var view = new DataView(screenIndex, screensSettings);
+				app.data.addListener(view);
 
 				var delegate = (id == DataView.SETTING_LAYOUT)
 					? new LayoutPickerDelegate(view, screenIndex, screensSettings)
@@ -111,9 +112,5 @@ class DataScreenMenu extends MyMenu {
 			default:
 				return false;
 		}
-	}
-
-	function onFieldSelected(data as { :fieldIndex as Lang.Number, :field as MyDataField }) as Void{
-		//System.println("field selected");	
 	}
 }

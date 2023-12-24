@@ -32,11 +32,12 @@ class StartView extends MyViews.MyView {
 				session.start();
 
                 // Show DataView
-                var settings = $.getApp().settings;
+                var settings = app.settings;
                 var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
 				var view = new DataView(0, screensSettings);
+                app.data.addListener(view);
 				sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
 				return true;
 			}
