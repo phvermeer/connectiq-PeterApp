@@ -112,7 +112,7 @@ class TrackField extends MyDataField{
 
         var points = $.getApp().data.getBreadcrumps();
         var count = points.size();
-        if(count >= 2){
+        if(count >= 1){
             var p1 = points[0];
             var skip1 = true;
             if(p1 != null){
