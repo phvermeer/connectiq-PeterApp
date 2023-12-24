@@ -60,15 +60,15 @@ class Data
     }
 
     function start() as Void{
-        // enable location events
         if(!started){
+            // start update timer
             started = true;
             timer.start(method(:onTimer), interval, true);
         }
     }
     function stop() as Void{
-        // disable location events
         if(started){
+            // stop update time
             started = false;
             timer.stop();
         }

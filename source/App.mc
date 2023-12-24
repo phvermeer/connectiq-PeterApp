@@ -98,8 +98,6 @@ class App extends Application.AppBase {
     }
 
     function onPhone(msg as Communications.Message) as Void{
-        System.println("onPhone message received");
-
         // receive track data
         if(msg.data instanceof Array){
             var data = msg.data as Array;
