@@ -32,7 +32,7 @@ class MySimpleDataField extends MyDataField{
 
     function onLayout(dc) as Void{
         // align label on top
-        var helper = new MyLayoutHelper.RoundScreenHelper({
+        var helper = MyLayoutHelper.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -49,7 +49,7 @@ class MySimpleDataField extends MyDataField{
         // determine the font sizes
         var surface = width * height;
         var surfaceMax = ds.screenWidth * ds.screenHeight;
-        var ratio = surface / surfaceMax;
+        var ratio = 1f * surface / surfaceMax;
         if(ratio < 0.2){
             label.setFont(Graphics.FONT_XTINY);
             value.setFont(Graphics.FONT_NUMBER_MILD);
@@ -69,7 +69,7 @@ class MySimpleDataField extends MyDataField{
             helper.align(label, MyLayoutHelper.ALIGN_TOP);
 
             // align value centered in the remaining area
-            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height);
+            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height, 0);
         }
 
         // update the aspect ratio of current value text

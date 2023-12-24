@@ -67,7 +67,7 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
-            var helper = new MyLayoutHelper.RoundScreenHelper({
+            var helper = MyLayoutHelper.getLayoutHelper({
                 :xMin => locX,
                 :xMax => locX + width,
                 :yMin => locY,

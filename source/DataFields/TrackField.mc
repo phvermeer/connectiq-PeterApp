@@ -47,7 +47,7 @@ class TrackField extends MyDataField{
 
 
         // determine the drawing area's
-        var helper = new MyLayoutHelper.RoundScreenHelper({
+        var helper = MyLayoutHelper.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,

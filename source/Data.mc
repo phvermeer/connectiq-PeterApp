@@ -213,7 +213,7 @@ class Data
     }
 
     hidden function updateActivityInfo(info as Activity.Info) as Void{
-        if(altitudeCalculator != null){
+        if(altitudeCalculator != null && info has :ambientPressure){
             // modify altitude
             var pressure = info.ambientPressure;
             if(pressure != null){

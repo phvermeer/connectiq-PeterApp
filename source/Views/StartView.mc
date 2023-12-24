@@ -3,24 +3,56 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
 import MyViews;
+import MyDrawables;
 
 class StartView extends MyViews.MyView {
+    var hintStart as Drawable;
+    var icon as Icon;
+    var text as Text;
+
     function initialize() {
         MyView.initialize();
-
+        hintStart = new MyDrawables.HintStart({});
+        icon = new Icon({});
+        text = new WatchUi.Text({
+            :text => WatchUi.loadResource(Rez.Strings.start) as String,
+            :justification => Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER,
+        });
     }
 
     // Load your resources here
     function onLayout(dc as Dc) as Void {
-        setLayout(Rez.Layouts.start(dc));
+        // setLayout(Rez.Layouts.start(dc));
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        
+        text.locX = w / 2;
+        text.locY = 0.6 * h;
+
+        icon.width = w/5;
+        icon.height = icon.width;
+        icon.locX = (w - icon.width) / 2;
+        icon.locY = 0.4 * (h - icon.height);
     }
 
     function onShow() as Void{
-        var icon = findDrawableById("icon") as Icon;
-        var app = getApp();
-        var sport = app.settings.get(SETTING_SPORT) as Activity.Sport;
+        var sport = getApp().settings.get(SETTING_SPORT) as Activity.Sport;
         icon.setBitmap(Session.getIcon(sport));
+    }
 
+    function onUpdate(dc as Dc) as Void{
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.clear();
+
+
+        // draw text "Start"
+        text.draw(dc);
+
+        // icon with current sport
+        icon.draw(dc);
+
+        // draw hint to start button
+        hintStart.draw(dc);
     }
 
     function onKey(sender as MyViewDelegate, keyEvent as WatchUi.KeyEvent) as Boolean{
