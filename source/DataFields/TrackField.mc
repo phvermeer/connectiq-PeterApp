@@ -157,6 +157,20 @@ class TrackField extends MyDataField{
                 p1 = p2;
                 skip1 = skip2;
             }
+
+            if(xyCurrent != null){
+                // draw from last breadcrump to current xy
+                x2 = xOffset + zoomFactor * xyCurrent[0];
+                y2 = yOffset + zoomFactor * xyCurrent[1];
+
+                if(skip1){
+                    var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                    x1 = xy[0];
+                    y1 = xy[1];
+                }
+
+                dc.drawLine(x1, y1, x2, y2);
+            }
         }
 
         if(track != null){
