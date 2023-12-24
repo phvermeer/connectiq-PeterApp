@@ -61,13 +61,14 @@ class App extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        data.start();
+        data.startTimer();
         started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
-        data.stop();
+        data.stopTimer();
+        data.stopPositioning();
         started = false;
     }
 
@@ -86,13 +87,11 @@ class App extends Application.AppBase {
             case SESSION_STATE_IDLE:
             case SESSION_STATE_STOPPED:
                 // stop events
-	            // data.stop();
-                data.setInterval(5000);
+	            data.stopPositioning();
                 break;
             case SESSION_STATE_BUSY:
                 // start events
-                // data.start();
-                data.setInterval(1000);
+                data.startPositioning();
                 break;
         }
     }

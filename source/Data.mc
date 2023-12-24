@@ -20,7 +20,9 @@ class Data
     public var xy as XyPoint|Null;
 
     hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
-    hidden var started as Boolean = false;
+    hidden var timerStarted as Boolean = false;
+    hidden var positioningStarted as Boolean = false;
+    hidden var eventReceived as Boolean = false;
 
     // settings
     hidden var interval as Number;
@@ -45,10 +47,10 @@ class Data
         breadcrumpsMax = options.hasKey(:breadcrumpsMax) ? options.get(:breadcrumpsMax) as Number : 50;
         breadcrumpsDistance = options.hasKey(:breadcrumpsDistance) ? options.get(:breadcrumpsDistance) as Number : 50;
         breadcrumpsEnabled = options.hasKey(:breadcrumpsEnabled) ? options.get(:breadcrumpsEnabled) as Boolean : true;
-        interval = options.hasKey(:interval) ? options.get(:interval) as Number : 1000;
+        interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
 
         var settings = $.getApp().settings;
-        if(SETTING_ALTITUDE_CALIBRATED){
+        if(settings.get(SETTING_ALTITUDE_CALIBRATED)){
             var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
             var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
             altitudeCalculator = new Altitude.Calculator(p0, t0);
@@ -59,18 +61,40 @@ class Data
         stats = System.getSystemStats();
     }
 
-    function start() as Void{
-        if(!started){
-            // start update timer
-            started = true;
+    function startTimer() as Void{
+        if(!timerStarted){
+            // start timer events
             timer.start(method(:onTimer), interval, true);
+            timerStarted = true;
+            eventReceived = false;
         }
     }
-    function stop() as Void{
-        if(started){
-            // stop update time
-            started = false;
+    function stopTimer() as Void{
+        if(timerStarted){
+            // stop timer events
             timer.stop();
+            timerStarted = false;
+        }
+    }
+
+    function startPositioning() as Void{
+        if(!positioningStarted){
+            // start positioning events
+            Position.enableLocationEvents(
+                { :acquisitionType => Position.LOCATION_CONTINUOUS },
+                method(:onPosition)
+            );
+            positioningStarted = true;
+        }
+    }
+
+    function stopPositioning() as Void{
+        if(positioningStarted){
+            // stop positioning events
+            Position.enableLocationEvents({
+                :acquisitionType => Position.LOCATION_DISABLE,
+            }, method(:onPosition));
+            positioningStarted = false;
         }
     }
 
@@ -82,16 +106,25 @@ class Data
             setBreadcrumpsMax(value as Number);
         }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
             setBreadcrumpsDistance(value as Number);
+        }else if(id == SETTING_ALTITUDE_CALIBRATED){
+            if(value) {
+                var settings = $.getApp().settings;
+                var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
+                var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
+                altitudeCalculator = new Altitude.Calculator(p0, t0);
+            }else{
+                altitudeCalculator = null;
+            }
         }
     }
 
     function setInterval(interval as Number) as Void{
-        var doRestart = (started && interval != self.interval);
+        var doRestart = (timerStarted && interval != self.interval);
         self.interval = interval;
         if(doRestart){
             // restart timer with new interval
-            stop();
-            start();
+            stopTimer();
+            startTimer();
         }
     }
 
@@ -223,6 +256,15 @@ class Data
     }
 
     function onTimer() as Void{
+        if(!eventReceived){
+            onPosition(Position.getInfo());
+        }
+        eventReceived = false;
+    }
+
+    function onPosition(info as Position.Info) as Void{
+        eventReceived = true;
+
         var activityInfo = Activity.getActivityInfo();
         if(activityInfo != null){
             updateActivityInfo(activityInfo);
@@ -231,7 +273,7 @@ class Data
 
         stats = System.getSystemStats();
 
-        positionInfo = Position.getInfo();
+        positionInfo = info;
         updateXY(positionInfo);
 
         // notify listeners
