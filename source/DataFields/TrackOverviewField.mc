@@ -21,9 +21,6 @@ class TrackOverviewField extends MyDataField{
         if(track != null && track.xCurrent != null && track.yCurrent != null){
             xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
         }
-
-        // subscribe to position events
-        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){

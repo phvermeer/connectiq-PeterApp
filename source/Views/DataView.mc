@@ -37,7 +37,6 @@ class DataView extends MyViews.MyView{
     hidden var fields as Array<MyDataField> = [] as Array<MyDataField>;
     hidden var edge as Edge;
     hidden var updateIndicator as Edge;
-    hidden var gpsIndicator as SignalIndicator;
     hidden var darkMode as Boolean;
 
     function initialize(screenIndex as Number, screensSettings as ScreensSettings){
@@ -53,23 +52,12 @@ class DataView extends MyViews.MyView{
 
         // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
-        settings.addListener(self);
         darkMode = settings.get(SETTING_DARK_MODE) as Boolean;
-
-        // listen to session changes with "onSessionState()"
-        var session = $.getApp().session;
-        onSessionState(session.getState());
-        session.addListener(self);
 
         updateIndicator = new Edge( {
             :darkMode => darkMode,
             :position => MyDrawables.EDGE_TOP,
         } );
-
-        gpsIndicator = new MyDrawables.SignalIndicator({
-            :darkMode => darkMode,
-            :level => SignalIndicator.SIGNAL_GOOD,
-        });
     }
 
     // event handler when view becomes visible
@@ -88,14 +76,6 @@ class DataView extends MyViews.MyView{
 
     // event handler for graphical layout 
     function onLayout(dc as Dc){
-        // align gps signal indicator to top
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        var size = (h<w ? h : w)/10;
-        gpsIndicator.setSize(size, size);
-        var helper = MyLayoutHelper.getLayoutHelper({ :margin => h/100 });
-        helper.align(gpsIndicator, MyLayoutHelper.ALIGN_TOP);
-
         var screenSettings = screensSettings[screenIndex];
         applyScreenSettings(screenSettings); // fields and layout
     }
@@ -136,7 +116,6 @@ class DataView extends MyViews.MyView{
             : (updateIndicator.position - 90) as EdgePos;
 
         updateIndicator.draw(dc);
-        gpsIndicator.draw(dc);
     }
 
     // update single field with given field layout
@@ -425,28 +404,8 @@ class DataView extends MyViews.MyView{
             var screenSettings = screensSettings[screenIndex] as ScreenSettings;
             applyScreenSettings(screenSettings);
         }else if(id == SETTING_DARK_MODE){
-            setDarkMode(value as Boolean);
+            self.darkMode = value as Boolean;
         }
-    }
-    function onData(data as Data) as Void{
-        // update gps signal level
-        var level = data.positionInfo.accuracy == Position.QUALITY_GOOD
-            ? SignalIndicator.SIGNAL_GOOD
-            : data.positionInfo.accuracy == Position.QUALITY_USABLE
-                ? SignalIndicator.SIGNAL_FAIR
-                : data.positionInfo.accuracy == Position.QUALITY_POOR
-                    ? SignalIndicator.SIGNAL_POOR
-                    : SignalIndicator.SIGNAL_NONE;
-        
-        if(level != gpsIndicator.level){
-            gpsIndicator.level = level;
-            WatchUi.requestUpdate();
-        }
-    }
-
-    hidden function setDarkMode(darkMode as Boolean) as Void{
-        self.darkMode = darkMode;
-        gpsIndicator.darkMode = darkMode;
     }
     hidden function applyScreenSettings(screenSettings as ScreenSettings) as Void{
         var fields = $.getApp().fieldManager.getFields(screenSettings[SETTING_FIELDS] as Array<DataFieldId>);

@@ -69,7 +69,9 @@ class StartView extends MyViews.MyView {
 			
 				// Open the data screen
 				var view = new DataView(0, screensSettings);
-                app.data.addListener(view);
+                settings.addListener(view);
+                session.addListener(view);
+
 				sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
 				return true;
 			}

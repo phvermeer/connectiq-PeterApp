@@ -69,6 +69,7 @@ class App extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {
         data.stopTimer();
         data.stopPositioning();
+        session.stop();
         started = false;
     }
 

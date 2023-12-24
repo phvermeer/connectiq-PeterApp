@@ -306,6 +306,7 @@ class Session{
     function addListener(listener as Object) as Void{
         if((listener as IListener) has :onSessionState){
             mListeners.add(listener.weak());
+			(listener as IListener).onSessionState(mState);
         }
     }
     function removeListener(listener as Object) as Void{
