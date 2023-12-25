@@ -36,6 +36,7 @@
 	<string id="layoutTest">Layout Test</string>
 	<string id="airPressure">Luchtdruk</string>
 	<string id="seaLevelPressure">Baro</string>
+	<string id="gps">GPS</string>
 	
 	<string id="memory">Geheugen</string>
 	<string id="battery">Batterij</string>

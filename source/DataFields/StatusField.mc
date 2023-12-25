@@ -5,8 +5,8 @@ import Toybox.Time.Gregorian;
 import MyTools;
 import MyDrawables;
 
-class StatusField extends MyDataField{
-    var gpsIndicator as SignalIndicator;    
+class StatusField extends MySimpleDataField{
+    var gpsIndicator as GpsSignalIndicator;
 
     function initialize(options as {
         :locX as Numeric,
@@ -15,8 +15,9 @@ class StatusField extends MyDataField{
         :height as Numeric,
         :darkMode as Boolean,
     }) {
-        MyDataField.initialize(options);
-        gpsIndicator = new MyDrawables.SignalIndicator({
+        options.put(:label, WatchUi.loadResource(Rez.Strings.gps));
+        MySimpleDataField.initialize(options);
+        gpsIndicator = new MyDrawables.GpsSignalIndicator({
             :darkMode => darkMode,
             :width => 32,
             :height => 32,
@@ -24,12 +25,14 @@ class StatusField extends MyDataField{
 
         onData($.getApp().data);
     }
-    function onLayout(dc){
-        var margin = Math.ceil(0.05 * dc.getHeight()).toNumber();
+    function onLayout(dc as Dc) as Void{
+        MySimpleDataField.onLayout(dc);
+
+        var margin = Math.ceil(0.02 * dc.getHeight()).toNumber();
         var helper = MyLayoutHelper.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
-            :yMin => locY,
+            :yMin => label.locY + label.height,
             :yMax => locY + height,
             :margin => margin,
         });
@@ -37,18 +40,17 @@ class StatusField extends MyDataField{
         helper.resizeToMax(gpsIndicator, true);
     }
 
-    function onUpdate(dc){
+    function onUpdate(dc as Dc) as Void{
+        label.draw(dc);
         gpsIndicator.draw(dc);
     }
 
     function onData(data as Data){
-        var accuracy = data.positionInfo.accuracy;
-        
-        var signalLevel = (accuracy == Position.QUALITY_GOOD) ? SignalIndicator.SIGNAL_GOOD
-            : (accuracy == Position.QUALITY_USABLE) ? SignalIndicator.SIGNAL_FAIR
-            : (accuracy == Position.QUALITY_POOR) ? SignalIndicator.SIGNAL_POOR
-            : SignalIndicator.SIGNAL_NONE;
-        gpsIndicator.level = signalLevel;
+        var quality = data.positionInfo.accuracy;
+        if(quality != gpsIndicator.quality){
+            gpsIndicator.quality = quality;
+            refresh();
+        }
     }
 
     function setDarkMode(darkMode as Boolean) as Void{
