@@ -93,7 +93,15 @@ class MySimpleDataField extends MyDataField{
 
     function setValue(value as Numeric|String|Null) as Void{
         var txt = (value instanceof Float || value instanceof Double)
-            ? value.format("%.2f")
+            ? value == 0f
+                ? "0.00"
+                : value < 100
+                    ? value.format("%.2f")
+                    : value < 1000
+                        ? value.format("%.1f")
+                        : value < 10000
+                            ? value.format("%i")
+                            : value.format("%.2e")
             : (value instanceof Number || value instanceof Long)
                 ? value.format("%i")
                 : (value instanceof String)
