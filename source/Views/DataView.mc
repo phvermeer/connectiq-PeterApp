@@ -7,7 +7,7 @@ import Toybox.Math;
 import MyViews;
 import MyMath;
 import MyDrawables;
-import MyLayoutHelper;
+import MyLayout;
 
 enum LayoutId {
 	LAYOUT_ONE_FIELD = 0,

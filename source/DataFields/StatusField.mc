@@ -27,7 +27,7 @@ class StatusField extends MySimpleDataField{
         MySimpleDataField.onLayout(dc);
 
         var margin = Math.ceil(0.02 * dc.getHeight()).toNumber();
-        var helper = MyLayoutHelper.getLayoutHelper({
+        var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => label.locY + label.height,

@@ -9,7 +9,7 @@ using Toybox.Timer;
 using Toybox.Math;
 import MyList;
 import MyGraph;
-import MyLayoutHelper;
+import MyLayout;
 using MyTools;
 
 class TrackProfileField extends MyDataField{
@@ -85,7 +85,7 @@ class TrackProfileField extends MyDataField{
 
 	function onLayout(dc as Graphics.Dc){
 		// init graph sizes
-		var helper = MyLayoutHelper.getLayoutHelper({
+		var helper = MyLayout.getLayoutHelper({
 			:xMin => locX,
 			:xMax => locX + width,
 			:yMin => locY,

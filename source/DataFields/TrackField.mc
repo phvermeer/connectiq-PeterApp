@@ -3,7 +3,7 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Position;
 import Toybox.Application;
-import MyLayoutHelper;
+import MyLayout;
 
 class TrackField extends MyDataField{
     hidden var track as Track?;
@@ -44,7 +44,7 @@ class TrackField extends MyDataField{
 
 
         // determine the drawing area's
-        var helper = MyLayoutHelper.getLayoutHelper({
+        var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -52,7 +52,7 @@ class TrackField extends MyDataField{
         });
 
         // positioning legend (scale indicator)
-        helper.align(legend, MyLayoutHelper.ALIGN_BOTTOM);
+        helper.align(legend, MyLayout.ALIGN_BOTTOM);
 
         positionMarker.locX = locX + width/2;
         positionMarker.locY = locY + height/2;

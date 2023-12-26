@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Math;
-import MyLayoutHelper;
+import MyLayout;
 import MyDrawables;
 
 class MySimpleDataField extends MyDataField{
@@ -32,7 +32,7 @@ class MySimpleDataField extends MyDataField{
 
     function onLayout(dc) as Void{
         // align label on top
-        var helper = MyLayoutHelper.getLayoutHelper({
+        var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -66,7 +66,7 @@ class MySimpleDataField extends MyDataField{
 
         if(label.isVisible){
             label.adaptSize(dc);
-            helper.align(label, MyLayoutHelper.ALIGN_TOP);
+            helper.align(label, MyLayout.ALIGN_TOP);
 
             // align value centered in the remaining area
             helper.setLimits(locX, locX + width, label.locY + label.height, locY + height, 0);
