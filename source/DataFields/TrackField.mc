@@ -60,8 +60,7 @@ class TrackField extends MyDataField{
     function onUpdate(dc as Dc){
         // draw the legend
         var color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
-        dc.setColor(color, getBackgroundColor());
-        dc.clear();
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         legend.draw(dc);
 
         // draw the map
@@ -84,16 +83,32 @@ class TrackField extends MyDataField{
 
         if(self.track != null){
             var track = self.track as Track;
-            color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+            color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+            var colorToDo = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
             x1 = xOffset + zoomFactor * track.xValues[0];
             y1 = yOffset + zoomFactor * track.yValues[0];
             var skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-
+            var sectionDone = true;
             for(var i=1; i<track.count; i++){
                 x2 = xOffset + zoomFactor * track.xValues[i];
                 y2 = yOffset + zoomFactor * track.yValues[i];
+
+                if(i-1==track.iCurrent){
+                    // extra interpolated point to switch color done => todo
+                    if(sectionDone){
+                        var l = track.lambdaCurrent;
+                        if(l != null){
+                            x2 = x1 + (x2-x1)*l;
+                            y2 = y1 + (y2-y1)*l;
+                            sectionDone = false;
+                            i--;
+                        }
+                    }else{
+                        dc.setColor(colorToDo, Graphics.COLOR_TRANSPARENT);
+                    }
+                }
 
                 var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
                 if(!skip1 || !skip2){
@@ -107,7 +122,7 @@ class TrackField extends MyDataField{
         }
 
         // draw bread crumps (with interpolation of points outside viewers range)
-        color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+        color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
         var points = $.getApp().data.getBreadcrumps();
