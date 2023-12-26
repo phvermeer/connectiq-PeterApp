@@ -19,8 +19,6 @@ class StatusField extends MySimpleDataField{
         MySimpleDataField.initialize(options);
         gpsIndicator = new MyDrawables.GpsSignalIndicator({
             :darkMode => darkMode,
-            :width => 32,
-            :height => 32,
         });
 
         onData($.getApp().data);
@@ -36,7 +34,7 @@ class StatusField extends MySimpleDataField{
             :yMax => locY + height,
             :margin => margin,
         });
-
+        gpsIndicator.setSize(1,1);
         helper.resizeToMax(gpsIndicator, true);
     }
 
