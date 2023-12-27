@@ -33,7 +33,7 @@ enum DataFieldId{
     DATAFIELD_MEMORY = 24,
     DATAFIELD_BATTERY = 25,
     DATAFIELD_COUNTER = 26,
-    DATAFIELD_BATTERY_CONSUMPTION = 27,
+    DATAFIELD_STATUS = 27,
     DATAFIELD_LAYOUT_TEST = 28,
     DATAFIELD_FONT_TEST = 29,
     DATAFIELD_PRESSURE = 30,
@@ -59,9 +59,9 @@ class FieldManager{
 
         // else create a new datafield
         var app = $.getApp();
-        var backgroundColor = app.settings.get(SETTING_BACKGROUND_COLOR) as ColorType;
+        var darkMode = app.settings.get(SETTING_DARK_MODE) as Boolean;
 
-        var options = { :backgroundColor => backgroundColor };
+        var options = { :darkMode => darkMode };
         if(app.track != null){
             options.put(:track, app.track);
         }
@@ -71,6 +71,7 @@ class FieldManager{
             : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
             : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
+            : (id == DATAFIELD_COMPASS) ? new CompassField(options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
@@ -91,6 +92,7 @@ class FieldManager{
             : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
+            : (id == DATAFIELD_STATUS) ? new StatusField(options)
             : new EmptyField(options);
 
         // keep weak link in buffer for new requests

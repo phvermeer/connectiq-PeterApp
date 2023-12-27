@@ -42,7 +42,6 @@ class App extends Application.AppBase {
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
 
-        data.addListener(session);
 
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
@@ -54,6 +53,8 @@ class App extends Application.AppBase {
             data.addListener(track as Object);
         }
 
+        data.addListener(session);
+        settings.addListener(session);
         settings.addListener(self); // track
         settings.addListener(data); // breadcrumps settings
         session.addListener(self); // modify data interval/start/stop
@@ -61,13 +62,15 @@ class App extends Application.AppBase {
 
     // onStart() is called on application start up
     function onStart(state as Dictionary?) as Void {
-        data.start();
+        data.startTimer();
         started = true;
     }
 
     // onStop() is called when your application is exiting
     function onStop(state as Dictionary?) as Void {
-        data.stop();
+        data.stopTimer();
+        data.stopPositioning();
+        session.stop();
         started = false;
     }
 
@@ -86,20 +89,16 @@ class App extends Application.AppBase {
             case SESSION_STATE_IDLE:
             case SESSION_STATE_STOPPED:
                 // stop events
-	            // data.stop();
-                data.setInterval(5000);
+	            data.stopPositioning();
                 break;
             case SESSION_STATE_BUSY:
                 // start events
-                // data.start();
-                data.setInterval(1000);
+                data.startPositioning();
                 break;
         }
     }
 
     function onPhone(msg as Communications.Message) as Void{
-        System.println("onPhone message received");
-
         // receive track data
         if(msg.data instanceof Array){
             var data = msg.data as Array;

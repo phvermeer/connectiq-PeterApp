@@ -1,16 +1,4 @@
 <layouts>
-	<layout id="start">
-		<drawable id="backgroundBlack" />
-		<drawable id="hintStart" class="MyDrawables.HintStart" />
-		<label id="text1" x="center" y="60%" text="@Strings.start" color="Graphics.COLOR_WHITE" justification="Graphics.TEXT_JUSTIFY_CENTER" />
-		<drawable id="icon" class="Icon" >
-			<param name="locX">100</param>
-			<param name="locY">70</param>
-			<param name="width">60</param>
-			<param name="height">60</param>
-		</drawable>
-
-	</layout>
 	<layout id="stopped">
 		<drawable id="backgroundBlack" />
 		

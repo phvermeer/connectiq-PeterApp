@@ -5,12 +5,8 @@ import Toybox.Position;
 class TrackOverviewField extends MyDataField{
     hidden var track as Track?;
     hidden var bitmap as BufferedBitmap?;
-    hidden var xBitmap as Number = 0;
-    hidden var yBitmap as Number = 0;
-    hidden var wBitmap as Number = 0;
-    hidden var hBitmap as Number = 0;
-    hidden var xCenter as Numeric = 0;
-    hidden var yCenter as Numeric = 0;
+    hidden var xOffset as Numeric = 0;
+    hidden var yOffset as Numeric = 0;
 
     hidden var zoomFactor as Float = 0.1f;
     hidden var markerSize as Number = 0;
@@ -25,12 +21,6 @@ class TrackOverviewField extends MyDataField{
         if(track != null && track.xCurrent != null && track.yCurrent != null){
             xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
         }
-
-        // update darkmode
-        setBackgroundColor(backgroundColor);
-
-        // subscribe to position events
-        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -50,13 +40,13 @@ class TrackOverviewField extends MyDataField{
             var bitmap = self.bitmap as BufferedBitmap;
 
             // Draw the track
-            dc.drawBitmap(xBitmap as Numeric, yBitmap as Numeric, bitmap);
+            dc.drawBitmap(locX as Numeric, locY as Numeric, bitmap);
 
             // Draw the finish marker
             var i = track.count-1;
             if(i>0){
-                var x = xCenter + zoomFactor * track.xValues[i];
-                var y = yCenter + zoomFactor * track.yValues[i];
+                var x = xOffset + zoomFactor * track.xValues[i];
+                var y = yOffset + zoomFactor * track.yValues[i];
                 var color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x, y, markerSize);
@@ -64,8 +54,8 @@ class TrackOverviewField extends MyDataField{
 
             // Draw current position marker
             if(xyCurrent != null){
-                var x = xCenter + zoomFactor * xyCurrent[0];
-                var y = yCenter + zoomFactor * xyCurrent[1];
+                var x = xOffset + zoomFactor * xyCurrent[0];
+                var y = yOffset + zoomFactor * xyCurrent[1];
                 var color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_BLUE;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x as Float, y as Float, markerSize);
@@ -74,11 +64,12 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
-            var helper = new MyLayoutHelper.RoundScreenHelper({
+            var helper = MyLayout.getLayoutHelper({
                 :xMin => locX,
                 :xMax => locX + width,
                 :yMin => locY,
                 :yMax => locY + height,
+                :margin => markerSize,
             });
 
             var dummy = new Drawable({
@@ -86,37 +77,32 @@ class TrackOverviewField extends MyDataField{
                 :height => track.yMax - track.yMin,
             });
 
-            var margin = markerSize;
-            helper.resizeToMax(dummy, false, margin);
-            xBitmap = dummy.locX.toNumber() - margin;
-            yBitmap = dummy.locY.toNumber() - margin;
-            wBitmap = dummy.width.toNumber() + 2 * margin;
-            hBitmap = dummy.height.toNumber() + 2 * margin;
-            xCenter = xBitmap + wBitmap/2;
-            yCenter = yBitmap + hBitmap/2;
+            helper.resizeToMax(dummy, false);
+
+            xOffset = dummy.locX + dummy.width/2;
+            yOffset = dummy.locY + dummy.height/2;
 
             // create the bitmap
             var trackColor = getTrackColor();
-            var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor] as Array<ColorValue>;
+            var backgroundColor = getBackgroundColor();
+            var breadcrumpColor = getBreadcrumpColor();
+            var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor, breadcrumpColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
-                :width => wBitmap,
-                :height => hBitmap,
+                :width => width.toNumber(),
+                :height => height.toNumber(),
                 :palette => colorPalette,
             });
             self.bitmap = bitmap;
 
             // calculate the zoom factor to show the whole track
-            var factorHor = (wBitmap-2*margin) / (track.xMax - track.xMin);
-            var factorVert = (hBitmap-2*margin) / (track.yMax - track.yMin);
+            var factorHor = (dummy.width.toFloat()) / (track.xMax - track.xMin);
+            var factorVert = (dummy.height.toFloat()) / (track.yMax - track.yMin);
             zoomFactor = factorHor < factorVert ? factorHor : factorVert;
 
             // draw the track and buffered breadcrumps
             var dc = bitmap.getDc();
 
             if(dc != null){
-                var xOffset = xCenter - xBitmap;
-                var yOffset = yCenter - yBitmap;
-
                 var count = track.count;
 
                 var penWidth = getTrackThickness(zoomFactor);
@@ -137,6 +123,52 @@ class TrackOverviewField extends MyDataField{
                     x1 = x2;
                     y1 = y2;
                 }
+
+                // breadcrumps
+                var breadcrumps = $.getApp().data.getBreadcrumps();
+                count = breadcrumps.size();
+                if(count>=2){
+                    var xMin = locX;
+                    var xMax = locX + width;
+                    var yMin = locY;
+                    var yMax = locY + height;
+
+                    dc.setColor(breadcrumpColor, backgroundColor);
+                    var p1 = breadcrumps[0];
+                    var skip1 = true;
+                    if(p1 != null){
+                        x1 = xOffset + zoomFactor * p1[0];
+                        y1 = yOffset + zoomFactor * p1[1];
+                        skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
+                    }
+                    for(var i=1; i<breadcrumps.size(); i++){
+                        var p2 = breadcrumps[i];
+                        if(p2 != null){
+                            x2 = xOffset + zoomFactor * p2[0];
+                            y2 = yOffset + zoomFactor * p2[1];
+                            var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+
+                            // interpolate with points outside field area
+                            if(skip1 && !skip2){
+                                var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                                x1 = xy[0];
+                                y1 = xy[1];
+                            }else if(!skip1 && skip2){
+                                var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                                x2 = xy[0];
+                                y2 = xy[1];
+                            }
+
+                            if(p1 != null && (!skip1 || !skip2)){
+                                dc.drawLine(x1, y1, x2, y2);
+                            }
+                            x1 = x2;
+                            y1 = y2;
+                            skip1 = skip2;
+                        }
+                        p1 = p2;
+                    }
+                }
             }
         }else{
             // clear bitmap
@@ -156,6 +188,9 @@ class TrackOverviewField extends MyDataField{
 
     hidden function getTrackColor() as ColorType{
         return darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+    }
+    hidden function getBreadcrumpColor() as ColorType{
+        return Graphics.COLOR_PINK;
     }
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
@@ -191,8 +226,8 @@ class TrackOverviewField extends MyDataField{
         return trackThickness;
     }
 
-    function setBackgroundColor(color as ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
 
         // update track bitmap with updated colors
         var track = $.getApp().track;
@@ -206,6 +241,19 @@ class TrackOverviewField extends MyDataField{
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
+                    if(bitmap != null){
+                        // add to breadcrump path
+                        var x1 = xOffset + zoomFactor * xyCurrent[0];
+                        var y1 = yOffset + zoomFactor * xyCurrent[1];
+                        var x2 = xOffset + zoomFactor * xy[0];
+                        var y2 = yOffset + zoomFactor * xy[1];
+
+                        var dc = bitmap.getDc();
+                        var penWidth = getTrackThickness(zoomFactor);
+                        dc.setPenWidth(penWidth);
+                        dc.setColor(Graphics.COLOR_PINK, Graphics.COLOR_TRANSPARENT);
+                        dc.drawLine(x1, y1, x2, y2);
+                    }
 
                     // save and show new position
                     xyCurrent = xy;

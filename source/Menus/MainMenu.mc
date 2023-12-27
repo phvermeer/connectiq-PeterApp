@@ -7,9 +7,9 @@ using Toybox.Activity;
 class MainMenu extends MyMenu {
 	
 	const OPTIONS = {
-		SETTING_BACKGROUND_COLOR => {
-			Graphics.COLOR_WHITE => WatchUi.loadResource(Rez.Strings.white) as String,
-			Graphics.COLOR_BLACK => WatchUi.loadResource(Rez.Strings.black) as String,
+		SETTING_DARK_MODE => {
+			false => WatchUi.loadResource(Rez.Strings.white) as String,
+			true => WatchUi.loadResource(Rez.Strings.black) as String,
 		},
 		SETTING_SPORT => {
 			Activity.SPORT_WALKING => WatchUi.loadResource(Rez.Strings.walking) as String,
@@ -92,7 +92,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		id = SETTING_BACKGROUND_COLOR;
+		id = SETTING_DARK_MODE;
 		addItem(// index 3
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.backgroundColor) as String,
@@ -170,7 +170,7 @@ class MainMenu extends MyMenu {
 		(getItem(2) as MenuItem).setSubLabel(subLabel);
 
 		// Background Color
-		(getItem(3) as MenuItem).setSubLabel(getCurrentValueText(SETTING_BACKGROUND_COLOR));
+		(getItem(3) as MenuItem).setSubLabel(getCurrentValueText(SETTING_DARK_MODE));
 
 		// Auto Lap
 		enabled = settings.get(SETTING_AUTOLAP) as Boolean;
@@ -212,7 +212,7 @@ class MainMenu extends MyMenu {
 				}
 			// Option menus
 			case SETTING_SPORT:
-			case SETTING_BACKGROUND_COLOR:
+			case SETTING_DARK_MODE:
 			{
 				var menu = new MyOptionsMenu(
 					WatchUi.loadResource(Rez.Strings.backgroundColor) as String,

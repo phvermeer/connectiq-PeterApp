@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Math;
-import MyLayoutHelper;
+import MyLayout;
 import MyDrawables;
 
 class MySimpleDataField extends MyDataField{
@@ -19,7 +19,7 @@ class MySimpleDataField extends MyDataField{
         MyDataField.initialize(options);
         var lbl = options.hasKey(:label) ? (options.get(:label) as String).toUpper() : "LABEL";
 
-        var color = getTextColor();
+        var color = getForegroundColor();
         label = new MyDrawables.MyText({
             :text => lbl,
             :color => color,
@@ -32,7 +32,7 @@ class MySimpleDataField extends MyDataField{
 
     function onLayout(dc) as Void{
         // align label on top
-        var helper = new MyLayoutHelper.RoundScreenHelper({
+        var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -40,7 +40,7 @@ class MySimpleDataField extends MyDataField{
         });
 
         var ds = System.getDeviceSettings();
-        if((height / ds.screenHeight) < 0.22){
+        if((1f * height / ds.screenHeight) < 0.22){
             label.setVisible(false);
         }else{
             label.setVisible(true);
@@ -49,7 +49,7 @@ class MySimpleDataField extends MyDataField{
         // determine the font sizes
         var surface = width * height;
         var surfaceMax = ds.screenWidth * ds.screenHeight;
-        var ratio = surface / surfaceMax;
+        var ratio = 1f * surface / surfaceMax;
         if(ratio < 0.2){
             label.setFont(Graphics.FONT_XTINY);
             value.setFont(Graphics.FONT_NUMBER_MILD);
@@ -66,15 +66,15 @@ class MySimpleDataField extends MyDataField{
 
         if(label.isVisible){
             label.adaptSize(dc);
-            helper.align(label, MyLayoutHelper.ALIGN_TOP);
+            helper.align(label, MyLayout.ALIGN_TOP);
 
             // align value centered in the remaining area
-            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height);
+            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height, 0);
         }
 
         // update the aspect ratio of current value text
         value.adaptSize(dc);
-        helper.resizeToMax(value, true, 0);
+        helper.resizeToMax(value, true);
         value.adaptFont(dc, true);
     }
 
@@ -84,21 +84,24 @@ class MySimpleDataField extends MyDataField{
         value.draw(dc);
     }    
 
-    function setBackgroundColor(color as ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
-        
-        var textColor = getTextColor();
-        label.setColor(textColor);
-        value.setColor(textColor);
-    }
-
-    function getTextColor() as Graphics.ColorType{
-        return darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
+        var color = getForegroundColor();
+        label.setColor(color);
+        value.setColor(color);
     }
 
     function setValue(value as Numeric|String|Null) as Void{
         var txt = (value instanceof Float || value instanceof Double)
-            ? value.format("%.2f")
+            ? value == 0f
+                ? "0.00"
+                : value < 100
+                    ? value.format("%.2f")
+                    : value < 1000
+                        ? value.format("%.1f")
+                        : value < 10000
+                            ? value.format("%i")
+                            : value.format("%.2e")
             : (value instanceof Number || value instanceof Long)
                 ? value.format("%i")
                 : (value instanceof String)

@@ -3,7 +3,7 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Position;
 import Toybox.Application;
-import MyLayoutHelper;
+import MyLayout;
 
 class TrackField extends MyDataField{
     hidden var track as Track?;
@@ -30,9 +30,6 @@ class TrackField extends MyDataField{
         positionMarker = new TrackPositionMarker({
             :darkMode => darkMode,
         });
-
-        // subscribe to position events
-        $.getApp().data.addListener(self);
     }
 
     function onLayout(dc as Dc){
@@ -47,7 +44,7 @@ class TrackField extends MyDataField{
 
 
         // determine the drawing area's
-        var helper = new MyLayoutHelper.RoundScreenHelper({
+        var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -55,7 +52,7 @@ class TrackField extends MyDataField{
         });
 
         // positioning legend (scale indicator)
-        helper.align(legend, MyLayoutHelper.ALIGN_BOTTOM);
+        helper.align(legend, MyLayout.ALIGN_BOTTOM);
 
         positionMarker.locX = locX + width/2;
         positionMarker.locY = locY + height/2;
@@ -63,8 +60,7 @@ class TrackField extends MyDataField{
     function onUpdate(dc as Dc){
         // draw the legend
         var color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
-        dc.setColor(color, backgroundColor);
-        dc.clear();
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         legend.draw(dc);
 
         // draw the map
@@ -80,50 +76,112 @@ class TrackField extends MyDataField{
         var y1 = 0f;
         var x2 = 0f;
         var y2 = 0f;
+        var xMin = locX;
+        var xMax = locX + width;
+        var yMin = locY;
+        var yMax = locY + height;
+
         if(self.track != null){
             var track = self.track as Track;
-            color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+            color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+            var colorToDo = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
             x1 = xOffset + zoomFactor * track.xValues[0];
             y1 = yOffset + zoomFactor * track.yValues[0];
+            var skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
+            var sectionDone = true;
             for(var i=1; i<track.count; i++){
                 x2 = xOffset + zoomFactor * track.xValues[i];
                 y2 = yOffset + zoomFactor * track.yValues[i];
 
-                dc.drawLine(x1, y1, x2, y2);
+                if(i-1==track.iCurrent){
+                    // extra interpolated point to switch color done => todo
+                    if(sectionDone){
+                        var l = track.lambdaCurrent;
+                        if(l != null){
+                            x2 = x1 + (x2-x1)*l;
+                            y2 = y1 + (y2-y1)*l;
+                            sectionDone = false;
+                            i--;
+                        }
+                    }else{
+                        dc.setColor(colorToDo, Graphics.COLOR_TRANSPARENT);
+                    }
+                }
 
+                var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+                if(!skip1 || !skip2){
+                    dc.drawLine(x1, y1, x2, y2);
+                }
+
+                skip1 = skip2;
                 x1 = x2;
                 y1 = y2;
             }
         }
 
-        // draw bread crumps
-        color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+        // draw bread crumps (with interpolation of points outside viewers range)
+        color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
         var points = $.getApp().data.getBreadcrumps();
         var count = points.size();
-        if(count >= 2){
+        if(count >= 1){
             var p1 = points[0];
+            var skip1 = true;
             if(p1 != null){
                 x1 = xOffset + zoomFactor * p1[0];
                 y1 = yOffset + zoomFactor * p1[1];
+                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
             }
 
             for(var i=1; i<count; i++){
                 var p2 = points[i];
+                var skip2 = true;
                 if(p2 != null){
                     x2 = xOffset + zoomFactor * p2[0];
                     y2 = yOffset + zoomFactor * p2[1];
 
+                    skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+
                     if(p1 != null){
-                        dc.drawLine(x1, y1, x2, y2);
+
+                        // interpolate
+                        if(skip1 && !skip2){
+                            var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                            x1 = xy[0];
+                            y1 = xy[1];
+                        }else if(!skip1 && skip2){
+                            var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                            x2 = xy[0];
+                            y2 = xy[1];
+                        }
+                        
+                        // draw
+                        if(!skip1 || !skip2){
+                            dc.drawLine(x1, y1, x2, y2);
+                        }
                     }
                     x1 = x2;
                     y1 = y2;
                 }
                 p1 = p2;
+                skip1 = skip2;
+            }
+
+            if(xyCurrent != null){
+                // draw from last breadcrump to current xy
+                x2 = xOffset + zoomFactor * xyCurrent[0];
+                y2 = yOffset + zoomFactor * xyCurrent[1];
+
+                if(skip1){
+                    var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                    x1 = xy[0];
+                    y1 = xy[1];
+                }
+
+                dc.drawLine(x1, y1, x2, y2);
             }
         }
 
@@ -235,8 +293,8 @@ class TrackField extends MyDataField{
         }
     }
 
-    function setBackgroundColor(color as Graphics.ColorType) as Void{
-        MyDataField.setBackgroundColor(color);
+    function setDarkMode(darkMode as Boolean) as Void{
+        MyDataField.setDarkMode(darkMode);
         positionMarker.setDarkMode(darkMode);
     }
 }

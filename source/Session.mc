@@ -59,10 +59,10 @@ class Session{
 	hidden var mStateDelayCounter as Number = 0;
 
 	// Auto lap variables
-	hidden var mAutoLapEnabled as Boolean = true;
-	hidden var mAutoLapDistance as Float = 1000f;
+	var mAutoLapEnabled as Boolean = true;
+	var mAutoLapDistance as Float = 1000f;
 	hidden var mAutoPause as Boolean = true;
-	hidden var mLastLapDistance as Float = 0f;
+	var mLastLapDistance as Float = 0f;
 
 	function initialize(options as { 
 		:sport as Activity.Sport|ActivityRecording.Sport, 
@@ -81,10 +81,10 @@ class Session{
 		if(options.hasKey(:sport)){
 			setSport(options.get(:sport) as Sport);
 		}
-		if(options.hasKey(:autoLap)){
+		if(options.hasKey(:autoLapEnabled)){
 			setAutoLapEnabled(options.get(:autoLapEnabled) as Boolean);
 		}
-		if(options.hasKey(:autoLap)){
+		if(options.hasKey(:autoLapEnabled)){
 			setAutoLapDistance(options.get(:autoLapDistance) as Float);
 		}
 		if(options.hasKey(:autoPause)){
@@ -306,6 +306,7 @@ class Session{
     function addListener(listener as Object) as Void{
         if((listener as IListener) has :onSessionState){
             mListeners.add(listener.weak());
+			(listener as IListener).onSessionState(mState);
         }
     }
     function removeListener(listener as Object) as Void{

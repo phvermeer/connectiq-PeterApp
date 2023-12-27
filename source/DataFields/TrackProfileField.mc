@@ -9,7 +9,7 @@ using Toybox.Timer;
 using Toybox.Math;
 import MyList;
 import MyGraph;
-import MyLayoutHelper;
+import MyLayout;
 using MyTools;
 
 class TrackProfileField extends MyDataField{
@@ -67,14 +67,9 @@ class TrackProfileField extends MyDataField{
 		if(options.hasKey(:track)){
 			setTrack(options.get(:track) as Track);
 		}
-		
-		setBackgroundColor(backgroundColor);
 
 		// Load historical altitude data
 		//initElevationHistory();
-
-        // subscribe to position events
-        $.getApp().data.addListener(self);
 	}
 
 	function onShow(){
@@ -90,15 +85,15 @@ class TrackProfileField extends MyDataField{
 
 	function onLayout(dc as Graphics.Dc){
 		// init graph sizes
-		var margin = 1;
-		var helper = new RoundScreenHelper({
+		var helper = MyLayout.getLayoutHelper({
 			:xMin => locX,
 			:xMax => locX + width,
 			:yMin => locY,
 			:yMax => locY + height,
+			:margin => 1,
 		});
 
-		helper.resizeToMax(trend, true, margin);
+		helper.resizeToMax(trend, true);
 	}
 
 	function onData(data as Data) as Void{
@@ -200,13 +195,11 @@ class TrackProfileField extends MyDataField{
 		refresh();
 	}
 
-	function setBackgroundColor(color as Graphics.ColorType) as Void{
-		MyDataField.setBackgroundColor(color);
-		var intensity = Math.mean(MyTools.colorToRGB(color));
-		var isDarkMode = (intensity < 100);
+	function setDarkMode(darkMode as Boolean) as Void{
+		MyDataField.setDarkMode(darkMode);
 		
-		serieTrack.color = isDarkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-		trend.setDarkMode(isDarkMode);
+		serieTrack.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		trend.setDarkMode(darkMode);
 	}
 
 	function onTrackLoaded() as Void{

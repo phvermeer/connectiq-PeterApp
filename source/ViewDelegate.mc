@@ -49,6 +49,9 @@ class ViewDelegate extends MyViews.MyViewDelegate {
             var app = $.getApp();
             var screensSettings = app.settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
             var view = new DataView(dataViewIndex, screensSettings);
+            app.settings.addListener(view);
+            app.session.addListener(view);
+
             switchToView(view, WatchUi.SLIDE_IMMEDIATE);
             return true;
         }
