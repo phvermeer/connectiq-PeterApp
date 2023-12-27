@@ -59,10 +59,10 @@ class Session{
 	hidden var mStateDelayCounter as Number = 0;
 
 	// Auto lap variables
-	hidden var mAutoLapEnabled as Boolean = true;
-	hidden var mAutoLapDistance as Float = 1000f;
+	var mAutoLapEnabled as Boolean = true;
+	var mAutoLapDistance as Float = 1000f;
 	hidden var mAutoPause as Boolean = true;
-	hidden var mLastLapDistance as Float = 0f;
+	var mLastLapDistance as Float = 0f;
 
 	function initialize(options as { 
 		:sport as Activity.Sport|ActivityRecording.Sport, 
