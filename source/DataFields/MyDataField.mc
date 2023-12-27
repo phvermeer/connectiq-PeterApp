@@ -46,7 +46,6 @@ class MyDataField extends WatchUi.Drawable{
         onUpdate(dc);
     }
 
-
     function onShow() as Void{
         isVisible = true;
     }

@@ -34,7 +34,7 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_TRACK_MAP => WatchUi.loadResource(Rez.Strings.navigation),
 					DATAFIELD_TRACK_OVERVIEW => WatchUi.loadResource(Rez.Strings.map),
 					DATAFIELD_TRACK_PROFILE => WatchUi.loadResource(Rez.Strings.profile),
-//					DATAFIELD_"compass" => WatchUi.loadResource(Rez.Strings.compass),
+					DATAFIELD_COMPASS => WatchUi.loadResource(Rez.Strings.compass),
 				},
 			},
 	

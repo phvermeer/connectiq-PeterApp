@@ -71,6 +71,7 @@ class FieldManager{
             : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
             : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
             : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
+            : (id == DATAFIELD_COMPASS) ? new CompassField(options)
             : (id == DATAFIELD_CURRENT_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_AVG_SPEED) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_MAX_SPEED) ? new ActivityInfoField(id, options)
