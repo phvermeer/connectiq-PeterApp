@@ -42,7 +42,6 @@ class App extends Application.AppBase {
             :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
         });
 
-        data.addListener(session);
 
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
@@ -54,6 +53,8 @@ class App extends Application.AppBase {
             data.addListener(track as Object);
         }
 
+        data.addListener(session);
+        settings.addListener(session);
         settings.addListener(self); // track
         settings.addListener(data); // breadcrumps settings
         session.addListener(self); // modify data interval/start/stop

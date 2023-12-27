@@ -81,10 +81,10 @@ class Session{
 		if(options.hasKey(:sport)){
 			setSport(options.get(:sport) as Sport);
 		}
-		if(options.hasKey(:autoLap)){
+		if(options.hasKey(:autoLapEnabled)){
 			setAutoLapEnabled(options.get(:autoLapEnabled) as Boolean);
 		}
-		if(options.hasKey(:autoLap)){
+		if(options.hasKey(:autoLapEnabled)){
 			setAutoLapDistance(options.get(:autoLapDistance) as Float);
 		}
 		if(options.hasKey(:autoPause)){
