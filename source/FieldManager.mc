@@ -88,9 +88,9 @@ class FieldManager{
             : (id == DATAFIELD_PRESSURE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_ALTITUDE) ? new ActivityInfoField(id, options)
-            : (id == DATAFIELD_CLOCK) ? new SystemInfoField(id, options)
-            : (id == DATAFIELD_MEMORY) ? new SystemInfoField(id, options)
-            : (id == DATAFIELD_BATTERY) ? new SystemInfoField(id, options)
+            : (id == DATAFIELD_CLOCK) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_MEMORY) ? new ActivityInfoField(id, options)
+            : (id == DATAFIELD_BATTERY) ? new ActivityInfoField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
             : (id == DATAFIELD_STATUS) ? new StatusField(options)
             : new EmptyField(options);
