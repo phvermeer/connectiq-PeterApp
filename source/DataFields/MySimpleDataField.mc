@@ -87,8 +87,8 @@ class MySimpleDataField extends MyDataField{
     function setDarkMode(darkMode as Boolean) as Void{
         MyDataField.setDarkMode(darkMode);
         var color = getForegroundColor();
-        label.setColor(color);
-        value.setColor(color);
+        label.color = color;
+        value.color = color;
     }
 
     function setValue(value as Numeric|String|Null) as Void{
@@ -107,8 +107,8 @@ class MySimpleDataField extends MyDataField{
                 : (value instanceof String)
                     ? value
                     : "---";
-        if(!txt.equals(self.value.getText())){
-            self.value.setText(txt);
+        if(!txt.equals(self.value.text)){
+            self.value.text = txt;
             refresh();
         }
     }

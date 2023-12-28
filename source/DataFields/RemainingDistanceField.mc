@@ -28,7 +28,7 @@ class RemainingDistanceField extends MySimpleDataField{
         var track = $.getApp().track;
         var value = null;
         if(track != null){
-            self.value.setColor(track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED);
+            self.value.color = track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED;
 
             if(fieldId == DATAFIELD_REMAINING_DISTANCE){
                 var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
