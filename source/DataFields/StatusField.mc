@@ -20,8 +20,6 @@ class StatusField extends MySimpleDataField{
         gpsIndicator = new MyDrawables.GpsSignalIndicator({
             :darkMode => darkMode,
         });
-
-        onData($.getApp().data);
     }
     function onLayout(dc as Dc) as Void{
         MySimpleDataField.onLayout(dc);
