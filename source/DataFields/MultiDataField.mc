@@ -3,8 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.System;
 
-class ActivityInfoField extends NumericField{
-
+class MultiDataField extends NumericField{
 
     hidden var fieldId as DataFieldId;
     hidden static var ds as System.DeviceSettings;
