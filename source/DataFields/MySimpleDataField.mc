@@ -4,9 +4,9 @@ import Toybox.Math;
 import MyLayout;
 import MyDrawables;
 
-class MySimpleDataField extends MyDataField{
-    hidden var label as MyText;
+class NumericField extends MyLabeledField{
     hidden var value as MyText;
+    hidden var rawValue as Numeric|String|Null;
 
     function initialize(options as {
         :locX as Numeric,
@@ -16,100 +16,76 @@ class MySimpleDataField extends MyDataField{
         :backgroundColor as ColorType,
         :label as String,
     }){
-        MyDataField.initialize(options);
-        var lbl = options.hasKey(:label) ? (options.get(:label) as String).toUpper() : "LABEL";
-
-        var color = getForegroundColor();
-        label = new MyDrawables.MyText({
-            :text => lbl,
-            :color => color,
-        });
+        MyLabeledField.initialize(options);
         value = new MyDrawables.MyText({
             :text => "---",
-            :color => color,
+            :color => label.color,
         });
     }
 
-    function onLayout(dc) as Void{
+    function onLayout(dc as Dc) as Void{
+        MyLabeledField.onLayout(dc);
+
         // align label on top
         var helper = MyLayout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
-            :yMin => locY,
+            :yMin => label.isVisible ? label.locY + label.height : locY,
             :yMax => locY + height,
         });
-
-        var ds = System.getDeviceSettings();
-        if((1f * height / ds.screenHeight) < 0.22){
-            label.setVisible(false);
-        }else{
-            label.setVisible(true);
-        }
-
-        // determine the font sizes
-        var surface = width * height;
-        var surfaceMax = ds.screenWidth * ds.screenHeight;
-        var ratio = 1f * surface / surfaceMax;
-        if(ratio < 0.2){
-            label.setFont(Graphics.FONT_XTINY);
-            value.setFont(Graphics.FONT_NUMBER_MILD);
-        }else if(ratio < 0.4){
-            label.setFont(Graphics.FONT_XTINY);
-            value.setFont(Graphics.FONT_NUMBER_MILD);
-        }else if(ratio <= 0.5){
-            label.setFont(Graphics.FONT_TINY);
-            value.setFont(Graphics.FONT_NUMBER_HOT);
-        }else{
-            label.setFont(Graphics.FONT_SMALL);
-            value.setFont(Graphics.FONT_NUMBER_THAI_HOT);
-        }
-
-        if(label.isVisible){
-            label.adaptSize(dc);
-            helper.align(label, MyLayout.ALIGN_TOP);
-
-            // align value centered in the remaining area
-            helper.setLimits(locX, locX + width, label.locY + label.height, locY + height, 0);
-        }
-
-        // update the aspect ratio of current value text
-        value.adaptSize(dc);
+        
+        // align value centered in the remaining area
+        value.setSize(3f, 1); // requested aspect ratio of value area
         helper.resizeToMax(value, true);
-        value.adaptFont(dc, true);
+        value.adaptFontToHeight(dc, true);
     }
 
-    function onUpdate(dc){
-        // label
-        label.draw(dc);
+    function onUpdate(dc as Dc) as Void{
+        MyLabeledField.onUpdate(dc);
         value.draw(dc);
     }    
 
     function setDarkMode(darkMode as Boolean) as Void{
         MyDataField.setDarkMode(darkMode);
-        var color = getForegroundColor();
-        label.color = color;
-        value.color = color;
+        value.color = label.color;
     }
 
-    function setValue(value as Numeric|String|Null) as Void{
-        var txt = (value instanceof Float || value instanceof Double)
-            ? value == 0f
-                ? "0.00"
-                : value < 100
-                    ? value.format("%.2f")
-                    : value < 1000
-                        ? value.format("%.1f")
-                        : value < 10000
-                            ? value.format("%i")
-                            : value.format("%.2e")
-            : (value instanceof Number || value instanceof Long)
-                ? value.format("%i")
-                : (value instanceof String)
-                    ? value
-                    : "---";
-        if(!txt.equals(self.value.text)){
-            self.value.text = txt;
+    function setValue(value as String|Numeric|Null) as Void{
+        if(value != rawValue){
+            rawValue = value;
+            self.value.text = value == null 
+                ? "---"
+                : (value instanceof Float || value instanceof Double)
+                    ? formatDecimal(value, 2, 5)
+                    : value.toString();
             refresh();
+        }
+    }
+
+    static function formatDecimal(value as Decimal, digits as Number, maxLength as Number) as String{
+        // prevent "-" sign for 0f value
+        if(value.toFloat() == 0f){
+            value = 0;
+        }
+
+        // get number count in front of decimal separator
+        var x = 1f;
+        var count = 0;
+        while(x <= value && count <= maxLength){
+            count++;
+            x *= 10;
+        }
+
+        if(count > maxLength){
+            return value.format("%.1E");
+        }else{
+            var digitsMax = maxLength - count; // excluding decimal character
+            var d = (digits > digitsMax) ? digitsMax : digits;
+            if(d <= 0){
+                return value.format("%i");
+            }else{
+                return value.format("%."+d.toNumber()+"f");
+            }
         }
     }
 }

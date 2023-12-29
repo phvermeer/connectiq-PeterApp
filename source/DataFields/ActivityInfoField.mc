@@ -3,7 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.System;
 
-class ActivityInfoField extends MySimpleDataField{
+class ActivityInfoField extends NumericField{
 
 
     hidden var fieldId as DataFieldId;
@@ -40,39 +40,30 @@ class ActivityInfoField extends MySimpleDataField{
             : (fieldId == DATAFIELD_MEMORY) ? WatchUi.loadResource(Rez.Strings.memory)
             : (fieldId == DATAFIELD_BATTERY) ? WatchUi.loadResource(Rez.Strings.battery)
             : "???";
-/*
-        // determine unit of measurement
-        units = (
-            fieldId == DATAFIELD_ALTITUDE |||
-            fieldId == DATAFIELD_TOTAL_ASCENT ||
-            fieldId == DATAFIELD_TOTAL_DESCENT
-        )   
-            ? ds.heightUnits
-            : ds.distanceUnits;
-*/
+
         options.put(:label, strLabel);
-        MySimpleDataField.initialize(options);
+        NumericField.initialize(options);
     }
 
     function onData(data as Data) as Void{
         var info = data.activityInfo;
         var value
-            = (info == null) ? null
+            = (info == null) ? null 
             : (fieldId == DATAFIELD_ELAPSED_TIME) ? formatTime(info.timerTime)
-            : (fieldId == DATAFIELD_CURRENT_SPEED) ? formatNumeric(toSpeedUnit(info.currentSpeed), 1, 5)
-            : (fieldId == DATAFIELD_AVG_SPEED) ? formatNumeric(toSpeedUnit(info.averageSpeed), 1, 5)
-            : (fieldId == DATAFIELD_MAX_SPEED) ? formatNumeric(toSpeedUnit(info.maxSpeed), 1, 5)
-            : (fieldId == DATAFIELD_ELAPSED_DISTANCE) ? formatNumeric(toDistanceUnit(info.elapsedDistance), 2, 5)
-            : (fieldId == DATAFIELD_ALTITUDE) ? formatNumeric(toHeightUnit(info.altitude), 0, 5)
-            : (fieldId == DATAFIELD_TOTAL_ASCENT) ? formatNumeric(toHeightUnit(info.totalAscent), 0, 5)
-            : (fieldId == DATAFIELD_TOTAL_DESCENT) ? formatNumeric(toHeightUnit(info.totalDescent), 0, 5)
-            : (fieldId == DATAFIELD_HEART_RATE) ? formatNumeric(info.currentHeartRate, 0, 5)
-            : (fieldId == DATAFIELD_AVG_HEARTRATE) ? formatNumeric(info.averageHeartRate, 0, 5)
-            : (fieldId == DATAFIELD_MAX_HEARTRATE) ? formatNumeric(info.maxHeartRate, 0, 5)
+            : (fieldId == DATAFIELD_CURRENT_SPEED) ? toSpeedUnit(info.currentSpeed)
+            : (fieldId == DATAFIELD_AVG_SPEED) ? toSpeedUnit(info.averageSpeed)
+            : (fieldId == DATAFIELD_MAX_SPEED) ? toSpeedUnit(info.maxSpeed)
+            : (fieldId == DATAFIELD_ELAPSED_DISTANCE) ? toDistanceUnit(info.elapsedDistance)
+            : (fieldId == DATAFIELD_ALTITUDE) ? toHeightUnit(info.altitude)
+            : (fieldId == DATAFIELD_TOTAL_ASCENT) ? toHeightUnit(info.totalAscent)
+            : (fieldId == DATAFIELD_TOTAL_DESCENT) ? toHeightUnit(info.totalDescent)
+            : (fieldId == DATAFIELD_HEART_RATE) ? info.currentHeartRate
+            : (fieldId == DATAFIELD_AVG_HEARTRATE) ? info.averageHeartRate
+            : (fieldId == DATAFIELD_MAX_HEARTRATE) ? info.maxHeartRate
             : (fieldId == DATAFIELD_OXYGEN_SATURATION) ? formatPercentage(info.currentOxygenSaturation)
-            : (fieldId == DATAFIELD_ENERGY_RATE) ? formatNumeric(info.energyExpenditure, 2, 5)
-            : (fieldId == DATAFIELD_PRESSURE) ? formatNumeric(toPressureUnit(info.ambientPressure), 0, 5)
-            : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? formatNumeric(toPressureUnit(info.meanSeaLevelPressure), 0, 5)
+            : (fieldId == DATAFIELD_ENERGY_RATE) ? info.energyExpenditure
+            : (fieldId == DATAFIELD_PRESSURE) ? toPressureUnit(info.ambientPressure)
+            : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? toPressureUnit(info.meanSeaLevelPressure)
 
             // system stats
             : (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())

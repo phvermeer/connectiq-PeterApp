@@ -5,7 +5,7 @@ import Toybox.Time.Gregorian;
 import MyTools;
 import MyDrawables;
 
-class StatusField extends MySimpleDataField{
+class StatusField extends MyLabeledField{
     var gpsIndicator as GpsSignalIndicator;
 
     function initialize(options as {
@@ -16,13 +16,13 @@ class StatusField extends MySimpleDataField{
         :darkMode as Boolean,
     }) {
         options.put(:label, WatchUi.loadResource(Rez.Strings.gps));
-        MySimpleDataField.initialize(options);
+        MyLabeledField.initialize(options);
         gpsIndicator = new MyDrawables.GpsSignalIndicator({
             :darkMode => darkMode,
         });
     }
     function onLayout(dc as Dc) as Void{
-        MySimpleDataField.onLayout(dc);
+        MyLabeledField.onLayout(dc);
 
         var margin = Math.ceil(0.02 * dc.getHeight()).toNumber();
         var helper = MyLayout.getLayoutHelper({
@@ -37,7 +37,7 @@ class StatusField extends MySimpleDataField{
     }
 
     function onUpdate(dc as Dc) as Void{
-        label.draw(dc);
+        MyLabeledField.draw(dc);
         gpsIndicator.draw(dc);
     }
 

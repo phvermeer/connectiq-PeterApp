@@ -3,7 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.Position;
 
-class RemainingDistanceField extends MySimpleDataField{
+class RemainingDistanceField extends NumericField{
     hidden var fieldId as DataFieldId;
 
     function initialize(fieldId as DataFieldId, options as {
@@ -21,7 +21,7 @@ class RemainingDistanceField extends MySimpleDataField{
             : "???";
 
         options.put(:label, strLabel);
-        MySimpleDataField.initialize(options);
+        NumericField.initialize(options);
     }
 
     function onData(data as Data) as Void{

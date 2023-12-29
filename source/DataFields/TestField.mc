@@ -1,11 +1,14 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.WatchUi;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import MyTools;
 import MyDrawables;
 
-class TestField extends MySimpleDataField{
+class TestField extends NumericField{
+    hidden var v as Float = 0.666666666f;
+
     function initialize(options as {
         :locX as Numeric,
         :locY as Numeric,
@@ -13,9 +16,9 @@ class TestField extends MySimpleDataField{
         :height as Numeric,
     }) {
         options.put(:label, "next lap");
-        MySimpleDataField.initialize(options);
+        NumericField.initialize(options);
     }
-
+/*
     function onData(data as Data){
         updateValue();
     }
@@ -38,5 +41,10 @@ class TestField extends MySimpleDataField{
             setValue(lapEndsAt/1000f);
         }
     }
-
+*/
+    function onTap(clickEvent as ClickEvent) as Boolean{
+        v *= 10;
+        value.text = formatDecimal(v, 2, 5);
+        return true;
+    }
 }
