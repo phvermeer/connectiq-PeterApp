@@ -151,35 +151,4 @@ class ActivityInfoField extends NumericField{
             return null;
         }
     }
-
-    static function formatNumeric(value as Numeric|Null, digits as Number, maxLength as Number) as String|Null{
-        if(value != null){
-            // prevent "-" sign for 0f value
-            if(value.toFloat() == 0f){
-                value = 0;
-            }
-
-            // get number count in front of decimal separator
-            var x = 1f;
-            var count = 0;
-            while(x <= value){
-                count++;
-                x *= 10;
-            }
-
-            if(count > maxLength){
-                return value.format("%e");
-            }else{
-                if(digits <= 0){
-                    return value.format("%i");
-                }else{
-                    var digitsMax = maxLength - count - 1; // excluding decimal character
-                    var d = (digits > digitsMax) ? digitsMax : digits;
-                    return value.format("%."+d+"f");
-                }
-            }
-        }else{
-            return null;
-        }
-    }
 }
