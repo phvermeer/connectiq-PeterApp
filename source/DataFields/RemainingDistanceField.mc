@@ -3,7 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.Position;
 
-class RemainingDistanceField extends MySimpleDataField{
+class RemainingDistanceField extends NumericField{
     hidden var fieldId as DataFieldId;
 
     function initialize(fieldId as DataFieldId, options as {
@@ -21,14 +21,14 @@ class RemainingDistanceField extends MySimpleDataField{
             : "???";
 
         options.put(:label, strLabel);
-        MySimpleDataField.initialize(options);
+        NumericField.initialize(options);
     }
 
     function onData(data as Data) as Void{
         var track = $.getApp().track;
         var value = null;
         if(track != null){
-            self.value.setColor(track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED);
+            self.value.color = track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED;
 
             if(fieldId == DATAFIELD_REMAINING_DISTANCE){
                 var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
