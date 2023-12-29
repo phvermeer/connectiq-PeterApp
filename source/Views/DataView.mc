@@ -72,6 +72,7 @@ class DataView extends MyViews.MyView{
         for(var i=0; i<fields.size(); i++){
             fields[i].onHide();
         }
+        MyView.onHide();
     }
 
     // event handler for graphical layout 
@@ -365,12 +366,13 @@ class DataView extends MyViews.MyView{
             data.add(getFieldLayout(rowSizes, [width], margin, 3, 0));
         }else if(id == LAYOUT_CUSTOM2){
             margin = 0;
-            var rowSizes = distributeSpace(height, margin, [2,1,2,1,2] as Array<Number>);
+            var rowSizes = distributeSpace(height, margin, [2,1,2,2,1] as Array<Number>);
             var colSizes = distributeSpace(width, margin, [2,1,2] as Array<Number>);
             data.add(getFieldLayout([height], [width], margin, 0, 0));
             data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
             data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 0));
             data.add(getFieldLayout(rowSizes, colSizes, margin, 2, 2));
+            data.add(getFieldLayout(rowSizes, [width], margin, 3, 0));
         }else{
             var rowSizes = distributeSpace(height, margin, [1,2,1] as Array<Number>);
             var colSizes = distributeSpace(width, margin, [1,2,1] as Array<Number>);
