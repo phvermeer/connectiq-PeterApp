@@ -67,7 +67,7 @@ class ActivityInfoField extends NumericField{
 
             // system stats
             : (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
-            : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100 * data.stats.usedMemory / data.stats.totalMemory)
+            : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100f * data.stats.usedMemory / data.stats.totalMemory)
             : (fieldId == DATAFIELD_BATTERY) ? formatPercentage(data.stats.battery)
 
             : null;
@@ -119,7 +119,6 @@ class ActivityInfoField extends NumericField{
         return value;
     }
 
-
     static function toPressureUnit(value as Numeric|Null) as Decimal|Null{
         // Pa => mBar
         if(value != null){
@@ -143,7 +142,11 @@ class ActivityInfoField extends NumericField{
     static function formatPercentage(value as Numeric|Null) as String|Null{
         // xxx %
         if(value != null){
-            return Math.round(value).format("%i") + "%";
+            if(value instanceof Float){
+                return value.format("%.1f") + "%";
+            }else{
+                return value.format("%i") + "%";
+            }
         }else{
             return null;
         }
