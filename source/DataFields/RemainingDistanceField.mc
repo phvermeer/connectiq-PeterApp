@@ -4,8 +4,6 @@ import Toybox.Graphics;
 import Toybox.Position;
 
 class RemainingDistanceField extends NumericField{
-    hidden var fieldId as DataFieldId;
-
     function initialize(fieldId as DataFieldId, options as {
         :locX as Numeric,
         :locY as Numeric,
@@ -13,8 +11,6 @@ class RemainingDistanceField extends NumericField{
         :height as Numeric,
         :backgroundColor as ColorType,
     }){
-        self.fieldId = fieldId;
-
         // determine the label
         var strLabel
             = (fieldId == DATAFIELD_REMAINING_DISTANCE) ? WatchUi.loadResource(Rez.Strings.remainingDistance)
@@ -27,18 +23,18 @@ class RemainingDistanceField extends NumericField{
     function onData(data as Data) as Void{
         var track = $.getApp().track;
         var value = null;
-        if(track != null){
-            self.value.color = track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED;
-
-            if(fieldId == DATAFIELD_REMAINING_DISTANCE){
-                var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
-                var distanceOffTrack = (track.distanceOffTrack != null) ? track.distanceOffTrack as Float : 0f;
-                value = formatDistance(track.distanceTotal + distanceOffTrack - distanceElapsed);
+        var color = Graphics.COLOR_RED;
+        if(track != null && track.isOnTrack()){
+            if(self.value.color == color){
+                color = getForegroundColor();
             }
-            setValue(value);
-        }else{
-            setValue(null);
+
+            var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
+            var distanceOffTrack = (track.distanceOffTrack != null) ? track.distanceOffTrack as Float : 0f;
+            value = formatDistance(track.distanceTotal + distanceOffTrack - distanceElapsed);
         }
+        self.value.color = color;
+        setValue(value);
     }
 
     static function formatDistance(value as Numeric|Null) as Numeric|Null{
