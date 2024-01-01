@@ -18,10 +18,9 @@ class TrackProfileField extends MyDataField{
 	var xAxis as Axis;
 	var yAxis as Axis;
 	var dataTrack as BufferedList;
-	var dataLive as BufferedList;
 	var serieTrack as Serie;
-	var serieLive as Serie;
-	var marker as Marker;
+//	var marker as Marker;
+	var xCurrent as Float|Null = null;
 	var trend as Trend;
 	
 	function initialize(
@@ -38,32 +37,25 @@ class TrackProfileField extends MyDataField{
 			:maxCount => 50,
 			:onReady => method(:onTrackLoaded),
 		});
-		dataLive = new BufferedList({
-			:maxCount => 50,
-		});
 		serieTrack = new MyGraph.Serie({
 			:pts => dataTrack,
 			:color => Graphics.COLOR_LT_GRAY,
 			:style => MyGraph.DRAW_STYLE_FILLED,
 		});
-		serieLive = new MyGraph.Serie({
-			:pts => dataLive,
-			:color => Graphics.COLOR_PINK,
-			:style => MyGraph.DRAW_STYLE_LINE,
-		});
 		trend = new MyGraph.Trend({
-			:series => [serieTrack, serieLive] as Array<Serie>,
-			:series => [serieTrack, serieLive] as Array<Serie>,
+			:series => [serieTrack] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 			:width => 3,
 			:height => 1,
 		});
+/*		
 		marker = new MyGraph.Marker({
 			:color => Graphics.COLOR_PINK,
 			:font => Graphics.FONT_TINY,
 			:serie => serieTrack,
 		});
+*/
 		if(options.hasKey(:track)){
 			setTrack(options.get(:track) as Track);
 		}
@@ -74,13 +66,11 @@ class TrackProfileField extends MyDataField{
 
 	function onShow(){
 		dataTrack.onReady = method(:onTrackLoaded);
-		dataLive.onReady = method(:onNewAltitudeLoaded);
 	}
 
 	function onHide(){
 		// unlink to methods for the garbage collector
 		dataTrack.onReady = null;
-		dataLive.onReady = null;
 	}
 
 	function onLayout(dc as Graphics.Dc){
@@ -97,13 +87,15 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onData(data as Data) as Void{
+/*		
 		updateMarker();
 		var info = data.activityInfo;
 		if(info != null){
 			onActivityInfo(info);
 		}
+*/
 	}
-
+/*
 	hidden function updateMarker() as Void{
 		if(track != null){
 			// get track elapsed distance
@@ -126,7 +118,8 @@ class TrackProfileField extends MyDataField{
 			}
 		}
 	}
-
+*/
+/*
 	hidden function onActivityInfo(info as Activity.Info) as Void{
 		// add altitude to dataLive
 		var distance = 
@@ -160,14 +153,13 @@ class TrackProfileField extends MyDataField{
 			updateAxisLimits(trend.series);
 		}
 	}
-
+*/
 	function onUpdate(dc as Graphics.Dc){
 		MyDataField.onUpdate(dc);
 
 		// draw the graph
 		trend.draw(dc);
-		marker.draw(dc);
-
+//		marker.draw(dc);
 	}
 	
 	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
@@ -207,9 +199,11 @@ class TrackProfileField extends MyDataField{
 		updateAxisLimits(trend.series);
 		refresh();
 	}
+/*	
 	function onNewAltitudeLoaded() as Void{
 		refresh();
 	}
+*/
 /*
 	// get altitude history
 	function initElevationHistory() as Void{
@@ -304,6 +298,7 @@ class TrackProfileField extends MyDataField{
 			if(xMax - xMin < 500){
 				xMax = xMin + 500;
 			}
+/*			
 			// update xRange with zoomFactor with current X within the range
 			var xRange = zoomFactor * (xMax-xMin);
 			var pt = marker.pt;
@@ -317,7 +312,7 @@ class TrackProfileField extends MyDataField{
 				xMin = x - xRange2;
 				xMax = x + xRange2;
 			}
-
+*/
 			xAxis.min = xMin;
 			xAxis.max = xMax;
 		}
