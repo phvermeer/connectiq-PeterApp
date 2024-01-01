@@ -46,19 +46,21 @@ class NumericField extends MyLabeledField{
     }    
 
     function setDarkMode(darkMode as Boolean) as Void{
-        MyDataField.setDarkMode(darkMode);
+        MyLabeledField.setDarkMode(darkMode);
         value.color = label.color;
     }
 
     function setValue(value as String|Numeric|Null) as Void{
         if(value != rawValue){
-            rawValue = value;
-            self.value.text = value == null 
-                ? "---"
-                : (value instanceof Float || value instanceof Double)
-                    ? formatDecimal(value, 2, 5)
-                    : value.toString();
-            refresh();
+            if(value == null || !value.equals(rawValue)){
+                rawValue = value;
+                self.value.text = (value == null )
+                    ? "---"
+                    : (value instanceof Float || value instanceof Double)
+                        ? formatDecimal(value, 2, 5)
+                        : value.toString();
+                refresh();
+            }
         }
     }
 
