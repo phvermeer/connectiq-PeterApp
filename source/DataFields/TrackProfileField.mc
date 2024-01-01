@@ -26,7 +26,7 @@ class TrackProfileField extends MyDataField{
 	function initialize(
 		options as {
 			:track as Track,
-			:xyCurrent as Array<Float>,
+			:darkMode as Boolean,
 		}
 	){
 		MyDataField.initialize(options);
@@ -39,7 +39,6 @@ class TrackProfileField extends MyDataField{
 		});
 		serieTrack = new MyGraph.Serie({
 			:pts => dataTrack,
-			:color => Graphics.COLOR_LT_GRAY,
 			:style => MyGraph.DRAW_STYLE_FILLED,
 		});
 		trend = new MyGraph.Trend({
@@ -58,6 +57,9 @@ class TrackProfileField extends MyDataField{
 */
 		if(options.hasKey(:track)){
 			setTrack(options.get(:track) as Track);
+		}
+		if(options.hasKey(:darkMode)){
+			setDarkMode(options.get(:darkMode) as Boolean);
 		}
 
 		// Load historical altitude data
@@ -87,6 +89,8 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onData(data as Data) as Void{
+		var x = (track != null) ? track.distanceElapsed : null;
+		serieTrack.xCurrent = x;
 /*		
 		updateMarker();
 		var info = data.activityInfo;
@@ -165,6 +169,8 @@ class TrackProfileField extends MyDataField{
 	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
 		if(id == SETTING_TRACK){
 			setTrack(value as Track|Null);
+		}else if(id == SETTING_DARK_MODE){
+			setDarkMode(value as Boolean);
 		}
 	}
 
@@ -190,7 +196,8 @@ class TrackProfileField extends MyDataField{
 	function setDarkMode(darkMode as Boolean) as Void{
 		MyDataField.setDarkMode(darkMode);
 		
-		serieTrack.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		serieTrack.color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+		serieTrack.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 		trend.setDarkMode(darkMode);
 	}
 
