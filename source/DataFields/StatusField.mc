@@ -37,7 +37,7 @@ class StatusField extends MyLabeledField{
     }
 
     function onUpdate(dc as Dc) as Void{
-        MyLabeledField.draw(dc);
+        MyLabeledField.onUpdate(dc);
         gpsIndicator.draw(dc);
     }
 
@@ -50,7 +50,7 @@ class StatusField extends MyLabeledField{
     }
 
     function setDarkMode(darkMode as Boolean) as Void{
-        MyDataField.setDarkMode(darkMode);
+        MyLabeledField.setDarkMode(darkMode);
         gpsIndicator.darkMode = darkMode;
     }
 }
