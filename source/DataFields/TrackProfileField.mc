@@ -17,11 +17,13 @@ class TrackProfileField extends MyDataField{
 	var track as Track?;
 	var xAxis as Axis;
 	var yAxis as Axis;
-	var dataTrack as BufferedList;
-	var serieTrack as Serie;
-//	var marker as Marker;
+
+	hidden var data as BufferedList;
+	hidden var serie as Serie;
+	hidden var trend as Trend;
+//	hidden var marker as Marker;
+
 	var xCurrent as Float|Null = null;
-	var trend as Trend;
 	
 	function initialize(
 		options as {
@@ -33,20 +35,17 @@ class TrackProfileField extends MyDataField{
 
 		xAxis = new Axis(0, 500); // distance 0..500m
 		yAxis = new Axis(0, 50); // altitude 0..50m
-		dataTrack = new BufferedList({
+		data = new BufferedList({
 			:maxCount => 50,
-			:onReady => method(:onTrackLoaded),
 		});
-		serieTrack = new MyGraph.Serie({
-			:pts => dataTrack,
+		serie = new MyGraph.Serie({
+			:pts => data,
 			:style => MyGraph.DRAW_STYLE_FILLED,
 		});
 		trend = new MyGraph.Trend({
-			:series => [serieTrack] as Array<Serie>,
+			:series => [serie] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
-			:width => 3,
-			:height => 1,
 		});
 /*		
 		marker = new MyGraph.Marker({
@@ -67,12 +66,13 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onShow(){
-		dataTrack.onReady = method(:onTrackLoaded);
+		data.onReady = method(:onTrackLoaded);
 	}
 
 	function onHide(){
 		// unlink to methods for the garbage collector
-		dataTrack.onReady = null;
+		data.onReady = null;
+		data.cancel();
 	}
 
 	function onLayout(dc as Graphics.Dc){
@@ -84,13 +84,13 @@ class TrackProfileField extends MyDataField{
 			:yMax => locY + height,
 			:margin => 1,
 		});
-
+		trend.setSize(3, 1); // set aspect ratio 3:1
 		helper.resizeToMax(trend, true);
 	}
 
 	function onData(data as Data) as Void{
 		var x = (track != null) ? track.distanceElapsed : null;
-		serieTrack.xCurrent = x;
+		serie.xCurrent = x;
 /*		
 		updateMarker();
 		var info = data.activityInfo;
@@ -162,10 +162,14 @@ class TrackProfileField extends MyDataField{
 		MyDataField.onUpdate(dc);
 
 		// draw the graph
-		trend.draw(dc);
-//		marker.draw(dc);
+		if(!data.isLoading()){
+			trend.draw(dc);
+	//		marker.draw(dc);
+		}else{
+			dc.drawText(locX + width/2, locY + height/2, Graphics.FONT_SMALL, "loading", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+		}
 	}
-	
+
 	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
 		if(id == SETTING_TRACK){
 			setTrack(value as Track|Null);
@@ -175,10 +179,8 @@ class TrackProfileField extends MyDataField{
 	}
 
 	hidden function setTrack(track as Track?) as Void{
-
 		// update profile with set track
 		self.track = track;
-		var data = self.dataTrack;
 		data.clear();
 		if(track != null){
 			if(track.zValues != null){			
@@ -190,19 +192,20 @@ class TrackProfileField extends MyDataField{
 				}
 			}
 		}
-		refresh();
+		// do not refresh yet, wait for onReady event
+		// refresh();
 	}
 
 	function setDarkMode(darkMode as Boolean) as Void{
 		MyDataField.setDarkMode(darkMode);
 		
-		serieTrack.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-		serieTrack.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+		serie.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		serie.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 		trend.setDarkMode(darkMode);
 	}
 
 	function onTrackLoaded() as Void{
-		serieTrack.updateStatistics();
+		serie.updateStatistics();
 		updateAxisLimits(trend.series);
 		refresh();
 	}
@@ -305,11 +308,10 @@ class TrackProfileField extends MyDataField{
 			if(xMax - xMin < 500){
 				xMax = xMin + 500;
 			}
-/*			
+			
 			// update xRange with zoomFactor with current X within the range
 			var xRange = zoomFactor * (xMax-xMin);
-			var pt = marker.pt;
-			var x = pt != null ? pt.x : 0;
+			var x = xCurrent != null ? xCurrent : 0;
 			var xRange2 = xRange/2;
 			if(x <= xRange2){
 				xMax = xMin + xRange;
@@ -319,7 +321,7 @@ class TrackProfileField extends MyDataField{
 				xMin = x - xRange2;
 				xMax = x + xRange2;
 			}
-*/
+
 			xAxis.min = xMin;
 			xAxis.max = xMax;
 		}
@@ -350,10 +352,10 @@ class TrackProfileField extends MyDataField{
         var x = clickEvent.getCoordinates()[0];
         if(x <= locX + area){
             // zoom out
-			zoomFactor *= 1.3;
+			zoomFactor *= 1.3f;
         }else if(x >= locX + width - area){
             // zoom in
-			zoomFactor /= 1.3;
+			zoomFactor /= 1.3f;
         }else{
             return false;
         }
@@ -362,7 +364,6 @@ class TrackProfileField extends MyDataField{
 		}
 		updateAxisLimits(trend.series);
 		refresh();
-        WatchUi.requestUpdate();		
         return true;
 	}
 }
