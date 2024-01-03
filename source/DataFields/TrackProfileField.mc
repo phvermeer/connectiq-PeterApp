@@ -36,9 +36,10 @@ class TrackProfileField extends MyDataField{
 		yAxis = new Axis(0, 50); // altitude 0..50m
 		data = new BufferedList({
 			:maxCount => 50,
+			:listener => self,
 		});
 		serie = new MyGraph.Serie({
-			:pts => data,
+			:data => data,
 			:style => MyGraph.DRAW_STYLE_FILLED,
 		});
 		trend = new MyGraph.Trend({
@@ -54,13 +55,7 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
-	function onShow(){
-		data.onReady = method(:onTrackLoaded);
-	}
-
 	function onHide(){
-		// unlink to methods for the garbage collector
-		data.onReady = null;
 		data.cancel();
 	}
 
@@ -126,11 +121,13 @@ class TrackProfileField extends MyDataField{
 		trend.setDarkMode(darkMode);
 	}
 
-	function onTrackLoaded() as Void{
-		serie.updateStatistics();
-		updateAxisLimits(trend.series);
-		refresh();
-	}	
+	function onReady(sender as Object) as Void{
+		if(sender.equals(data)){
+			serie.updateStatistics();
+			updateAxisLimits(trend.series);
+			refresh();
+		}
+	}
 
 	hidden static function min(value1 as Numeric?, value2 as Numeric?) as Numeric?{
 		return (value1 != null)
