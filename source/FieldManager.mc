@@ -97,6 +97,7 @@ class FieldManager{
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
+        System.println(Lang.format("Field $1$ is created", [id]));
 
         // keep fields up-to-date
         app.data.addListener(field);
@@ -110,6 +111,18 @@ class FieldManager{
         for(var i=0; i<count; i++){
             fields[i] = getField(ids[i]);
         }
+        cleanup();
         return fields;
+    }
+
+    function cleanup() as Void{
+        var keys = fieldRefs.keys();
+        var values = fieldRefs.values();
+        for(var i=0; i<fieldRefs.size(); i++){
+            if(!(values[i] as WeakReference).stillAlive()){
+                fieldRefs.remove(keys[i]);
+                System.println(Lang.format("Field $1$ is released", [keys[i]]));
+            }
+        }
     }
 }

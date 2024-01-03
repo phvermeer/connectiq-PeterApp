@@ -250,6 +250,7 @@ class Data
         }else{
             eventReceived = false;
         }
+        $.getApp().fieldManager.cleanup();
     }
 
     function onPosition(info as Position.Info) as Void{
