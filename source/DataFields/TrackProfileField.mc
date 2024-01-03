@@ -12,6 +12,39 @@ import MyGraph;
 import MyLayout;
 using MyTools;
 
+/*
+class TestBufferedList extends List{
+	hidden var timer as Timer.Timer = new Timer.Timer();
+	hidden var loading as Boolean = false;
+	var onReady as Method() as Void|Null;
+
+	function initialize(options as {
+		:maxCount as Number,
+	}){
+		List.initialize();
+	}
+	protected function _add(item as List.ListItem, index as Number) as Void{
+		List._add(item, index);
+		if(loading){
+			timer.stop();
+		}
+		timer.start(method(:onTimer), 100, false);
+		loading = true;
+	}
+	function onTimer() as Void{
+		loading = false;
+		if(onReady != null){
+			onReady.invoke();
+		}
+	}
+	function cancel() as Void{
+		timer.stop();
+	}
+	function isLoading() as Boolean{
+		return loading;
+	}
+}
+*/
 class TrackProfileField extends MyDataField{
 	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
 	var track as Track?;
