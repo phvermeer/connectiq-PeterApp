@@ -4,9 +4,8 @@ base.sourcePath = source
 # base.MyMath.annotations = math
 base.MyDrawables.annotations = advanced;round
 rectangle.MyDrawables.annotations = advanced;rectangle
-vivoactive3.MyDrawables.annotations = basic;rectangle
 
-vivoactive3.MyDrawables.annotations = basic;rectangle
+vivoactive3.MyDrawables.annotations = basic;rectangle;sdk24
 vivoactive4.MyDrawables.annotations = basic;rectangle
 
 round.MyLayout.annotations = round
