@@ -1,14 +1,11 @@
 # Do not hand edit this file. To make changes run the
 # "Configure Monkey Barrels" command.
 
-MyDrawables = [barrels\MyDrawables\monkey.jungle]
+MyDrawables = [d:\Software\Garmin\ConnectIQ\PeterAppBarrels\barrels\MyDrawables\monkey.jungle]
 base.barrelPath = $(base.barrelPath);$(MyDrawables)
 
 MyGraph = [barrels\MyGraph\monkey.jungle]
 base.barrelPath = $(base.barrelPath);$(MyGraph)
-
-MyLayoutHelper = [barrels\MyLayoutHelper\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyLayoutHelper)
 
 MyList = [barrels\MyList\monkey.jungle]
 base.barrelPath = $(base.barrelPath);$(MyList)
@@ -21,3 +18,6 @@ base.barrelPath = $(base.barrelPath);$(MyTools)
 
 MyViews = [barrels\MyViews\monkey.jungle]
 base.barrelPath = $(base.barrelPath);$(MyViews)
+
+MyLayout = [barrels\MyLayoutHelper\monkey.jungle]
+base.barrelPath = $(base.barrelPath);$(MyLayout)

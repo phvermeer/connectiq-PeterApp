@@ -2,3 +2,13 @@ project.manifest = manifest.xml
 base.sourcePath = source
 
 # base.MyMath.annotations = math
+base.MyDrawables.annotations = advanced;round
+rectangle.MyDrawables.annotations = advanced;rectangle
+vivoactive3.MyDrawables.annotations = basic;rectangle
+
+vivoactive3.MyDrawables.annotations = basic;rectangle
+vivoactive4.MyDrawables.annotations = basic;rectangle
+
+round.MyLayout.annotations = round
+rectangle.MyLayout.annotations = rectangle
+vivoactive3.MyLayout.annotations = rectangle
