@@ -37,6 +37,14 @@
             Use "Monkey C: Configure Monkey Barrel" from the Visual Studio Code
             command palette to edit the included barrels.
         -->
-        <iq:barrels/>
+        <iq:barrels>
+            <iq:depends name="MyDrawables" version="0.0.0"/>
+            <iq:depends name="MyGraph" version="0.0.0"/>
+            <iq:depends name="MyLayoutHelper" version="0.0.0"/>
+            <iq:depends name="MyList" version="0.0.0"/>
+            <iq:depends name="MyMath" version="0.0.0"/>
+            <iq:depends name="MyTools" version="0.0.0"/>
+            <iq:depends name="MyViews" version="0.0.0"/>
+        </iq:barrels>
     </iq:application>
 </iq:manifest>

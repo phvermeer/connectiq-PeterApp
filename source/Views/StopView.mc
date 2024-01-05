@@ -135,7 +135,7 @@ class StopView extends MyView {
 		dimensions = dc.getTextDimensions("X", font);
 		x = width*25/100;
 		y = height*65/100;
-		drawable = new IconDown({
+		drawable = new MyDrawables.IconDown({
 			:locX => x,
 			:locY => y,
 			:width => dimensions[0],
