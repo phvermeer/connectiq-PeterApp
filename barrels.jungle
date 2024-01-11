@@ -1,23 +1,9 @@
 # Do not hand edit this file. To make changes run the
 # "Configure Monkey Barrels" command.
 
-MyDrawables = [barrels\MyDrawables\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyDrawables)
+base.barrelPath = barrels
+vivoactive3.barrelPath = barrels-vivoactive3
 
-MyGraph = [barrels\MyGraph\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyGraph)
+#MyBarrel = [d:\Software\Garmin\ConnectIQ\PeterAppLessMemory\barrels-vivoactive3\MyBarrel\monkey.jungle]
+#base.barrelPath = $(base.barrelPath);$(MyBarrel)
 
-MyList = [barrels\MyList\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyList)
-
-MyMath = [barrels\MyMath\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyMath)
-
-MyTools = [barrels\MyTools\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyTools)
-
-MyViews = [barrels\MyViews\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyViews)
-
-MyLayout = [barrels\MyLayoutHelper\monkey.jungle]
-base.barrelPath = $(base.barrelPath);$(MyLayout)

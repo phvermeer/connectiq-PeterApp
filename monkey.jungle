@@ -1,13 +1,13 @@
 project.manifest = manifest.xml
 base.sourcePath = source
+base.resourcePath = resources
 
 # base.MyMath.annotations = math
-base.MyDrawables.annotations = advanced;round
-rectangle.MyDrawables.annotations = advanced;rectangle
+base.MyBarrel.annotations = advanced;round
+rectangle.MyBarrel.annotations = advanced;rectangle
 
-vivoactive3.MyDrawables.annotations = basic;rectangle;sdk24
-vivoactive4.MyDrawables.annotations = basic;rectangle
+vivoactive3.MyBarrel.annotations = basic;rectangle;sdk24
+vivoactive4.MyBarrel.annotations = basic;rectangle
 
-round.MyLayout.annotations = round
-rectangle.MyLayout.annotations = rectangle
-vivoactive3.MyLayout.annotations = rectangle
+vivoactive3.sourcePath = source-vivoactive3
+vivoactive3.resourcePath = resources-vivoactive3
