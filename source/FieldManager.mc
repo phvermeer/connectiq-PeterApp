@@ -63,7 +63,8 @@ class FieldManager{
         var field
             = (id == DATAFIELD_TEST) ? new TestField(options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
-            : new EmptyField(options);
+            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ElapsedDistanceField(options)
+            : new ElapsedDistanceField(options);
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
