@@ -19,7 +19,7 @@ class NumericField extends MyLabeledField{
         MyLabeledField.initialize(options);
         value = new Drawables.MyText({
             :text => "---",
-            :color => label.color,
+            :color => getForegroundColor(),
         });
     }
 
@@ -30,7 +30,7 @@ class NumericField extends MyLabeledField{
         var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
-            :yMin => label.isVisible ? label.locY + label.height : locY,
+            :yMin => label != null ? label.locY + label.height : locY,
             :yMax => locY + height,
         });
         
@@ -47,7 +47,7 @@ class NumericField extends MyLabeledField{
 
     function setDarkMode(darkMode as Boolean) as Void{
         MyLabeledField.setDarkMode(darkMode);
-        value.color = label.color;
+        value.color = getForegroundColor();
     }
 
     function setValue(value as String|Numeric|Null) as Void{

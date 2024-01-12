@@ -29,7 +29,7 @@ class StatusField extends MyLabeledField{
         var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
-            :yMin => label.locY + label.height,
+            :yMin => (label != null) ? label.locY + label.height : locY,
             :yMax => locY + height,
             :margin => margin,
         });
