@@ -20,7 +20,7 @@ enum LayoutId {
 	LAYOUT_MAX = 6,
 }
 
-class DataView extends MyBarrel.Views.MyView{
+class DataView extends MyView{
 	enum SettingId {
 		SETTING_LAYOUT = 0,
 		SETTING_FIELDS = 1,
