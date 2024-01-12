@@ -171,7 +171,7 @@ class StopView extends MyView {
 				if(delegate != null){
 					// pop all view except for the last, that one will be replaced with a new screen (avoid closing app)
 					var count = delegate.stackSize();
-					for(var i=0; i>count-1; i++){
+					for(var i=1; i<count; i++){
 						WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 					}
 
