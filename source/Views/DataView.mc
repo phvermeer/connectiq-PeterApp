@@ -56,7 +56,7 @@ class DataView extends MyBarrel.Views.MyView{
 
         // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
-        darkMode = settings.get(SETTING_DARK_MODE) as Boolean;
+        darkMode = settings.get(Settings.ID_DARK_MODE) as Boolean;
 
         updateIndicator = new Edge( {
             :darkMode => darkMode,
@@ -396,8 +396,8 @@ class DataView extends MyBarrel.Views.MyView{
         }
     }
 
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_DATASCREENS){
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_DATASCREENS){
             var screensSettings = value as ScreensSettings;
             if(screenIndex >= screensSettings.size()){
                 // current screen is removed, jump to first screen
@@ -409,7 +409,7 @@ class DataView extends MyBarrel.Views.MyView{
 
             var screenSettings = screensSettings[screenIndex] as ScreenSettings;
             applyScreenSettings(screenSettings);
-        }else if(id == SETTING_DARK_MODE){
+        }else if(id == Settings.ID_DARK_MODE){
             self.darkMode = value as Boolean;
         }
     }

@@ -69,7 +69,7 @@ class LayoutPickerDelegate extends MyViewDelegate{
 		screenSettings[DataView.SETTING_LAYOUT] = layoutId;
 		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
 
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
+		$.getApp().settings.set(Settings.ID_DATASCREENS, screensSettings);
 		return true;
 	}
 }

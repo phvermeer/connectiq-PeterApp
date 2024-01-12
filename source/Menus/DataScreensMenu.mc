@@ -17,7 +17,7 @@ class DataScreensMenu extends MyMenu {
 
 	function onShow(){
 		// Update screen sub items
-		var screensSettings = $.getApp().settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+		var screensSettings = $.getApp().settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
 		for(var i=0; i < screensSettings.size(); i++){
 			addScreenItem(i, screensSettings[i]);
 		}
@@ -64,7 +64,7 @@ class DataScreensMenu extends MyMenu {
 	function onSelect(item){
 		var id = item.getId() as Number | String;
 		var settings = $.getApp().settings;
-		var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+		var screensSettings = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
 
 		switch(id){
 			case "add":{
@@ -81,7 +81,7 @@ class DataScreensMenu extends MyMenu {
 				addScreenItem(i, screenSettings);
 
 				// save to settings
-				settings.set(SETTING_DATASCREENS, screensSettings);
+				settings.set(Settings.ID_DATASCREENS, screensSettings);
 				addAddItem();
 				break;			
 			}

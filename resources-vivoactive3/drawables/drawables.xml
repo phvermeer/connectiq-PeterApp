@@ -1,3 +1,9 @@
 <drawables>
     <bitmap id="LauncherIcon" filename="launcher_36x36.png" />
+
+    <bitmap id="walking" filename="launcher_36x36.png" />
+    <bitmap id="running" filename="launcher_36x36.png" />
+    <bitmap id="cycling" filename="launcher_36x36.png" />
+    <bitmap id="hiking" filename="launcher_36x36.png" />
+    <bitmap id="unknown" filename="launcher_36x36.png" />
 </drawables>

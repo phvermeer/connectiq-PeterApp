@@ -59,7 +59,7 @@ class FieldManager{
 
         // else create a new datafield
         var app = $.getApp();
-        var darkMode = app.settings.get(SETTING_DARK_MODE) as Boolean;
+        var darkMode = app.settings.get(Settings.ID_DARK_MODE) as Boolean;
 
         var options = { :darkMode => darkMode };
         if(app.track != null){
@@ -97,7 +97,7 @@ class FieldManager{
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
-        System.println(Lang.format("Field $1$ is created", [id]));
+        log(Lang.format("Field $1$ is created", [id]));
 
         // keep fields up-to-date
         app.data.addListener(field);
@@ -121,7 +121,7 @@ class FieldManager{
         for(var i=0; i<fieldRefs.size(); i++){
             if(!(values[i] as WeakReference).stillAlive()){
                 fieldRefs.remove(keys[i]);
-                System.println(Lang.format("Field $1$ is released", [keys[i]]));
+                log(Lang.format("Field $1$ is released", [keys[i]]));
             }
         }
     }

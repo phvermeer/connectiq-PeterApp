@@ -87,10 +87,10 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
-	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-		if(id == SETTING_TRACK){
+	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+		if(id == Settings.ID_TRACK){
 			setTrack(value as Track|Null);
-		}else if(id == SETTING_DARK_MODE){
+		}else if(id == Settings.ID_DARK_MODE){
 			setDarkMode(value as Boolean);
 		}
 	}

@@ -22,7 +22,7 @@ class TrackField extends MyDataField{
         MyDataField.initialize(options);
         track = options.get(:track);
 
-        zoomFactor = $.getApp().settings.get(SETTING_ZOOMFACTOR) as Float;
+        zoomFactor = $.getApp().settings.get(Settings.ID_ZOOMFACTOR) as Float;
 
         legend = new TrackScaleLegend({
             :zoomFactor => zoomFactor,
@@ -226,24 +226,24 @@ class TrackField extends MyDataField{
         var settings = $.getApp().settings;
         if(x <= locX + area){
             // zoom out
-            settings.set(SETTING_ZOOMFACTOR, zoomFactor / 1.3);
+            settings.set(Settings.ID_ZOOMFACTOR, zoomFactor / 1.3);
         }else if(x >= locX + width - area){
             // zoom in
-            settings.set(SETTING_ZOOMFACTOR, zoomFactor * 1.3);
+            settings.set(Settings.ID_ZOOMFACTOR, zoomFactor * 1.3);
         }else{
             return false;
         }
         return true;
     }
 
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
         // internal background updates
         MyDataField.onSetting(id, value);
 
-        if(id == SETTING_ZOOMFACTOR){
+        if(id == Settings.ID_ZOOMFACTOR){
             // update zoomfactor
             setZoomFactor(value as Float);
-        }else if(id == SETTING_TRACK){
+        }else if(id == Settings.ID_TRACK){
             setTrack(value as Track?);
         }
     }

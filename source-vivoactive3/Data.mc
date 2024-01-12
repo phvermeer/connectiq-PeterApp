@@ -4,6 +4,43 @@ import Toybox.System;
 import Toybox.Lang;
 import Toybox.Timer;
 
+(:basic)
+class Data
+{
+    public var activityInfo as Activity.Info|Null;
+    public var stats as System.Stats;
+    hidden var timerStarted as Boolean = false;
+    hidden var timer as Timer.Timer = new Timer.Timer();
+
+    function initialize(options as Dictionary){
+        activityInfo = Activity.getActivityInfo();
+        stats = System.getSystemStats();
+    }
+    function startTimer() as Void{
+        if(!timerStarted){
+            // start timer events
+            timer.start(method(:onTimer), 1000, true);
+            timerStarted = true;
+        }
+    }
+    function stopTimer() as Void{
+        if(timerStarted){
+            // stop timer events
+            timer.stop();
+            timerStarted = false;
+        }
+    }
+    function onTimer() as Void{
+        var info = Activity.getActivityInfo();
+        if(info != null){
+            // process info
+            self.stats = System.getSystemStats();
+            self.activityInfo = info;
+        }
+    }
+}    
+
+(:advanced)
 class Data
 {
    	static const EARTH_RADIUS = 6371000f;
@@ -11,6 +48,9 @@ class Data
     typedef IListener as interface{
         function onData(data as Data) as Void;
     };
+    class Listener{
+        function onData(data as Data) as Void{}
+    }
 
     public var positionInfo as Position.Info;
     public var activityInfo as Activity.Info|Null;
@@ -32,9 +72,7 @@ class Data
     hidden var breadcrumpsMax as Number;
 
     hidden var latlonCenter as Array<Decimal>|Null;
-
     hidden var timer as Timer.Timer = new Timer.Timer();
-    hidden var altitudeCalculator as Altitude.Calculator|Null;
 
     // Collector of historical position data in a register
     function initialize(options as {
@@ -49,13 +87,6 @@ class Data
         breadcrumpsEnabled = options.hasKey(:breadcrumpsEnabled) ? options.get(:breadcrumpsEnabled) as Boolean : true;
         interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
         track = options.get(:track) as Track|Null;
-
-        var settings = $.getApp().settings;
-        if(settings.get(Settings.ID_ALTITUDE_CALIBRATED)){
-            var p0 = settings.get(Settings.ID_ALTITUDE_P0) as Float;
-            var t0 = settings.get(Settings.ID_ALTITUDE_T0) as Float;
-            altitudeCalculator = new Altitude.Calculator(p0, t0);
-        }
 
         activityInfo = Activity.getActivityInfo();
         positionInfo = Position.getInfo();
@@ -107,15 +138,6 @@ class Data
             setBreadcrumpsMax(value as Number);
         }else if(id == Settings.ID_BREADCRUMPS_MIN_DISTANCE){
             setBreadcrumpsDistance(value as Number);
-        }else if(id == Settings.ID_ALTITUDE_CALIBRATED){
-            if(value) {
-                var settings = $.getApp().settings;
-                var p0 = settings.get(Settings.ID_ALTITUDE_P0) as Float;
-                var t0 = settings.get(Settings.ID_ALTITUDE_T0) as Float;
-                altitudeCalculator = new Altitude.Calculator(p0, t0);
-            }else{
-                altitudeCalculator = null;
-            }
         }else if(id == Settings.ID_TRACK){
             setTrack(value as Track|Null);
         }
@@ -250,7 +272,6 @@ class Data
         }else{
             eventReceived = false;
         }
-        $.getApp().fieldManager.cleanup();
     }
 
     function onPosition(info as Position.Info) as Void{
@@ -289,12 +310,6 @@ class Data
         // activity info
         if(activityInfo != null){
             // update altitude
-            if(altitudeCalculator != null && Activity.Info has :ambientPressure){
-                var pressure = activityInfo.ambientPressure;
-                if(pressure != null){
-                    activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
-                }
-            }
             self.activityInfo = activityInfo;
         }
 

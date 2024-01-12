@@ -50,7 +50,7 @@ class ViewDelegate extends Views.MyViewDelegate {
             }else if(v instanceof StopView){
                 // Open DataView with correct fields
                 var app = $.getApp();
-                var screensSettings = app.settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+                var screensSettings = app.settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
                 var view = new DataView(dataViewIndex, screensSettings, self);
                 app.settings.addListener(view);
                 app.session.addListener(view);

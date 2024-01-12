@@ -1,3 +1,12 @@
 <strings>
     <string id="AppName">ActivityApp</string>
+
+    <!-- Activities -->
+    <string id="activity">Activiteit</string>
+    <string id="walking">Wandelen</string>
+    <string id="hiking">Bergwandelen</string>
+    <string id="running">Hardlopen</string>
+    <string id="cycling">Fietsen</string>
+    <string id="unknownActivity">Onbekende Activiteit</string>
+
 </strings>

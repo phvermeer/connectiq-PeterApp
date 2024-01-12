@@ -50,7 +50,7 @@ class FieldsSubMenu extends MyMenu{
 		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
 		screensSettings[screenIndex] = screenSettings;
 
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
+		$.getApp().settings.set(Settings.ID_DATASCREENS, screensSettings);
 		
 		// close field select menu's
 		WatchUi.popView(WatchUi.SLIDE_IMMEDIATE); // close FieldsSubMenu		

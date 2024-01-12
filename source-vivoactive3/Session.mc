@@ -5,13 +5,21 @@ using Toybox.Timer;
 import Toybox.Activity;
 using Toybox.Time;
 
+(:basic)
+class Session{
+    function initialize(options as { :sport as Activity.Sport|ActivityRecording.Sport }){}
+    function getState() as SessionState{
+        return SESSION_STATE_IDLE;
+    }
+}
+
 enum SessionState {
 	SESSION_STATE_IDLE,
 	SESSION_STATE_BUSY,
 	SESSION_STATE_PAUSED,
 	SESSION_STATE_STOPPED,
 }
-
+(:advanced)
 class LapInfo{
 	public var speed as Float?; // [m/s]
 	public var time as Number = 0; // [ms]
@@ -40,12 +48,18 @@ class LapInfo{
 	}
 }
 
+(:advanced)
 class Session{
     typedef IListener as interface{
         function onSessionState(state as SessionState) as Void;
     };
+    class Listener{
+        function onSessionState(state as SessionState) as Void {}
+    }
 
-	public var currentLapInfo as LapInfo?;
+    (:advanced)
+    public var currentLapInfo as LapInfo?;
+    (:advanced)
 	public var previousLapInfo as LapInfo?;
 
     hidden var mListeners as Array<WeakReference> = [] as Array<WeakReference>;
@@ -58,14 +72,34 @@ class Session{
 	hidden var mStateDelayCounter as Number = 0;
 
 	// Auto lap variables
+    (:advanced)
 	var mAutoLapEnabled as Boolean = true;
+    (:advanced)
 	var mAutoLapDistance as Float = 1000f;
+    (:advanced)
 	hidden var mAutoPause as Boolean = true;
+    (:advanced)
 	var mLastLapDistance as Float = 0f;
 
+    (:basic)
 	function initialize(options as { 
 		:sport as Activity.Sport|ActivityRecording.Sport, 
-		:onStateChange as Method(state as SessionState) as Void,
+	}){
+		// default values
+		mOptions = {
+			:sport => Activity.SPORT_WALKING,
+			:name => WatchUi.loadResource(Rez.Strings.walking) as String,
+		};
+
+		// options for session creation
+		if(options.hasKey(:sport)){
+			setSport(options.get(:sport) as Sport);
+		}
+	}
+
+    (:advanced)
+	function initialize(options as { 
+		:sport as Activity.Sport|ActivityRecording.Sport, 
 		:autoLapEnabled as Boolean,
 		:autoLapDistance as Float,
 		:autoPause as Boolean,
@@ -162,14 +196,22 @@ class Session{
 	}
 
 	// **** Settings *****
+    (:basic)
 	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
-        if(id == Settings.ID_AUTOPAUSE){
+        if(id == SETTING_SPORT){
+			setSport(value as Sport);
+		}
+	}
+
+    (:advanced)
+	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == SETTING_AUTOPAUSE){
             setAutoPause(value as Boolean);
-        }else if(id == Settings.ID_AUTOLAP){
+        }else if(id == SETTING_AUTOLAP){
             setAutoLapEnabled(value as Boolean);
-		}else if(id == Settings.ID_AUTOLAP_DISTANCE){
+		}else if(id == SETTING_AUTOLAP_DISTANCE){
 			setAutoLapDistance(value as Float);
-		}else if(id == Settings.ID_SPORT){
+		}else if(id == SETTING_SPORT){
 			setSport(value as Sport);
 		}
 	}
@@ -192,17 +234,19 @@ class Session{
 		var sport = mOptions.get(:sport) as Activity.Sport?;
 		var settings = $.getApp().settings;
 		if(sport == null){
-			sport = settings.get(Settings.ID_SPORT) as Activity.Sport;  
+			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
 		}
 		return sport;
 	}
+    (:advanced)
 	public function setAutoLapEnabled(enabled as Boolean) as Void{
 		mAutoLapEnabled = enabled;
 	}
+    (:advanced)
 	public function setAutoLapDistance(distance as Float) as Void{
 		mAutoLapDistance = distance;
 	}
-
+    (:advanced)
 	public function setAutoPause(enabled as Boolean) as Void{
 		if(mAutoPause != enabled){
 			mAutoPause = enabled;
@@ -213,7 +257,7 @@ class Session{
 	}
 
 	//***** Events and State functions ******
-
+    (:advanced)
 	protected function setPaused(paused as Boolean) as Void{
 		// will be initiated by a low speed (auto stop)
 		if(mSession != null){
@@ -228,6 +272,11 @@ class Session{
 		}
 	}
 
+    (:basic)
+   	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
+    }
+
+    (:advanced)
 	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
 		var info = Activity.getActivityInfo() as Activity.Info;
 		switch(eventType){
@@ -248,6 +297,7 @@ class Session{
 		}
 	}
 
+    (:advanced)
 	function onData(data as Data) as Void{
 		var info = data.activityInfo;
 		if(info != null){
@@ -263,6 +313,7 @@ class Session{
 		}
 	}
 
+    (:advanced)
 	function checkPaused(info as Activity.Info) as Void{
 		// increase delay counter if the pause state is invalid for currentspeed
 		var speed = info.currentSpeed != null ? info.currentSpeed as Float : 0;
@@ -287,6 +338,7 @@ class Session{
 		}
 	}
 
+    (:advanced)
 	function checkAutoLap(info as Activity.Info) as Void{
 		if((mSession != null) && mAutoLapEnabled && (mAutoLapDistance as Number > 0) && (info.elapsedDistance != null)){
 			var distance = info.elapsedDistance as Float;

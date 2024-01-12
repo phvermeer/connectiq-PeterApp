@@ -27,25 +27,25 @@ class App extends Application.AppBase {
         settings = new Settings();
 
         data = new Data({
-            :breadcrumpsEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
-            :breadcrumpsDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
-            :breadCrumpsMax => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+            :breadcrumpsEnabled => settings.get(Settings.ID_BREADCRUMPS) as Boolean,
+            :breadcrumpsDistance => settings.get(Settings.ID_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :breadCrumpsMax => settings.get(Settings.ID_BREADCRUMPS_MAX_COUNT) as Number,
         });
 
         fieldManager = new FieldManager();
 
         session = new Session({
-            :sport => settings.get(SETTING_SPORT) as Activity.Sport,
-            :autoLapEnabled => settings.get(SETTING_AUTOLAP) as Boolean,
-            :autoLapDistance => settings.get(SETTING_AUTOLAP_DISTANCE) as Float,
-            :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
+            :sport => settings.get(Settings.ID_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(Settings.ID_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(Settings.ID_AUTOLAP_DISTANCE) as Float,
+            :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
         });
 
 
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
-        var trackData = settings.get(SETTING_TRACK);
+        var trackData = settings.get(Settings.ID_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
             data.setTrack(track);
@@ -97,7 +97,7 @@ class App extends Application.AppBase {
             }
 
             // save track data in storage and inform listeners
-            settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
+            settings.set(Settings.ID_TRACK, data as Array<PropertyValueType>);
         }
     }
 
@@ -111,4 +111,9 @@ class App extends Application.AppBase {
 
 function getApp() as App {
     return Application.getApp() as App;
+}
+
+function log(msg as String) as Void{
+    var stats = Toybox.System.getSystemStats();
+    Toybox.System.println(Lang.format("$1$ ($2$%)", [msg, 100f * stats.usedMemory/stats.totalMemory]));
 }

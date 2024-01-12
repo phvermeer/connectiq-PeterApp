@@ -3,14 +3,14 @@ import Toybox.Lang;
 import Toybox.Application;
 
 class MyOptionsMenu extends MyMenu{
-	var id as SettingId;
+	var id as Settings.Id;
 
-	function initialize(title as String, id as SettingId, options as Dictionary ){
+	function initialize(title as String, id as Settings.Id, options as Dictionary ){
 		MyMenu.initialize( { :title => title } );
 		self.id = id;
 
 		// create menu items for each option
-		var ids = options.keys() as Array<SettingId>; 
+		var ids = options.keys() as Array<Settings.Id>; 
 		var titles = options.values() as Array<String>;
 		for(var i=0; i<options.size(); i++){
 			addItem(

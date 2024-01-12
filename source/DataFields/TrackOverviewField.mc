@@ -180,7 +180,7 @@ class TrackOverviewField extends MyDataField{
 
     function onSetting(id, value){
         MyDataField.onSetting(id, value);
-        if(id == SETTING_TRACK){
+        if(id == Settings.ID_TRACK){
             // update the track bitmap
             track = value as Track?;
             updateBitmap(track);

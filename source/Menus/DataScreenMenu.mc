@@ -102,11 +102,11 @@ class DataScreenMenu extends MyMenu {
 			// Toggle menus
 			case DataView.SETTING_ENABLED:
 				screensSettings[screenIndex][DataView.SETTING_ENABLED] = (item as ToggleMenuItem).isEnabled();
-				settings.set(SETTING_DATASCREENS, screensSettings);
+				settings.set(Settings.ID_DATASCREENS, screensSettings);
 				return true;
 			case "remove":
 				screensSettings = screensSettings.slice(null, screenIndex-1).addAll(screensSettings.slice(screenIndex+1, null));
-				settings.set(SETTING_DATASCREENS, screensSettings);
+				settings.set(Settings.ID_DATASCREENS, screensSettings);
 
 				WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 				return true;

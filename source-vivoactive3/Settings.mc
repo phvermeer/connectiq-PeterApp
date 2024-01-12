@@ -4,6 +4,22 @@ import Toybox.Application;
 import Toybox.Application.Storage;
 import Toybox.Graphics;
 
+(:basic)
+class Settings{
+    enum Id{
+        // global settings
+        ID_SPORT = 0,
+        ID_GLOBAL_MAX = 5,
+        // profile settings
+        ID_DARK_MODE = 6,
+        ID_DATASCREENS = 10,
+        ID_PROFILE_MAX = 13,
+    }
+    typedef ValueType as PropertyValueType;
+
+}
+
+(:advanced)
 class Settings{
     enum Id{
         // global settings
@@ -25,7 +41,6 @@ class Settings{
         ID_BREADCRUMPS_MAX_COUNT = 13,
         ID_PROFILE_MAX = 13,
     }
-
 
     typedef ValueType as PropertyValueType|Track;
     typedef IListener as interface{
@@ -52,7 +67,7 @@ class Settings{
         ID_AUTOPAUSE => true,
         ID_AUTOLAP => false,
         ID_AUTOLAP_DISTANCE => 1000,
-        ID_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true]],
+        ID_DATASCREENS => [[0, [0], true]],
         ID_BREADCRUMPS => true,
 	    ID_BREADCRUMPS_MIN_DISTANCE => 50,
 	    ID_BREADCRUMPS_MAX_COUNT => 50,

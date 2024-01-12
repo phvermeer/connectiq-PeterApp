@@ -36,7 +36,7 @@ class StartView extends MyView {
     }
 
     function onShow() as Void{
-        var sport = getApp().settings.get(SETTING_SPORT) as Activity.Sport;
+        var sport = getApp().settings.get(Settings.ID_SPORT) as Activity.Sport;
         icon.setBitmap(Session.getIcon(sport));
     }
 
@@ -65,7 +65,7 @@ class StartView extends MyView {
 
                 // Show DataView
                 var settings = app.settings;
-                var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+                var screensSettings = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
 				var view = new DataView(0, screensSettings, sender);

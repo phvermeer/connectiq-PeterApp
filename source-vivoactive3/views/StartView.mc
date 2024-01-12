@@ -2,13 +2,13 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
-import MyBarrel.Math2;
+import MyBarrel.Views;
 
-class StartView extends WatchUi.View {
+class StartView extends MyView {
     var text as Text;
 
-    function initialize() {
-        View.initialize();
+    function initialize(delegate as MyViewDelegate) {
+        MyView.initialize(delegate);
         text = new WatchUi.Text({
             :text => "test",
             :justification => Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER,
@@ -23,7 +23,6 @@ class StartView extends WatchUi.View {
         
         text.locX = w / 2;
         text.locY = 0.6 * h;
-
     }
 
     function onUpdate(dc as Dc) as Void{
