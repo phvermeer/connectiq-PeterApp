@@ -6,8 +6,8 @@ class FieldPickerDelegate extends MyViewDelegate{
 	protected var screenIndex as Number;
 	hidden var screensSettings as DataView.ScreensSettings;
 
-	function initialize(screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings, options as { :view as DataView }){
-		MyViewDelegate.initialize(options);
+	function initialize(screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
+		MyViewDelegate.initialize();
 		self.screenIndex = screenIndex;
 		self.screensSettings = screensSettings;
 	}

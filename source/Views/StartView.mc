@@ -10,12 +10,8 @@ class StartView extends MyView {
     var icon as Icon;
     var text as Text;
 
-    function initialize(
-        options as {
-            :delegate as MyViewDelegate,
-        }
-    ){
-        MyView.initialize(options);
+    function initialize(delegate as MyViewDelegate){
+        MyView.initialize(delegate);
         hintStart = new Drawables.HintStart({});
         icon = new Icon({});
         text = new WatchUi.Text({
@@ -72,10 +68,9 @@ class StartView extends MyView {
                 var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
-				var view = new DataView(0, screensSettings, { :delegate => sender });
+				var view = new DataView(0, screensSettings, sender);
                 settings.addListener(view);
                 session.addListener(view);
-                sender.setView(view);
 
 				WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
 				return true;

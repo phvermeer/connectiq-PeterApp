@@ -29,12 +29,8 @@ class ConfirmDelegate extends WatchUi.ConfirmationDelegate{
 class StopView extends MyView {
 	var confirmation as ConfirmDelegate?;
 
-    function initialize(
-		options as {
-			:delegate as MyViewDelegate,
-		}
-	){
-        MyView.initialize(options);
+    function initialize(delegate as MyViewDelegate){
+        MyView.initialize(delegate);
     }
         
     // Load your resources here
@@ -172,8 +168,7 @@ class StopView extends MyView {
 				// Switch to start views
 				var delegate = getDelegate();
 				if(delegate != null){
-					var view = new StartView({ :delegate => delegate });
-					delegate.setView(view);
+					var view = new StartView(delegate);
 					WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
 				}
 			}

@@ -90,10 +90,9 @@ class DataScreenMenu extends MyMenu {
 			case DataView.SETTING_LAYOUT:
 			case DataView.SETTING_FIELDS:
 				var delegate = (id == DataView.SETTING_LAYOUT)
-					? new LayoutPickerDelegate(screenIndex, screensSettings, {})
-					: new FieldPickerDelegate(screenIndex, screensSettings, {});
-				var view = new DataView(screenIndex, screensSettings, { :delegate => delegate});
-				delegate.setView(view);
+					? new LayoutPickerDelegate(screenIndex, screensSettings)
+					: new FieldPickerDelegate(screenIndex, screensSettings);
+				var view = new DataView(screenIndex, screensSettings, delegate);
 
 				settings.addListener(view);
 				app.data.addListener(view);

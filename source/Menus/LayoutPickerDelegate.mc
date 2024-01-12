@@ -10,7 +10,7 @@ class LayoutPickerDelegate extends MyViewDelegate{
 	hidden var fieldIds as Array<DataFieldId>;
 	hidden var fieldIdsInitial as Array<DataFieldId>;
 
-	function initialize(screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings, options as { :delegate as MyView } ){
+	function initialize(screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
 		self.screenIndex = screenIndex;
 		self.screensSettings = screensSettings;
 
@@ -20,7 +20,7 @@ class LayoutPickerDelegate extends MyViewDelegate{
 		fieldIds = screenSettings[DataView.SETTING_FIELDS] as Array<DataFieldId>;
 		fieldIdsInitial = fieldIds;
 
-		MyViewDelegate.initialize(options);
+		MyViewDelegate.initialize();
 	}
 
 	function onNextPage() as Boolean{

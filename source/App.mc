@@ -103,9 +103,8 @@ class App extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
-        var view = new StartView({});
-        var delegate = new ViewDelegate({:view => view});
-        view.setDelegate(delegate);
+        var delegate = new ViewDelegate();
+        var view = new StartView(delegate);
         return [ view, delegate ] as Array<Views or InputDelegates>;
     }
 }

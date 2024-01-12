@@ -9,12 +9,8 @@ class ViewDelegate extends Views.MyViewDelegate {
     // current dataView index
     hidden var dataViewIndex as Number = 0;
 
-    function initialize(
-        options as {
-            :view as MyView
-        }
-    ) {
-        MyViewDelegate.initialize(options);
+    function initialize() {
+        MyViewDelegate.initialize();
     }
 
 	function onKey(keyEvent as WatchUi.KeyEvent) as Lang.Boolean{
@@ -48,19 +44,17 @@ class ViewDelegate extends Views.MyViewDelegate {
         if(v != null){
             if(v instanceof DataView){
                 // Open StopView
-                var view = new StopView({ :delegate => self });
-                self.setView(view);
+                var view = new StopView(self);
                 WatchUi.switchToView(view, self, WatchUi.SLIDE_IMMEDIATE);
                 return true;
             }else if(v instanceof StopView){
                 // Open DataView with correct fields
                 var app = $.getApp();
                 var screensSettings = app.settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
-                var view = new DataView(dataViewIndex, screensSettings, { :delegate => self });
+                var view = new DataView(dataViewIndex, screensSettings, self);
                 app.settings.addListener(view);
                 app.session.addListener(view);
 
-                self.setView(view);
                 WatchUi.switchToView(view, self, WatchUi.SLIDE_IMMEDIATE);
                 return true;
             }

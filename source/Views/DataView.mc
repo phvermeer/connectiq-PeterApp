@@ -42,11 +42,9 @@ class DataView extends MyBarrel.Views.MyView{
     function initialize(
         screenIndex as Number, 
         screensSettings as ScreensSettings, 
-        options as {
-            :delegate as MyViewDelegate,
-        }
+        delegate as MyViewDelegate
     ){
-        MyView.initialize(options);
+        MyView.initialize(delegate);
 
         self.screenIndex = Math2.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
         self.screensSettings = screensSettings;
