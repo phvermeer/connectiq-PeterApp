@@ -73,4 +73,9 @@ class LayoutPickerDelegate extends MyViewDelegate{
 		$.getApp().settings.set(Settings.ID_DATASCREENS, screensSettings);
 		return true;
 	}
+
+	function onBack(){
+		// prevent opening the stop screen
+		return false;
+	}
 }

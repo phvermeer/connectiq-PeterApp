@@ -37,4 +37,9 @@ class FieldPickerDelegate extends MyViewDelegate{
 		}
 		return false;
 	}
+
+	function onBack(){
+		// prevent opening the stop screen
+		return false;
+	}	
 }
