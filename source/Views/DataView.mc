@@ -79,6 +79,13 @@ class DataView extends MyBarrel.Views.MyView{
         MyView.onHide();
     }
 
+    function onBack(sender as MyViewDelegate) as Boolean{
+        // Open StopView
+        var view = new StopView(sender);
+        WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
+        return true;
+    }
+
     // event handler for graphical layout 
     function onLayout(dc as Dc){
         var screenSettings = screensSettings[screenIndex];

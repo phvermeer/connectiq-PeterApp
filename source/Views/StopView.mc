@@ -213,4 +213,17 @@ class StopView extends MyView {
 			return false;
 		}
 	}   
+
+	function onBack(sender as MyViewDelegate) as Boolean{
+		// Open DataView with correct fields
+		var app = $.getApp();
+		var screensSettings = app.settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
+
+		var view = new DataView(0, screensSettings, sender);
+		app.settings.addListener(view);
+		app.session.addListener(view);
+
+		WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
+		return true;
+	}
 }
