@@ -35,6 +35,9 @@ class App extends Application.AppBase {
         log("4");
         fieldManager = new FieldManager();
         log("5");
+
+        // link events
+        data.addListener(fieldManager);
     }
 
     (:advanced)
@@ -93,6 +96,23 @@ class App extends Application.AppBase {
         session.stop();
         started = false;
     }
+
+    (:basic)
+    function onSessionState(state as SessionState) as Void {
+        // start/stop positioning events
+        switch(state){
+            case SESSION_STATE_IDLE:
+            case SESSION_STATE_STOPPED:
+                // stop events
+	            data.stopTimer();
+                break;
+            case SESSION_STATE_BUSY:
+                // start events
+                data.startTimer();
+                break;
+        }
+    }
+
 
     (:advanced)
     function onSessionState(state as SessionState) as Void {

@@ -1,8 +1,6 @@
 # Do not hand edit this file. To make changes run the
 # "Configure Monkey Barrels" command.
 
-base.barrelPath = barrels
-
-#MyBarrel = [d:\Software\Garmin\ConnectIQ\PeterAppLessMemory\barrels-vivoactive3\MyBarrel\monkey.jungle]
-#base.barrelPath = $(base.barrelPath);$(MyBarrel)
+MyBarrel = [barrels\MyBarrel\monkey.jungle]
+base.barrelPath = $(base.barrelPath);$(MyBarrel)
 

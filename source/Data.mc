@@ -274,6 +274,7 @@ class Data
         if(info != null){
             self.activityInfo = info;
         }
+        notifyListeners();
     }
 
     (:advanced)

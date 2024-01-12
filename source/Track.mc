@@ -7,6 +7,7 @@ import MyBarrel.Math2;
 typedef TrackPoint as Array<Float>; // [x, y, elapsedDistance]
 typedef TrackPoints as Array<TrackPoint>;
 
+(:advanced)
 class Track{
 	private enum SearchDirection{
 		SEARCH_FORWARD = 0x1,

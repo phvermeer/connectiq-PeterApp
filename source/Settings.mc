@@ -26,7 +26,9 @@ class Settings{
         ID_PROFILE_MAX = 13,
     }
 
-
+    (:basic)
+    typedef ValueType as PropertyValueType;
+    (:advanced)
     typedef ValueType as PropertyValueType|Track;
     typedef IListener as interface{
         function onSetting(id as Id, value as ValueType) as Void;
@@ -108,9 +110,9 @@ class Settings{
         if(value == null){
             // get default value
             value = DEFAULT_VALUES.get(id) as ValueType?;
-//            if(value == null){
-//                throw new MyException(Lang.format("No default value available for setting $1$", [settingId]));
-//            }
+            //  if(value == null){
+            //      throw new MyException(Lang.format("No default value available for setting $1$", [settingId]));
+            //  }
             self.set(settingId, value);
         }
         return value;
@@ -147,11 +149,20 @@ class Settings{
 
         // convert raw track data to Track
         if(settingId == ID_TRACK && value instanceof Array){
-            value = new Track(value as Array);
+            value = convertToTrack(value);
         }
 
         // inform listeners
         notifyListeners(settingId, value);
+    }
+
+    (:basic)
+    function convertToTrack(value as ValueType) as ValueType{
+        return value;
+    }
+    (:advanced)
+    function convertToTrack(value as ValueType) as ValueType{
+        return new Track(value as Array);
     }
 
     function clear() as Void{
