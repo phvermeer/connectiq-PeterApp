@@ -1,6 +1,7 @@
 import Toybox.WatchUi;
 import Toybox.Lang;
 
+(:advanced)
 class AutoLapMenu extends MyMenu {
 	hidden var options as Lang.Dictionary;
 

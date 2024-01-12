@@ -4,6 +4,7 @@ import Toybox.Position;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
 
+(:advanced)
 class TrackOverviewField extends MyDataField{
     hidden var track as Track?;
     hidden var bitmap as BufferedBitmap?;

@@ -5,6 +5,7 @@ import Toybox.Time.Gregorian;
 import MyBarrel.Drawables;
 import MyBarrel.Layout;
 
+(:advanced)
 class StatusField extends MyLabeledField{
     var gpsIndicator as GpsSignalIndicator;
 

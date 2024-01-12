@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
+(:advanced)
 class DataScreensMenu extends MyMenu {
 	
 	const OPTIONS = {

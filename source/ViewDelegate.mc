@@ -62,6 +62,7 @@ class ViewDelegate extends Views.MyViewDelegate {
         return false;
     }
 
+    (:advanced)
     function onMenu() as Boolean {
         var menu = new MainMenu();
         WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_UP);

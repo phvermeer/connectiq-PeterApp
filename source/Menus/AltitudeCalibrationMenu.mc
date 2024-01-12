@@ -4,6 +4,7 @@ import Toybox.Activity;
 import Toybox.Timer;
 import MyBarrel.Views;
 
+(:advanced)
 class AltitudePickerDelegate extends Views.NumberPicker2Delegate{
 	var parent as AltitudeCalibrationMenu;
 
@@ -17,6 +18,7 @@ class AltitudePickerDelegate extends Views.NumberPicker2Delegate{
 	}
 }
 
+(:advanced)
 class AltitudeCalibrationMenu extends MyMenu {
 	const ITEM_CALIBRATE_ENABLE = 0;
 	const ITEM_CALIBRATE_MANUAL = 1;

@@ -48,6 +48,34 @@ class FieldManager{
         fieldRefs = {} as Dictionary<DataFieldId, WeakReference>;
     }
 
+    (:basic)
+    function getField(id as DataFieldId) as MyDataField{
+        // check if field already is created
+        var ref = fieldRefs.get(id);
+        if(ref != null){
+            if(ref.stillAlive()){
+                return ref.get() as MyDataField;
+            }
+        }
+
+        var app = $.getApp();
+        var options = {};
+        var field
+            = (id == DATAFIELD_TEST) ? new TestField(options)
+            : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
+            : new EmptyField(options);
+
+        // keep weak link in buffer for new requests
+        fieldRefs.put(id, field.weak());
+        log(Lang.format("Field $1$ is created", [id]));
+
+        // keep fields up-to-date
+        app.data.addListener(field);
+        app.settings.addListener(field);
+        return field;
+    }
+
+    (:advanced)
     function getField(id as DataFieldId) as MyDataField{
         // check if field already is created
         var ref = fieldRefs.get(id);

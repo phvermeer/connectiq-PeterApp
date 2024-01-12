@@ -16,12 +16,28 @@ typedef SessionStateListener as interface {
 class App extends Application.AppBase {
     var settings as Settings;
     var session as Session;
+    (:advanced)
     var track as Track?;
     var fieldManager as FieldManager;
     var data as Data;
 //    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
+    (:basic)
+    function initialize() {
+        AppBase.initialize();
+        log("1");
+        session = new Session({});
+        log("2");
+        settings = new Settings();
+        log("3");
+        data = new Data({});
+        log("4");
+        fieldManager = new FieldManager();
+        log("5");
+    }
+
+    (:advanced)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
@@ -64,6 +80,13 @@ class App extends Application.AppBase {
     }
 
     // onStop() is called when your application is exiting
+    (:basic)
+    function onStop(state as Dictionary?) as Void {
+        data.stopTimer();
+        session.stop();
+        started = false;
+    }
+    (:advanced)    
     function onStop(state as Dictionary?) as Void {
         data.stopTimer();
         data.stopPositioning();
@@ -71,6 +94,7 @@ class App extends Application.AppBase {
         started = false;
     }
 
+    (:advanced)
     function onSessionState(state as SessionState) as Void {
         // start/stop positioning events
         switch(state){

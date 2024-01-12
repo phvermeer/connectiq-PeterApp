@@ -3,6 +3,7 @@ import Toybox.WatchUi;
 import Toybox.Application;
 import MyBarrel.Views;
 
+(:advanced)
 class LayoutPickerDelegate extends MyViewDelegate{
 	hidden var screenIndex as Lang.Number;
 	hidden var screensSettings as DataView.ScreensSettings;

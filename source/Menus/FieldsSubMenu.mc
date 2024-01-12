@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
+(:advanced)
 class FieldsSubMenu extends MyMenu{
 	hidden var dataView as DataView;
 	hidden var screenIndex as Number; 

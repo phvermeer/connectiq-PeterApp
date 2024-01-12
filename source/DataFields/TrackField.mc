@@ -6,6 +6,7 @@ import Toybox.Application;
 import MyBarrel.Layout;
 import MyBarrel.Math2;
 
+(:advanced)
 class TrackField extends MyDataField{
     hidden var track as Track?;
     hidden var xyCurrent as Array<Float>|Null;

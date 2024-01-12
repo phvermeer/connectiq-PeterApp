@@ -4,6 +4,7 @@ import Toybox.Graphics;
 using Toybox.System;
 using Toybox.Activity;
 
+(:advanced)
 class MainMenu extends MyMenu {
 	
 	const OPTIONS = {

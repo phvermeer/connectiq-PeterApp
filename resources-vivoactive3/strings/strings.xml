@@ -1,6 +1,9 @@
 <strings>
     <string id="AppName">ActivityApp</string>
 
+    <!-- start view -->
+    <string id="start">Start</string>
+
     <!-- Activities -->
     <string id="activity">Activiteit</string>
     <string id="walking">Wandelen</string>
@@ -8,5 +11,10 @@
     <string id="running">Hardlopen</string>
     <string id="cycling">Fietsen</string>
     <string id="unknownActivity">Onbekende Activiteit</string>
+
+	<!-- Actions -->
+	<string id="discard">Weggooien</string>
+	<string id="save">Opslaan</string>
+	<string id="cancel">Annuleren</string>
 
 </strings>

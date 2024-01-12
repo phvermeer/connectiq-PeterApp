@@ -3,6 +3,7 @@ using Toybox.WatchUi;
 import Toybox.Graphics;
 import MyBarrel.Math2;
 
+(:advanced)
 class TrackScaleLegend extends WatchUi.Drawable{
 	hidden var zoomFactor as Float = 1f; // [pixels/m]
 	hidden var indicatorWidth as Numeric = 2;

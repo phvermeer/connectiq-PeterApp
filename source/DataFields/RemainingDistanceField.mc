@@ -3,6 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.Position;
 
+(:advanced)
 class RemainingDistanceField extends NumericField{
     function initialize(fieldId as DataFieldId, options as {
         :locX as Numeric,

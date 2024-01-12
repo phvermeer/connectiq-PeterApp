@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import MyBarrel.Views;
 
+(:advanced)
 class FieldPickerDelegate extends MyViewDelegate{
 	protected var screenIndex as Number;
 	hidden var screensSettings as DataView.ScreensSettings;

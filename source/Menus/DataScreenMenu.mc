@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
+(:advanced)
 class DataScreenMenu extends MyMenu {
 	protected var screenIndex as Lang.Number;
 	hidden var screensSettings as DataView.ScreensSettings;

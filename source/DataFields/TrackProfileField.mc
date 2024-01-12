@@ -11,6 +11,7 @@ import MyBarrel.Lists;
 import MyBarrel.Graph;
 import MyBarrel.Layout;
 
+(:advanced)
 class TrackProfileField extends MyDataField{
 	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
 	var track as Track?;
