@@ -2,8 +2,8 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
-import MyTools;
-import MyDrawables;
+import MyBarrel.Drawables;
+import MyBarrel.Layout;
 
 class StatusField extends MyLabeledField{
     var gpsIndicator as GpsSignalIndicator;
@@ -17,7 +17,7 @@ class StatusField extends MyLabeledField{
     }) {
         options.put(:label, WatchUi.loadResource(Rez.Strings.gps));
         MyLabeledField.initialize(options);
-        gpsIndicator = new MyDrawables.GpsSignalIndicator({
+        gpsIndicator = new Drawables.GpsSignalIndicator({
             :darkMode => darkMode,
         });
     }
@@ -25,7 +25,7 @@ class StatusField extends MyLabeledField{
         MyLabeledField.onLayout(dc);
 
         var margin = Math.ceil(0.02 * dc.getHeight()).toNumber();
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => label.locY + label.height,

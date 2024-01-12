@@ -3,7 +3,6 @@ import Toybox.Activity;
 import Toybox.Application;
 import Toybox.Application.Storage;
 import Toybox.Graphics;
-import MyTools;
 
 enum SettingId{
     // global settings
@@ -109,7 +108,7 @@ class Settings{
             // get default value
             value = DEFAULT_VALUES.get(id) as ValueType?;
 //            if(value == null){
-//                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
+//                throw new MyException(Lang.format("No default value available for setting $1$", [settingId]));
 //            }
             self.set(settingId, value);
         }

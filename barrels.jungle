@@ -2,7 +2,6 @@
 # "Configure Monkey Barrels" command.
 
 base.barrelPath = barrels
-vivoactive3.barrelPath = barrels-vivoactive3
 
 #MyBarrel = [d:\Software\Garmin\ConnectIQ\PeterAppLessMemory\barrels-vivoactive3\MyBarrel\monkey.jungle]
 #base.barrelPath = $(base.barrelPath);$(MyBarrel)

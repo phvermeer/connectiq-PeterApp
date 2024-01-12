@@ -2,6 +2,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
+import MyBarrel.Math2;
 
 class StartView extends WatchUi.View {
     var text as Text;

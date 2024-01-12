@@ -6,7 +6,7 @@ import Toybox.Timer;
 import Toybox.Attention;
 import Toybox.Position;
 import Toybox.Activity;
-import MyViews;
+import MyBarrel.Layout;
 
 // interfaces for generic function support
 typedef SessionStateListener as interface {
@@ -19,7 +19,6 @@ class App extends Application.AppBase {
     var track as Track?;
     var fieldManager as FieldManager;
     var data as Data;
-    var delegate as ViewDelegate?;
 //    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
@@ -104,16 +103,10 @@ class App extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
-        var view = new StartView();
-        delegate = new ViewDelegate(view);
+        var view = new StartView({});
+        var delegate = new ViewDelegate({:view => view});
+        view.setDelegate(delegate);
         return [ view, delegate ] as Array<Views or InputDelegates>;
-    }
-
-    function getDelegate() as ViewDelegate{
-        if(delegate != null){
-            return delegate;
-        }
-        throw new MyTools.MyException("Delegate is not yet available");
     }
 }
 

@@ -3,7 +3,8 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Position;
 import Toybox.Application;
-import MyLayout;
+import MyBarrel.Layout;
+import MyBarrel.Math2;
 
 class TrackField extends MyDataField{
     hidden var track as Track?;
@@ -40,11 +41,11 @@ class TrackField extends MyDataField{
         var deviceSettings = System.getDeviceSettings();
         var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
         var fieldSize = (width > height) ? height : width;
-        markerSize = MyMath.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
+        markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
 
         // determine the drawing area's
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -52,7 +53,7 @@ class TrackField extends MyDataField{
         });
 
         // positioning legend (scale indicator)
-        helper.align(legend, MyLayout.ALIGN_BOTTOM);
+        helper.align(legend, Layout.ALIGN_BOTTOM);
 
         positionMarker.locX = locX + width/2;
         positionMarker.locY = locY + height/2;
@@ -149,11 +150,11 @@ class TrackField extends MyDataField{
 
                         // interpolate
                         if(skip1 && !skip2){
-                            var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                            var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
                             x1 = xy[0];
                             y1 = xy[1];
                         }else if(!skip1 && skip2){
-                            var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                            var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
                             x2 = xy[0];
                             y2 = xy[1];
                         }
@@ -176,7 +177,7 @@ class TrackField extends MyDataField{
                 y2 = yOffset + zoomFactor * xyCurrent[1];
 
                 if(skip1){
-                    var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                    var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
                     x1 = xy[0];
                     y1 = xy[1];
                 }

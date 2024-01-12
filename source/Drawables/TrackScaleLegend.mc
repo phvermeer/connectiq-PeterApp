@@ -1,8 +1,7 @@
 import Toybox.Lang;
 using Toybox.WatchUi;
 import Toybox.Graphics;
-import MyTools;
-import MyMath;
+import MyBarrel.Math2;
 
 class TrackScaleLegend extends WatchUi.Drawable{
 	hidden var zoomFactor as Float = 1f; // [pixels/m]
@@ -40,7 +39,7 @@ class TrackScaleLegend extends WatchUi.Drawable{
 
 	function draw(dc as Graphics.Dc){
 		if(!updatedSize){
-			throw new MyTools.MyException("first call updateSize() before calling draw()");	
+			throw new MyException("first call updateSize() before calling draw()");	
 		}
 		
 		var w2 = self.width/2.0f;
@@ -86,7 +85,7 @@ class TrackScaleLegend extends WatchUi.Drawable{
 	
 			if(log < 0){
 				// 1 signicant number
-				var n = MyMath.abs(log.toNumber());
+				var n = Math2.abs(log.toNumber());
 				setText(meters.format(Lang.format("%.$1$f", [n]))+"m");
 			}else if(log < 3){
 				setText(meters.format("%.0f") + "m");

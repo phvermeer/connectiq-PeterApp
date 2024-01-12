@@ -2,17 +2,21 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
-import MyViews;
-import MyDrawables;
+import MyBarrel.Views;
+import MyBarrel.Drawables;
 
-class StartView extends MyViews.MyView {
+class StartView extends MyView {
     var hintStart as Drawable;
     var icon as Icon;
     var text as Text;
 
-    function initialize() {
-        MyView.initialize();
-        hintStart = new MyDrawables.HintStart({});
+    function initialize(
+        options as {
+            :delegate as MyViewDelegate,
+        }
+    ){
+        MyView.initialize(options);
+        hintStart = new Drawables.HintStart({});
         icon = new Icon({});
         text = new WatchUi.Text({
             :text => WatchUi.loadResource(Rez.Strings.start) as String,
@@ -68,11 +72,12 @@ class StartView extends MyViews.MyView {
                 var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
-				var view = new DataView(0, screensSettings);
+				var view = new DataView(0, screensSettings, { :delegate => sender });
                 settings.addListener(view);
                 session.addListener(view);
+                sender.setView(view);
 
-				sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
+				WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
 				return true;
 			}
 			default:

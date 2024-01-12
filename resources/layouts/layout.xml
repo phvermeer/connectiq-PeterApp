@@ -3,17 +3,17 @@
 		<drawable id="backgroundBlack" />
 		
 		<!-- Top: delete action area -->
-		<drawable id="edgeTop" class="MyDrawables.Edge">
+		<drawable id="edgeTop" class="MyBarrel.Drawables.Edge">
 			<param name="color">Graphics.COLOR_RED</param>
-			<param name="position">MyDrawables.EDGE_TOP</param>
+			<param name="position">MyBarrel.Drawables.Edge.EDGE_TOP</param>
 		</drawable>
 		
 		<bitmap id="iconDelete" x="center" y="5%" filename="../drawables/delete_24x24.png" />
 
 		<!-- Bottom: save action area -->
-		<drawable id="edgeBottom" class="MyDrawables.Edge">
+		<drawable id="edgeBottom" class="MyBarrel.Drawables.Edge">
 			<param name="color">Graphics.COLOR_GREEN</param>
-			<param name="position">MyDrawables.EDGE_BOTTOM</param>
+			<param name="position">MyBarrel.Drawables.Edge.EDGE_BOTTOM</param>
 		</drawable>
 
 		<bitmap id="iconConfirm" x="center" y="85%" filename="../drawables/checked_24x24.png" />

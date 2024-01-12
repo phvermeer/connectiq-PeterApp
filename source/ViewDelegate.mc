@@ -3,18 +3,23 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Activity;
-import MyViews;
+import MyBarrel.Views;
 
-class ViewDelegate extends MyViews.MyViewDelegate {
+class ViewDelegate extends Views.MyViewDelegate {
     // current dataView index
     hidden var dataViewIndex as Number = 0;
 
-    function initialize(view as MyView) {
-        MyViewDelegate.initialize(view);
+    function initialize(
+        options as {
+            :view as MyView
+        }
+    ) {
+        MyViewDelegate.initialize(options);
     }
 
 	function onKey(keyEvent as WatchUi.KeyEvent) as Lang.Boolean{
-        if(mView instanceof DataView){
+        var v = self.getView();
+        if(v instanceof DataView){
             if(keyEvent.getType() == WatchUi.PRESS_TYPE_ACTION){
                 switch(keyEvent.getKey()){
                     case WatchUi.KEY_ENTER:
@@ -39,21 +44,26 @@ class ViewDelegate extends MyViews.MyViewDelegate {
 
     function onBack() as Boolean{
         // check current view
-        if(mView instanceof DataView){
-            // Open StopView
-            var view = new StopView();
-            switchToView(view, WatchUi.SLIDE_IMMEDIATE);
-            return true;
-        }else if(mView instanceof StopView){
-            // Open DataView with correct fields
-            var app = $.getApp();
-            var screensSettings = app.settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
-            var view = new DataView(dataViewIndex, screensSettings);
-            app.settings.addListener(view);
-            app.session.addListener(view);
+        var v = getView();
+        if(v != null){
+            if(v instanceof DataView){
+                // Open StopView
+                var view = new StopView({ :delegate => self });
+                self.setView(view);
+                WatchUi.switchToView(view, self, WatchUi.SLIDE_IMMEDIATE);
+                return true;
+            }else if(v instanceof StopView){
+                // Open DataView with correct fields
+                var app = $.getApp();
+                var screensSettings = app.settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+                var view = new DataView(dataViewIndex, screensSettings, { :delegate => self });
+                app.settings.addListener(view);
+                app.session.addListener(view);
 
-            switchToView(view, WatchUi.SLIDE_IMMEDIATE);
-            return true;
+                self.setView(view);
+                WatchUi.switchToView(view, self, WatchUi.SLIDE_IMMEDIATE);
+                return true;
+            }
         }
         return false;
     }

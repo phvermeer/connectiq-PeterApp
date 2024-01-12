@@ -1,6 +1,8 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.Position;
+import MyBarrel.Math2;
+import MyBarrel.Layout;
 
 class TrackOverviewField extends MyDataField{
     hidden var track as Track?;
@@ -28,7 +30,7 @@ class TrackOverviewField extends MyDataField{
         var deviceSettings = System.getDeviceSettings();
         var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
         var fieldSize = (width > height) ? height : width;
-        markerSize = MyMath.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
+        markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
         // update the bitmap
         updateBitmap(track);
@@ -64,7 +66,7 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
-            var helper = MyLayout.getLayoutHelper({
+            var helper = Layout.getLayoutHelper({
                 :xMin => locX,
                 :xMax => locX + width,
                 :yMin => locY,
@@ -150,11 +152,11 @@ class TrackOverviewField extends MyDataField{
 
                             // interpolate with points outside field area
                             if(skip1 && !skip2){
-                                var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
                                 x1 = xy[0];
                                 y1 = xy[1];
                             }else if(!skip1 && skip2){
-                                var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                                var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
                                 x2 = xy[0];
                                 y2 = xy[1];
                             }

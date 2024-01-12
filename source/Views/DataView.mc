@@ -4,10 +4,10 @@ import Toybox.WatchUi;
 import Toybox.System;
 import Toybox.Activity;
 import Toybox.Math;
-import MyViews;
-import MyMath;
-import MyDrawables;
-import MyLayout;
+import MyBarrel.Views;
+import MyBarrel.Math2;
+import MyBarrel.Drawables;
+import MyBarrel.Layout;
 
 enum LayoutId {
 	LAYOUT_ONE_FIELD = 0,
@@ -20,7 +20,7 @@ enum LayoutId {
 	LAYOUT_MAX = 6,
 }
 
-class DataView extends MyViews.MyView{
+class DataView extends MyBarrel.Views.MyView{
 	enum SettingId {
 		SETTING_LAYOUT = 0,
 		SETTING_FIELDS = 1,
@@ -39,14 +39,20 @@ class DataView extends MyViews.MyView{
     hidden var updateIndicator as Edge;
     hidden var darkMode as Boolean;
 
-    function initialize(screenIndex as Number, screensSettings as ScreensSettings){
-        MyView.initialize();
+    function initialize(
+        screenIndex as Number, 
+        screensSettings as ScreensSettings, 
+        options as {
+            :delegate as MyViewDelegate,
+        }
+    ){
+        MyView.initialize(options);
 
-        self.screenIndex = MyMath.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
+        self.screenIndex = Math2.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
         self.screensSettings = screensSettings;
 
-        edge = new MyDrawables.Edge({
-            :position => MyDrawables.EDGE_ALL,
+        edge = new Drawables.Edge({
+            :position => Edge.EDGE_ALL,
             :color => Graphics.COLOR_TRANSPARENT,
         });
 
@@ -56,7 +62,7 @@ class DataView extends MyViews.MyView{
 
         updateIndicator = new Edge( {
             :darkMode => darkMode,
-            :position => MyDrawables.EDGE_TOP,
+            :position => Edge.EDGE_TOP,
         } );
     }
 
@@ -89,7 +95,7 @@ class DataView extends MyViews.MyView{
             dc.clear();
         }
 
-        var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             var field = fields[i];
             var fieldLayout = layout[i];
@@ -112,9 +118,9 @@ class DataView extends MyViews.MyView{
         }
 
         // show update indicator
-        updateIndicator.position = (updateIndicator.position == MyDrawables.EDGE_RIGHT)
-            ? MyDrawables.EDGE_BOTTOM
-            : (updateIndicator.position - 90) as EdgePos;
+        updateIndicator.position = (updateIndicator.position == Edge.EDGE_RIGHT)
+            ? Edge.EDGE_BOTTOM
+            : (updateIndicator.position - 90) as Edge.EdgePos;
 
         updateIndicator.draw(dc);
     }
@@ -127,7 +133,7 @@ class DataView extends MyViews.MyView{
 
     // update all fields with current layout
     hidden function updateFieldsLayout() as Void{
-        var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             updateFieldLayout(fields[i], layout[i]);
         }
@@ -251,7 +257,7 @@ class DataView extends MyViews.MyView{
     hidden static function distributeSpace(total as Number, margin as Number, parts as Array<Number>) as Array<Number>{
         var count = parts.size();
         var total_ = total - (count - 1) * margin;
-        var factor = 1f * total_ / MyMath.sum(parts);
+        var factor = 1f * total_ / Math2.sum(parts);
         var results = [] as Array<Number>;
         var spare = total_;
         for(var i=0; i<parts.size(); i++){

@@ -3,8 +3,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
-import MyTools;
-import MyDrawables;
+import MyBarrel.Drawables;
 
 class TestField extends NumericField{
     hidden var v as Float = 0.666666666f;

@@ -2,9 +2,9 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Timer;
-import MyViews;
+import MyBarrel.Views;
 
-class AltitudePickerDelegate extends MyViews.NumberPicker2Delegate{
+class AltitudePickerDelegate extends Views.NumberPicker2Delegate{
 	var parent as AltitudeCalibrationMenu;
 
 	function initialize(picker as NumberPicker2, parent as AltitudeCalibrationMenu){
@@ -125,7 +125,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 		// Select Number menu
 		case ITEM_CALIBRATE_MANUAL:
-			var numberPicker = new MyViews.NumberPicker2(altitude != null ? altitude.toNumber() : 0);
+			var numberPicker = new Views.NumberPicker2(altitude != null ? altitude.toNumber() : 0);
 			var delegate = new AltitudePickerDelegate(numberPicker, self);
 			WatchUi.pushView(numberPicker, delegate, WatchUi.SLIDE_IMMEDIATE);
 			break;

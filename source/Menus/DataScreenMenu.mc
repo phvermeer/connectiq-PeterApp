@@ -85,17 +85,19 @@ class DataScreenMenu extends MyMenu {
 		var id = item.getId() as String|DataView.SettingId;
 		var app = $.getApp();
 		var settings = app.settings;
-
 		switch(id){
 			// Open LayoutPicker
 			case DataView.SETTING_LAYOUT:
 			case DataView.SETTING_FIELDS:
-				var view = new DataView(screenIndex, screensSettings);
+				var delegate = (id == DataView.SETTING_LAYOUT)
+					? new LayoutPickerDelegate(screenIndex, screensSettings, {})
+					: new FieldPickerDelegate(screenIndex, screensSettings, {});
+				var view = new DataView(screenIndex, screensSettings, { :delegate => delegate});
+				delegate.setView(view);
+
 				settings.addListener(view);
 				app.data.addListener(view);
-				var delegate = (id == DataView.SETTING_LAYOUT)
-					? new LayoutPickerDelegate(view, screenIndex, screensSettings)
-					: new FieldPickerDelegate(view, screenIndex, screensSettings);
+				
 				WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);				
 				return true;
 			// Toggle menus

@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
-import MyLayout;
-import MyDrawables;
+import MyBarrel.Layout;
+import MyBarrel.Drawables;
 
 class MyLabeledField extends MyDataField{
     hidden var label as MyText;
@@ -19,7 +19,7 @@ class MyLabeledField extends MyDataField{
         var lbl = options.hasKey(:label) ? (options.get(:label) as String).toUpper() : "LABEL";
 
         var color = getForegroundColor();
-        label = new MyDrawables.MyText({
+        label = new Drawables.MyText({
             :text => lbl,
             :color => color,
         });
@@ -29,7 +29,7 @@ class MyLabeledField extends MyDataField{
         MyDataField.onLayout(dc);
 
         // align label on top
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -59,7 +59,7 @@ class MyLabeledField extends MyDataField{
 
         if(label.isVisible){
             label.adaptSize(dc);
-            helper.align(label, MyLayout.ALIGN_TOP);
+            helper.align(label, Layout.ALIGN_TOP);
         }
     }
 

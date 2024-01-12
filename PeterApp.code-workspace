@@ -4,25 +4,7 @@
 			"path": "."
 		},
 		{
-			"path": "barrels/MyMath"
-		},
-		{
-			"path": "barrels/MyDrawables"
-		},
-		{
-			"path": "barrels/MyGraph"
-		},
-		{
-			"path": "barrels/MyLayoutHelper"
-		},
-		{
-			"path": "barrels/MyList"
-		},
-		{
-			"path": "barrels/MyTools"
-		},
-		{
-			"path": "barrels/MyViews"
+			"path": "barrels/MyBarrel"
 		}
 	],
 	"settings": {}

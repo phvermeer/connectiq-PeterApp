@@ -4,7 +4,6 @@ import Toybox.WatchUi;
 using Toybox.Timer;
 import Toybox.Activity;
 using Toybox.Time;
-import MyTools;
 
 enum SessionState {
 	SESSION_STATE_IDLE,
@@ -177,7 +176,7 @@ class Session{
 
 	public function setSport(sport as Activity.Sport) as Void{
 		if(mSession != null){
-			throw new MyTools.MyException("Session options can only be set if the session is not started before");
+			throw new MyException("Session options can only be set if the session is not started before");
 		}
 		var name =
 			(sport == Activity.SPORT_WALKING) ? WatchUi.loadResource(Rez.Strings.walking) :
