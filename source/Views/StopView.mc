@@ -150,6 +150,7 @@ class StopView extends MyView {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() as Void {
+		MyView.onShow();
 		if(confirmation != null){
 	    	// continu action after confirmation result
 			if(confirmation.nextAction != null){
@@ -168,6 +169,13 @@ class StopView extends MyView {
 				// Switch to start views
 				var delegate = getDelegate();
 				if(delegate != null){
+					// pop all view except for the last, that one will be replaced with a new screen (avoid closing app)
+					var count = delegate.stackSize();
+					for(var i=0; i>count-1; i++){
+						WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
+					}
+
+					// replace last screen
 					var view = new StartView(delegate);
 					WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
 				}
@@ -179,6 +187,7 @@ class StopView extends MyView {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() as Void {
+		MyView.onHide();
     }
 
 	function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
@@ -214,6 +223,7 @@ class StopView extends MyView {
 		}
 	}   
 
+/*
 	function onBack(sender as MyViewDelegate) as Boolean{
 		// Open DataView with correct fields
 		var app = $.getApp();
@@ -226,4 +236,5 @@ class StopView extends MyView {
 		WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
 		return true;
 	}
+*/
 }

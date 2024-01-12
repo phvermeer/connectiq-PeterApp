@@ -36,6 +36,7 @@ class StartView extends MyView {
     }
 
     function onShow() as Void{
+        MyView.onShow();
         var sport = getApp().settings.get(Settings.ID_SPORT) as Activity.Sport;
         icon.setBitmap(Session.getIcon(sport));
     }
