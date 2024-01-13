@@ -214,18 +214,23 @@ class DataView extends MyView{
     function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
         // forward event to fields
         for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
             var xy = clickEvent.getCoordinates();
+
+            // compare xy with layout position
+            var fieldLayout = layout[i] as FieldLayout; // [x,y,w,h]
             if(
-                xy[0] >= field.locX && 
-                xy[0] <= field.locX + field.width && 
-                xy[1] >= field.locY && 
-                xy[1] <= field.locY + field.height
+                xy[0] >= fieldLayout[0] && 
+                xy[0] <= fieldLayout[0] + fieldLayout[2] && 
+                xy[1] >= fieldLayout[1] && 
+                xy[1] <= fieldLayout[1] + fieldLayout[3]
             ){
-                return field.onTap(clickEvent);
+                return onFieldTap(clickEvent, i, fields[i]);
             }            
         }
         return false;
+    }
+    hidden function onFieldTap(clickEvent as ClickEvent, fieldIndex as Number, field as MyDataField) as Boolean{
+        return field.onTap(clickEvent);
     }
 
     function onPreviousPage(sender as MyViewDelegate) as Boolean{
@@ -236,7 +241,6 @@ class DataView extends MyView{
         swipePage(true);
         return true;
     }
-
     hidden function swipePage(forward as Boolean) as Void{
         var count = screensSettings.size();
 
