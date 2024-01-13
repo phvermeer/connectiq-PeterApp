@@ -60,35 +60,35 @@ class FieldManager{
 
         var app = $.getApp();
         var options = {};
-        var field
-            = (id == DATAFIELD_TEST) ? new TestField(options)
-            : (id == DATAFIELD_ELAPSED_TIME) ? new MultiDataField(id, options)
-//            : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
-//            : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
-//            : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
-            : (id == DATAFIELD_COMPASS) ? new CompassField(options)
-            : (id == DATAFIELD_CURRENT_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_AVG_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MAX_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new MultiDataField(id, options)
-//            : (id == DATAFIELD_REMAINING_DISTANCE) ? new RemainingDistanceField(id, options)
-            //: (id == DATAFIELD_ELEVATION_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_TOTAL_ASCENT) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_TOTAL_DESCENT) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_HEART_RATE) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_AVG_HEARTRATE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MAX_HEARTRATE) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_OXYGEN_SATURATION) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ENERGY_RATE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_PRESSURE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ALTITUDE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_CLOCK) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MEMORY) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_BATTERY) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
-            : (id == DATAFIELD_STATUS) ? new StatusField(options)
-            : new ElapsedDistanceField(options);
+        var field = null;
+        if(id == DATAFIELD_TEST){ field = new TestField(options); }else
+        if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
+//          if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
+//          if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
+//          if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
+        if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
+        if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
+//         if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
+        //  if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_AVG_HEARTRATE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MAX_HEARTRATE){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_OXYGEN_SATURATION){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ENERGY_RATE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_PRESSURE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ALTITUDE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_CLOCK){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MEMORY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
+        if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
+        { field = new ElapsedDistanceField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
@@ -118,35 +118,35 @@ class FieldManager{
         if(app.track != null){
             options.put(:track, app.track);
         }
-        var field
-            = (id == DATAFIELD_TEST) ? new TestField(options)
-            : (id == DATAFIELD_ELAPSED_TIME) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
-            : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
-            : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
-            : (id == DATAFIELD_COMPASS) ? new CompassField(options)
-            : (id == DATAFIELD_CURRENT_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_AVG_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MAX_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_REMAINING_DISTANCE) ? new RemainingDistanceField(id, options)
-            //: (id == DATAFIELD_ELEVATION_SPEED) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_TOTAL_ASCENT) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_TOTAL_DESCENT) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_HEART_RATE) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_AVG_HEARTRATE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MAX_HEARTRATE) ?  new MultiDataField(id, options)
-            : (id == DATAFIELD_OXYGEN_SATURATION) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ENERGY_RATE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_PRESSURE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_ALTITUDE) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_CLOCK) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_MEMORY) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_BATTERY) ? new MultiDataField(id, options)
-            : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
-            : (id == DATAFIELD_STATUS) ? new StatusField(options)
-            : new EmptyField(options);
+        var field = null;
+        if(id == DATAFIELD_TEST){ field = new TestField(options); }else
+        if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
+        if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
+        if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
+        if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
+        if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
+        //  if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_AVG_HEARTRATE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MAX_HEARTRATE){ field =  new MultiDataField(id, options); }else
+        if(id == DATAFIELD_OXYGEN_SATURATION){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ENERGY_RATE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_PRESSURE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ALTITUDE){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_CLOCK){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_MEMORY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
+        if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
+        { field = new ElapsedDistanceField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
