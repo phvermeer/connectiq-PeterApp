@@ -63,16 +63,16 @@ class FieldManager{
         var field = null;
         if(id == DATAFIELD_TEST){ field = new TestField(options); }else
         if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
-//          if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
-//          if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
-//          if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
+        // if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
+        // if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
+        // if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
         if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
         if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
-//         if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
-        //  if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
+        // if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
+        // if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
