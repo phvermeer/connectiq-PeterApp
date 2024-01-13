@@ -38,7 +38,7 @@ class DataScreenMenu extends MyMenu{
 						:enabled => WatchUi.loadResource(Rez.Strings.on) as String,
 						:disabled => WatchUi.loadResource(Rez.Strings.off) as String,
 					} ,
-					2,
+					DataView.SETTING_ENABLED,
 					enabled, // screen enabled setting
 					{}
 				)
@@ -57,7 +57,16 @@ class DataScreenMenu extends MyMenu{
             new WatchUi.MenuItem(
                 WatchUi.loadResource(Rez.Strings.dataLayout) as String,
                 txtInfo,
-                0,
+                DataView.SETTING_LAYOUT,
+                {}
+            )
+        );
+
+        addItem(
+            new WatchUi.MenuItem(
+                WatchUi.loadResource(Rez.Strings.dataFields) as String,
+                null,
+                DataView.SETTING_FIELDS,
                 {}
             )
         );
@@ -67,23 +76,26 @@ class DataScreenMenu extends MyMenu{
         var id = item.getId();
         var screens = settings.get(Settings.ID_DATASCREENS) as Array;
         var screen = screens[screenIndex] as Array;
+        var data = $.getApp().data;
         
-        if(id == 2){
+        if(id == DataView.SETTING_ENABLED){
             // enabled/disabled
-            screen[2] = (item as ToggleMenuItem).isEnabled();
-        }else if(id == 0){
-            // layout
+            screen[DataView.SETTING_ENABLED] = (item as ToggleMenuItem).isEnabled();
+            screens[screenIndex] = screen;
+            settings.set(Settings.ID_DATASCREENS, screens as Settings.ValueType);
+            return true;
+        }else if(id == DataView.SETTING_LAYOUT || id == DataView.SETTING_FIELDS){
+            // open customized dataview to pick layout or field
             var delegate = new Views.MyViewDelegate();
-            var view = new LayoutPickerView(screenIndex, settings, delegate);
-            $.getApp().data.addListener(view);
+            var view = (id == DataView.SETTING_LAYOUT)
+                ? new LayoutPickerView(screenIndex, settings, delegate)
+                : new FieldPickerView(screenIndex, settings, delegate);
+            data.addListener(view);
+            settings.addListener(view);
             WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
             return true;
         }else{
             return false;
         }
-
-        screens[screenIndex] = screen;
-        settings.set(Settings.ID_DATASCREENS, screens as Settings.ValueType);
-        return true;
     }
 }

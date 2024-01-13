@@ -10,7 +10,7 @@ class ElapsedDistanceField extends NumericField{
         :height as Numeric,
         :backgroundColor as ColorType,
     }){
-        options.put(:label, "Distance");
+        options.put(:label, WatchUi.loadResource(Rez.Strings.distance) as String);
         NumericField.initialize(options);
     }
 
