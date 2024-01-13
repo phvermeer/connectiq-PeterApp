@@ -1,0 +1,3 @@
+[submodule "barrels/MyBarrel"]
+	path = barrels/MyBarrel
+	url = https://github.com/phvermeer/connectiq-MyBarrel.git
