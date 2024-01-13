@@ -49,13 +49,11 @@ class App extends Application.AppBase {
         var trackData = settings.get(SETTING_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
-            data.setCenter(track.latlonCenter);
-            data.addListener(track as Object);
+            data.setTrack(track);
         }
 
         data.addListener(session);
         settings.addListener(session);
-        settings.addListener(self); // track
         settings.addListener(data); // breadcrumps settings
         session.addListener(self); // modify data interval/start/stop
     }
@@ -72,15 +70,6 @@ class App extends Application.AppBase {
         data.stopPositioning();
         session.stop();
         started = false;
-    }
-
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void {
-        if(id == SETTING_TRACK){
-            track = value as Track|Null;
-            if(track != null){
-                data.setCenter(track.latlonCenter);
-            }
-        }
     }
 
     function onSessionState(state as SessionState) as Void {

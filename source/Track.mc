@@ -5,10 +5,6 @@ import Toybox.Attention;
 
 typedef TrackPoint as Array<Float>; // [x, y, elapsedDistance]
 typedef TrackPoints as Array<TrackPoint>;
-typedef TrackListener as interface{
-	function setTrack(track as Track?) as Void;
-	function updateTrack() as Void;
-};
 
 class Track{
 	private enum SearchDirection{
@@ -127,21 +123,13 @@ class Track{
         distanceCorrectionFactor = (distance>0) ? distanceTotal / distance : 1f;
     }
 
-	function onData(data as Data) as Void{
-		var xy = data.xy;
-		var accuracy = data.positionInfo.accuracy;
-		if(accuracy >= Position.QUALITY_USABLE && xy != null){
-			// update the currentIndex of the track
-			if(xy != null){
-				xCurrent = xy[0];
-				yCurrent = xy[1];
-				searchNearestPoint(xCurrent, yCurrent);
-			}else{
-				xCurrent = null;
-				yCurrent = null;
-			}
+	function setCurrentXY(x as Float, y as Float) as Void{
+		if(xCurrent != x || yCurrent != y){
+			xCurrent = x;
+			yCurrent = y;
+			searchNearestPoint(xCurrent, yCurrent);
 		}
-    }
+	}
 
     hidden function searchNearestPoint(x as Float, y as Float) as Void{
 

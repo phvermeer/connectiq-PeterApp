@@ -16,7 +16,7 @@ class Data
     public var activityInfo as Activity.Info|Null;
     public var stats as System.Stats;
 
-    hidden var latlonPrev as Array<Decimal>?;
+    hidden var track as Track?;
     public var xy as XyPoint|Null;
 
     hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
@@ -48,6 +48,7 @@ class Data
         breadcrumpsDistance = options.hasKey(:breadcrumpsDistance) ? options.get(:breadcrumpsDistance) as Number : 50;
         breadcrumpsEnabled = options.hasKey(:breadcrumpsEnabled) ? options.get(:breadcrumpsEnabled) as Boolean : true;
         interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
+        track = options.get(:track) as Track|Null;
 
         var settings = $.getApp().settings;
         if(settings.get(SETTING_ALTITUDE_CALIBRATED)){
@@ -115,6 +116,8 @@ class Data
             }else{
                 altitudeCalculator = null;
             }
+        }else if(id == SETTING_TRACK){
+            setTrack(value as Track|Null);
         }
     }
 
@@ -133,6 +136,21 @@ class Data
         checkBreadcrumpsMax();
     }
 
+    function setTrack(track as Track|Null) as Void{
+        self.track = track;
+
+        // update xy center
+        if(track != null){
+            setCenter(track.latlonCenter);
+        }else{
+            var position = self.positionInfo.position;
+            if(position != null){
+                var latlon = position.toRadians();
+                setCenter(latlon);
+            }
+        }
+    }
+
     hidden function checkBreadcrumpsMax() as Void{
         var size = breadcrumps.size();
         if(size > breadcrumpsMax){
@@ -140,11 +158,11 @@ class Data
         }
     }
 
-    function setBreadcrumpsDistance(distance as Number) as Void{
+    hidden function setBreadcrumpsDistance(distance as Number) as Void{
         breadcrumpsDistance = distance;
     }
 
-    function setBreadcrumpsEnabled(enabled as Boolean) as Void{
+    hidden function setBreadcrumpsEnabled(enabled as Boolean) as Void{
         breadcrumpsEnabled = enabled;
         if(!enabled){
             breadcrumps = [] as Array<XyPoint>;
@@ -155,7 +173,7 @@ class Data
         }
     }
 
-    function setCenter(latlon as Array<Decimal>) as Void{
+    hidden function setCenter(latlon as Array<Decimal>) as Void{
         if(latlonCenter != null){
             if(latlonCenter[0] != latlon[0] || latlonCenter[1] != latlon[1]){
                 // update current xy points with new center position
@@ -183,30 +201,7 @@ class Data
         latlonCenter = latlon;
     }
 
-    hidden function updateXY(info as Position.Info) as Boolean{
-        // get latitude and longtitude
-        var pos = info.position;
-
-        // check if a new position is received
-        var latlonNew = (pos != null) ? pos.toRadians() :null;
-        if(latlonNew == null || // No position available
-            (latlonPrev != null && latlonPrev[0] == latlonNew[0] && latlonPrev[1] == latlonNew[1])
-        ){
-            return false;
-        }
-        latlonPrev = latlonNew;
-
-        // process new position
-        var xyPrev = self.xy;
-        var xyNew = null;
-        if(pos != null && info.accuracy >= Position.QUALITY_USABLE){
-            // transform latlan to xy
-            var latlon = pos.toRadians();
-            if(latlon != null){
-                xyNew = calculateXY(latlon);
-            }
-        }
-
+    hidden function updateBreadcrumps(xyPrev as XyPoint|Null, xyNew as XyPoint|Null) as Void{
         if(breadcrumpsEnabled){
             // get distance between new point and last recorded point
             var count = breadcrumps.size();
@@ -229,52 +224,82 @@ class Data
                         }
                     }
                 }else{
-                    if(xy != null){
+                    if(xyNew != null){
                         // position recovered
                         addBreadcrump(xyNew);
                     }
                 }
             }else{
-                // first position
-                addBreadcrump(xyNew);
-            }
-        }
-
-        // keep last position
-        self.xy = xyNew;
-        return true;
-    }
-
-    hidden function updateActivityInfo(info as Activity.Info) as Void{
-        if(altitudeCalculator != null && info has :ambientPressure){
-            // modify altitude
-            var pressure = info.ambientPressure;
-            if(pressure != null){
-                info.altitude = altitudeCalculator.calculateAltitude(pressure);
+                if(xyNew != null){
+                    // first position
+                    addBreadcrump(xyNew);
+                }
             }
         }
     }
-
+    
     function onTimer() as Void{
         if(!eventReceived){
-            onPosition(Position.getInfo());
+            // slow update when no position events are received within timer
+            var info = Activity.getActivityInfo();
+            if(info != null){
+                // process info
+                var stats = System.getSystemStats();
+                setInfo(null, info, stats);
+            }
+        }else{
+            eventReceived = false;
         }
-        eventReceived = false;
+        $.getApp().fieldManager.cleanup();
     }
 
     function onPosition(info as Position.Info) as Void{
-        eventReceived = true;
+        // transform to xy
+        var position = info.position;
+        if(info.accuracy >= Position.QUALITY_POOR && position != null){
+            eventReceived = true;
+            setInfo(info, Activity.getActivityInfo(), System.getSystemStats());
+            notifyListeners();
+        }
+    }
 
-        var activityInfo = Activity.getActivityInfo();
+    hidden function setInfo(positionInfo as Position.Info|Null, activityInfo as Activity.Info|Null, stats as Stats) as Void{
+        // position info
+        var xy = null;
+        if(positionInfo != null){
+            self.positionInfo = positionInfo;
+
+            // position => xy
+            var position = positionInfo.position;
+            if(positionInfo.accuracy >= Position.QUALITY_POOR && position != null){
+                var latlon = position.toRadians();
+                xy = calculateXY(latlon);
+
+                // update track (do not wait for listeners events to update position on track)
+                if(track != null){
+                    track.setCurrentXY(xy[0], xy[1]);
+                }
+            }
+        }
+        updateBreadcrumps(self.xy, xy);
+
+        // keep last point
+        self.xy = xy;
+
+        // activity info
         if(activityInfo != null){
-            updateActivityInfo(activityInfo);
+            // update altitude
+            if(altitudeCalculator != null && Activity.Info has :ambientPressure){
+                var pressure = activityInfo.ambientPressure;
+                if(pressure != null){
+                    activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
+                }
+            }
             self.activityInfo = activityInfo;
         }
 
-        stats = System.getSystemStats();
-
-        positionInfo = info;
-        updateXY(positionInfo);
+        // system stats
+        self.stats = stats;
 
         // notify listeners
         notifyListeners();

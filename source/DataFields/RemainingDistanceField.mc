@@ -3,9 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.Position;
 
-class RemainingDistanceField extends MySimpleDataField{
-    hidden var fieldId as DataFieldId;
-
+class RemainingDistanceField extends NumericField{
     function initialize(fieldId as DataFieldId, options as {
         :locX as Numeric,
         :locY as Numeric,
@@ -13,32 +11,30 @@ class RemainingDistanceField extends MySimpleDataField{
         :height as Numeric,
         :backgroundColor as ColorType,
     }){
-        self.fieldId = fieldId;
-
         // determine the label
         var strLabel
             = (fieldId == DATAFIELD_REMAINING_DISTANCE) ? WatchUi.loadResource(Rez.Strings.remainingDistance)
             : "???";
 
         options.put(:label, strLabel);
-        MySimpleDataField.initialize(options);
+        NumericField.initialize(options);
     }
 
     function onData(data as Data) as Void{
         var track = $.getApp().track;
         var value = null;
-        if(track != null){
-            self.value.setColor(track.isOnTrack() ? getForegroundColor() : Graphics.COLOR_RED);
-
-            if(fieldId == DATAFIELD_REMAINING_DISTANCE){
-                var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
-                var distanceOffTrack = (track.distanceOffTrack != null) ? track.distanceOffTrack as Float : 0f;
-                value = formatDistance(track.distanceTotal + distanceOffTrack - distanceElapsed);
+        var color = Graphics.COLOR_RED;
+        if(track != null && track.isOnTrack()){
+            if(self.value.color == color){
+                color = getForegroundColor();
             }
-            setValue(value);
-        }else{
-            setValue(null);
+
+            var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
+            var distanceOffTrack = (track.distanceOffTrack != null) ? track.distanceOffTrack as Float : 0f;
+            value = formatDistance(track.distanceTotal + distanceOffTrack - distanceElapsed);
         }
+        self.value.color = color;
+        setValue(value);
     }
 
     static function formatDistance(value as Numeric|Null) as Numeric|Null{

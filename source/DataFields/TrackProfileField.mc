@@ -17,70 +17,46 @@ class TrackProfileField extends MyDataField{
 	var track as Track?;
 	var xAxis as Axis;
 	var yAxis as Axis;
-	var dataTrack as BufferedList;
-	var dataLive as BufferedList;
-	var serieTrack as Serie;
-	var serieLive as Serie;
-	var marker as Marker;
-	var trend as Trend;
+
+	hidden var data as BufferedList;
+	hidden var serie as Serie;
+	hidden var trend as Trend;
+
+	var xCurrent as Float|Null = null;
 	
 	function initialize(
 		options as {
 			:track as Track,
-			:xyCurrent as Array<Float>,
+			:darkMode as Boolean,
 		}
 	){
 		MyDataField.initialize(options);
 
 		xAxis = new Axis(0, 500); // distance 0..500m
 		yAxis = new Axis(0, 50); // altitude 0..50m
-		dataTrack = new BufferedList({
+		data = new BufferedList({
 			:maxCount => 50,
-			:onReady => method(:onTrackLoaded),
+			:listener => self,
 		});
-		dataLive = new BufferedList({
-			:maxCount => 50,
-		});
-		serieTrack = new MyGraph.Serie({
-			:pts => dataTrack,
-			:color => Graphics.COLOR_LT_GRAY,
+		serie = new MyGraph.Serie({
+			:data => data,
 			:style => MyGraph.DRAW_STYLE_FILLED,
 		});
-		serieLive = new MyGraph.Serie({
-			:pts => dataLive,
-			:color => Graphics.COLOR_PINK,
-			:style => MyGraph.DRAW_STYLE_LINE,
-		});
 		trend = new MyGraph.Trend({
-			:series => [serieTrack, serieLive] as Array<Serie>,
-			:series => [serieTrack, serieLive] as Array<Serie>,
+			:series => [serie] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
-			:width => 3,
-			:height => 1,
-		});
-		marker = new MyGraph.Marker({
-			:color => Graphics.COLOR_PINK,
-			:font => Graphics.FONT_TINY,
-			:serie => serieTrack,
 		});
 		if(options.hasKey(:track)){
 			setTrack(options.get(:track) as Track);
 		}
-
-		// Load historical altitude data
-		//initElevationHistory();
-	}
-
-	function onShow(){
-		dataTrack.onReady = method(:onTrackLoaded);
-		dataLive.onReady = method(:onNewAltitudeLoaded);
+		if(options.hasKey(:darkMode)){
+			setDarkMode(options.get(:darkMode) as Boolean);
+		}
 	}
 
 	function onHide(){
-		// unlink to methods for the garbage collector
-		dataTrack.onReady = null;
-		dataLive.onReady = null;
+		data.cancel();
 	}
 
 	function onLayout(dc as Graphics.Dc){
@@ -92,95 +68,37 @@ class TrackProfileField extends MyDataField{
 			:yMax => locY + height,
 			:margin => 1,
 		});
-
+		trend.setSize(3, 1); // set aspect ratio 3:1
 		helper.resizeToMax(trend, true);
 	}
 
 	function onData(data as Data) as Void{
-		updateMarker();
-		var info = data.activityInfo;
-		if(info != null){
-			onActivityInfo(info);
-		}
-	}
-
-	hidden function updateMarker() as Void{
-		if(track != null){
-			// get track elapsed distance
-			var distance = track.distanceElapsed;
-			var altitudes = track.zValues;
-
-			// get correct altitude using interpolation
-			var i = track.iCurrent;
-			var lambda = track.lambdaCurrent;
-			if(altitudes != null && distance != null && i != null && lambda != null){
-				var altitude = altitudes[i];
-				if(lambda > 0){
-					var altitudeNext = altitudes[i+1];
-					altitude += (altitudeNext-altitude) * lambda;
-				}
-
-				// update point
-				marker.pt = new DataPoint(distance, altitude);
-				refresh();
-			}
-		}
-	}
-
-	hidden function onActivityInfo(info as Activity.Info) as Void{
-		// add altitude to dataLive
-		var distance = 
-			(track != null)
-				? track.distanceElapsed
-				: info.elapsedDistance;
-		if(distance != null){
-			var altitude = (track != null && !track.isOnTrack())
-				? null : info.altitude;
-			var xy = new MyGraph.DataPoint(distance, altitude);
-			dataLive.add(xy);
-
-			// update statistics
-			var xMin = serieLive.getXmin();
-			var xMax = serieLive.getXmax();
-			if(xMin != null && xMin > distance){ serieLive.ptFirst = xy; }
-			if(xMax != null && xMax < distance){ serieLive.ptLast = xy; }
-
-			if(altitude != null){
-				altitude = altitude as Numeric;
-				var yMin = serieLive.getYmin();
-				if(yMin != null && yMin < altitude){
-					serieLive.ptMin = xy;
-				}
-				var yMax = serieLive.getYmax();
-				if(yMax != null && yMax > altitude){
-					serieLive.ptMax = xy;
-				}
-			}
-
-			updateAxisLimits(trend.series);
-		}
+		var x = (track != null) ? track.distanceElapsed : null;
+		serie.xCurrent = x;
 	}
 
 	function onUpdate(dc as Graphics.Dc){
 		MyDataField.onUpdate(dc);
 
 		// draw the graph
-		trend.draw(dc);
-		marker.draw(dc);
-
+		if(!data.isLoading()){
+			trend.draw(dc);
+		}else{
+			dc.drawText(locX + width/2, locY + height/2, Graphics.FONT_SMALL, "loading", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+		}
 	}
-	
+
 	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
 		if(id == SETTING_TRACK){
 			setTrack(value as Track|Null);
+		}else if(id == SETTING_DARK_MODE){
+			setDarkMode(value as Boolean);
 		}
 	}
 
 	hidden function setTrack(track as Track?) as Void{
-
 		// update profile with set track
 		self.track = track;
-		var data = self.dataTrack;
 		data.clear();
 		if(track != null){
 			if(track.zValues != null){			
@@ -192,79 +110,25 @@ class TrackProfileField extends MyDataField{
 				}
 			}
 		}
-		refresh();
+		// do not refresh yet, wait for onReady event
 	}
 
 	function setDarkMode(darkMode as Boolean) as Void{
 		MyDataField.setDarkMode(darkMode);
 		
-		serieTrack.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		serie.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+		serie.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 		trend.setDarkMode(darkMode);
 	}
 
-	function onTrackLoaded() as Void{
-		serieTrack.updateStatistics();
-		updateAxisLimits(trend.series);
-		refresh();
-	}
-	function onNewAltitudeLoaded() as Void{
-		refresh();
-	}
-/*
-	// get altitude history
-	function initElevationHistory() as Void{
-		var distanceHist = $.getApp().history;
-		var start = distanceHist.getOldestSampleTime();
-
-		if(start != null){
-			var end = Time.now();
-			var period = end.subtract(start) as Duration;
-			var elevationHist = SensorHistory.getPressureHistory({
-				:period => period,
-			});
-
-			// loop through elevation data
-			var xSample = distanceHist.next();
-			var ySample;
-			
-			while(xSample != null){
-				var t0 = xSample.when;
-				// get y-sample after previous x-sample
-				var t = null;
-				do{
-					ySample = elevationHist.next();
-					t = (ySample != null) ? ySample.when : null;
-				}while(t != null && t.lessThan(t0));
-				if(t != null && ySample != null){
-					var y = ySample.data;
-
-					// get x-values before and after found y
-					var x0;
-					do{
-						x0 = xSample.data;
-						t0 = xSample.when;
-						xSample = distanceHist.next();
-					}while(xSample != null && xSample.when.lessThan(t));
-
-					// Check data available
-					if(xSample != null){
-						var x1 = xSample.data;
-						var t1 = xSample.when;
-
-						if(t != null && t0 != null && t1 != null && x0 != null && x1 != null){
-							// now we can interpolate x for y
-							var x = x0 + (x1-x0) * (t.value()-t0.value())/(t1.value()-t0.value());
-							var xy = new DataPoint(x, y);
-							dataLive.add(xy);
-						}
-					}
-				}else{
-					break;
-				}
-			}
+	function onReady(sender as Object) as Void{
+		if(sender.equals(data)){
+			serie.updateStatistics();
+			updateAxisLimits(trend.series);
+			refresh();
 		}
 	}
-*/
+
 	hidden static function min(value1 as Numeric?, value2 as Numeric?) as Numeric?{
 		return (value1 != null)
 			? (value2 != null)
@@ -286,7 +150,7 @@ class TrackProfileField extends MyDataField{
 
 	// adjust axis limits
 	hidden function updateAxisLimits(series as Array<Serie>) as Void{
-		var xMin = 0;
+		var xMin = 0; // always start at distance 0
 		var xMax = null;
 		var yMin = null;
 		var yMax = null;
@@ -304,10 +168,10 @@ class TrackProfileField extends MyDataField{
 			if(xMax - xMin < 500){
 				xMax = xMin + 500;
 			}
+			
 			// update xRange with zoomFactor with current X within the range
 			var xRange = zoomFactor * (xMax-xMin);
-			var pt = marker.pt;
-			var x = pt != null ? pt.x : 0;
+			var x = xCurrent != null ? xCurrent : 0;
 			var xRange2 = xRange/2;
 			if(x <= xRange2){
 				xMax = xMin + xRange;
@@ -348,10 +212,10 @@ class TrackProfileField extends MyDataField{
         var x = clickEvent.getCoordinates()[0];
         if(x <= locX + area){
             // zoom out
-			zoomFactor *= 1.3;
+			zoomFactor *= 1.3f;
         }else if(x >= locX + width - area){
             // zoom in
-			zoomFactor /= 1.3;
+			zoomFactor /= 1.3f;
         }else{
             return false;
         }
@@ -360,7 +224,6 @@ class TrackProfileField extends MyDataField{
 		}
 		updateAxisLimits(trend.series);
 		refresh();
-        WatchUi.requestUpdate();		
         return true;
 	}
 }
