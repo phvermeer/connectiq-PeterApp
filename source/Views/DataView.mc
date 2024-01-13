@@ -228,35 +228,38 @@ class DataView extends MyView{
         return false;
     }
 
-    function onSwipe(sender as MyViewDelegate, swipeEvent as WatchUi.SwipeEvent) as Lang.Boolean{
+    function onPreviousPage(sender as MyViewDelegate) as Boolean{
+        swipePage(false);
+        return true;
+    }
+    function onNextPage(sender as MyViewDelegate) as Boolean{
+        swipePage(true);
+        return true;
+    }
+
+    hidden function swipePage(forward as Boolean) as Void{
         var count = screensSettings.size();
 
-        switch(swipeEvent.getDirection()){
-            case WatchUi.SWIPE_DOWN:
-                // next screen id
-                do{
-                    screenIndex++;
-                    if(screenIndex >= count){
-                        screenIndex = 0;
-                    }
-                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
-                break;
-            case WatchUi.SWIPE_UP:
-                do{
-                    screenIndex--;
-                    if(screenIndex <0){
-                        screenIndex = count-1;
-                    }
-                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
-                break;
-            default:
-                return false;
+        if(!forward){
+            // next screen id
+            do{
+                screenIndex++;
+                if(screenIndex >= count){
+                    screenIndex = 0;
+                }
+            }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
+        }else{
+            do{
+                screenIndex--;
+                if(screenIndex <0){
+                    screenIndex = count-1;
+                }
+            }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
         }
         // show new screen
         var screenSettings = screensSettings[screenIndex] as ScreenSettings;
         applyScreenSettings(screenSettings);
         WatchUi.requestUpdate();
-        return true;
     }
 
     hidden static function distributeSpace(total as Number, margin as Number, parts as Array<Number>) as Array<Number>{
