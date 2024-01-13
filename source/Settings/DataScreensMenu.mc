@@ -6,7 +6,7 @@ import Toybox.WatchUi;
 class DataScreensMenu extends MyMenu{
     hidden var settings as Settings;
 
-    function initialize(settings as Settings, delegate as MyMenuDelegate){
+    function initialize(delegate as MyMenuDelegate, settings as Settings){
         self.settings = settings;
         MyMenu.initialize(delegate,{
             :title => WatchUi.loadResource(Rez.Strings.dataScreens) as String,
