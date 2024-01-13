@@ -169,9 +169,6 @@ class StopView extends MyView {
 				// Switch to start views
 				var delegate = getDelegate();
 				if(delegate != null){
-					// additional pop view to close previous DataView
-					WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-
 					// replace last screen
 					var view = new StartView(delegate);
 					WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
@@ -220,7 +217,7 @@ class StopView extends MyView {
 		}
 	}   
 
-/*
+
 	function onBack(sender as MyViewDelegate) as Boolean{
 		// Open DataView with correct fields
 		var app = $.getApp();
@@ -233,5 +230,4 @@ class StopView extends MyView {
 		WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
 		return true;
 	}
-*/
 }
