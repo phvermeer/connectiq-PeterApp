@@ -28,22 +28,38 @@ class MainMenu extends MyMenu{
         for(var i=0; i<ids.size(); i++){
             var id = ids[i] as Settings.Id;
             var info = getOptionsInfo(id);
+            var title = info.get(:title) as String;
             var values = info.get(:values) as Dictionary;
 
-            addItem(
-                new WatchUi.MenuItem(
-                    info.get(:title) as String,
-                    values.get(settings.get(id) as Number) as String,
-                    id,
-                    {}
-                )
-            );
+            if(id == Settings.ID_AUTOPAUSE){
+                addItem(
+                    new WatchUi.ToggleMenuItem(
+                        title,
+                        {
+                            :enabled => values.get(true) as String,
+                            :disabled => values.get(false) as String,
+                        },
+                        id,
+                        settings.get(id) as Boolean, // screen enabled setting
+                        {}
+                    )
+                );
+            }else{
+                addItem(
+                    new WatchUi.MenuItem(
+                        title,
+                        values.get(settings.get(id) as Number) as String,
+                        id,
+                        {}
+                    )
+                );
+            }
         }
     }
 
     // update shown values
     function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
-        if(id == Settings.ID_SPORT || id == Settings.ID_DARK_MODE || id == Settings.ID_AUTOPAUSE){
+        if(id == Settings.ID_SPORT || id == Settings.ID_DARK_MODE){
             var item = getItem(findItemById(id));
             if(item != null){
                 var info = getOptionsInfo(id);
@@ -92,15 +108,19 @@ class MainMenu extends MyMenu{
     function onSelect(sender as MyMenuDelegate, item as MenuItem) as Boolean{
         var id = item.getId() as Settings.Id;
         if(id == Settings.ID_DATASCREENS){
+            // open menu with all datascreen settings
             var menu = new DataScreensMenu(sender, settings);
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
         }else if(
             id == Settings.ID_SPORT || 
-            id == Settings.ID_DARK_MODE ||
-            id == Settings.ID_AUTOPAUSE
+            id == Settings.ID_DARK_MODE
         ){
+            // open menu with options
             var menu = new MyOptionsMenu(sender, settings, id, getOptionsInfo(id));
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
+        }else if(id == Settings.ID_AUTOPAUSE){
+            // toggle button
+            settings.set(id, (item as ToggleMenuItem).isEnabled());
         }else{
             log(id != null ? id.toString() : "---");
         }
