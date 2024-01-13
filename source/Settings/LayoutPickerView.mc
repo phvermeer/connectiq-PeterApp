@@ -23,17 +23,14 @@ class LayoutPickerView extends DataView{
         return false;
     }
 
-    function onSwipe(sender as MyViewDelegate, swipeEvent as SwipeEvent) as Boolean{
+    hidden function swipePage(forward as Boolean){
         // swipe through all possible layouts
-        var direction = swipeEvent.getDirection();
-        if(direction == WatchUi.SWIPE_UP){
+        if(forward){
             // next
             layoutId = (layoutId < LAYOUT_MAX) ? layoutId + 1 : 0;
-        }else if(direction == WatchUi.SWIPE_DOWN){
+        }else{
             // previous
             layoutId = (layoutId >0) ? layoutId - 1 : LAYOUT_MAX;
-        }else{
-            return false;
         }
 
         // update layout
@@ -46,7 +43,6 @@ class LayoutPickerView extends DataView{
 
         setFieldsLayout(layout);
         WatchUi.requestUpdate();
-        return true;
     }
 
     function onSelect(sender as MyViewDelegate) as Boolean{
