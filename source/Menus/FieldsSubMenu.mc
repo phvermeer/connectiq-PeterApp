@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
+(:advanced)
 class FieldsSubMenu extends MyMenu{
 	hidden var dataView as DataView;
 	hidden var screenIndex as Number; 
@@ -50,7 +51,7 @@ class FieldsSubMenu extends MyMenu{
 		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
 		screensSettings[screenIndex] = screenSettings;
 
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
+		$.getApp().settings.set(Settings.ID_DATASCREENS, screensSettings);
 		
 		// close field select menu's
 		WatchUi.popView(WatchUi.SLIDE_IMMEDIATE); // close FieldsSubMenu		

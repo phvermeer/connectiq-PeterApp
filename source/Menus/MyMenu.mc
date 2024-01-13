@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
+(:advanced)
 class MyMenu extends WatchUi.Menu2{
 
 	function initialize(

@@ -1,1 +1,12 @@
 project.manifest = manifest.xml
+base.sourcePath = source
+base.resourcePath = resources
+
+base.MyBarrel.annotations = views;drawables;layout;math;lists;graph;numberPicker
+# vivoactive3.MyBarrel.annotations = views;drawables;layout;math
+
+# vivoactive3.sourcePath = source-vivoactive3
+# vivoactive3.resourcePath = resources-vivoactive3
+
+base.excludeAnnotations = basic
+vivoactive3.excludeAnnotations = advanced

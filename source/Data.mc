@@ -6,37 +6,64 @@ import Toybox.Timer;
 
 class Data
 {
+    (:advanced)
    	static const EARTH_RADIUS = 6371000f;
+    (:advanced)
     typedef XyPoint as Array<Float>;
     typedef IListener as interface{
         function onData(data as Data) as Void;
     };
+    class Listener{
+        function onData(data as Data) as Void{}
+    }
 
+    (:advanced)
     public var positionInfo as Position.Info;
     public var activityInfo as Activity.Info|Null;
     public var stats as System.Stats;
 
+    (:advanced)
     hidden var track as Track?;
+    (:advanced)
     public var xy as XyPoint|Null;
 
     hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
     hidden var timerStarted as Boolean = false;
+    (:advanced)
     hidden var positioningStarted as Boolean = false;
+    (:advanced)
     hidden var eventReceived as Boolean = false;
 
     // settings
+    (:advanced)
     hidden var interval as Number;
+    (:advanced)
     hidden var breadcrumpsEnabled as Boolean;
+    (:advanced)
     hidden var breadcrumps as Array<XyPoint|Null> = [] as Array<XyPoint|Null>;
+    (:advanced)
     hidden var breadcrumpsDistance as Number;
+    (:advanced)
     hidden var breadcrumpsMax as Number;
 
+    (:advanced)
     hidden var latlonCenter as Array<Decimal>|Null;
-
     hidden var timer as Timer.Timer = new Timer.Timer();
-    hidden var altitudeCalculator as Altitude.Calculator|Null;
 
     // Collector of historical position data in a register
+    (:basic)
+    function initialize(options as {
+        :breadcrumpsEnabled as Boolean,
+        :breadcrumpsMax as Number, // max number of breadcrumps
+        :breadcrumpsDistance as Number, // minimal distance [m] between 2 archived points
+        :latCenter as Decimal,
+        :lonCenter as Decimal,
+    }){
+        activityInfo = Activity.getActivityInfo();
+        stats = System.getSystemStats();
+    }
+
+    (:advanced)
     function initialize(options as {
         :breadcrumpsEnabled as Boolean,
         :breadcrumpsMax as Number, // max number of breadcrumps
@@ -50,18 +77,20 @@ class Data
         interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
         track = options.get(:track) as Track|Null;
 
-        var settings = $.getApp().settings;
-        if(settings.get(SETTING_ALTITUDE_CALIBRATED)){
-            var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
-            var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
-            altitudeCalculator = new Altitude.Calculator(p0, t0);
-        }
-
         activityInfo = Activity.getActivityInfo();
         positionInfo = Position.getInfo();
         stats = System.getSystemStats();
     }
 
+    (:basic)
+    function startTimer() as Void{
+        if(!timerStarted){
+            // start timer events
+            timer.start(method(:onTimer), 1000, true);
+            timerStarted = true;
+        }
+    }
+    (:advanced)
     function startTimer() as Void{
         if(!timerStarted){
             // start timer events
@@ -77,7 +106,7 @@ class Data
             timerStarted = false;
         }
     }
-
+    (:advanced)
     function startPositioning() as Void{
         if(!positioningStarted){
             // start positioning events
@@ -88,7 +117,7 @@ class Data
             positioningStarted = true;
         }
     }
-
+    (:advanced)
     function stopPositioning() as Void{
         if(positioningStarted){
             // stop positioning events
@@ -100,27 +129,20 @@ class Data
     }
 
     // Settings
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_BREADCRUMPS){
+    (:advanced)
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_BREADCRUMPS){
             setBreadcrumpsEnabled(value as Boolean);
-        }else if(id == SETTING_BREADCRUMPS_MAX_COUNT){
+        }else if(id == Settings.ID_BREADCRUMPS_MAX_COUNT){
             setBreadcrumpsMax(value as Number);
-        }else if(id == SETTING_BREADCRUMPS_MIN_DISTANCE){
+        }else if(id == Settings.ID_BREADCRUMPS_MIN_DISTANCE){
             setBreadcrumpsDistance(value as Number);
-        }else if(id == SETTING_ALTITUDE_CALIBRATED){
-            if(value) {
-                var settings = $.getApp().settings;
-                var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
-                var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
-                altitudeCalculator = new Altitude.Calculator(p0, t0);
-            }else{
-                altitudeCalculator = null;
-            }
-        }else if(id == SETTING_TRACK){
+        }else if(id == Settings.ID_TRACK){
             setTrack(value as Track|Null);
         }
     }
 
+    (:advanced)
     function setInterval(interval as Number) as Void{
         var doRestart = (timerStarted && interval != self.interval);
         self.interval = interval;
@@ -131,11 +153,13 @@ class Data
         }
     }
 
+    (:advanced)
     function setBreadcrumpsMax(max as Number) as Void{
         self.breadcrumpsMax = max;
         checkBreadcrumpsMax();
     }
 
+    (:advanced)
     function setTrack(track as Track|Null) as Void{
         self.track = track;
 
@@ -151,6 +175,7 @@ class Data
         }
     }
 
+    (:advanced)
     hidden function checkBreadcrumpsMax() as Void{
         var size = breadcrumps.size();
         if(size > breadcrumpsMax){
@@ -158,10 +183,12 @@ class Data
         }
     }
 
+    (:advanced)
     hidden function setBreadcrumpsDistance(distance as Number) as Void{
         breadcrumpsDistance = distance;
     }
 
+    (:advanced)
     hidden function setBreadcrumpsEnabled(enabled as Boolean) as Void{
         breadcrumpsEnabled = enabled;
         if(!enabled){
@@ -173,6 +200,7 @@ class Data
         }
     }
 
+    (:advanced)
     hidden function setCenter(latlon as Array<Decimal>) as Void{
         if(latlonCenter != null){
             if(latlonCenter[0] != latlon[0] || latlonCenter[1] != latlon[1]){
@@ -201,6 +229,7 @@ class Data
         latlonCenter = latlon;
     }
 
+    (:advanced)
     hidden function updateBreadcrumps(xyPrev as XyPoint|Null, xyNew as XyPoint|Null) as Void{
         if(breadcrumpsEnabled){
             // get distance between new point and last recorded point
@@ -237,7 +266,18 @@ class Data
             }
         }
     }
-    
+
+    (:basic)    
+    function onTimer() as Void{
+        var info = Activity.getActivityInfo();
+        self.stats = System.getSystemStats();
+        if(info != null){
+            self.activityInfo = info;
+        }
+        notifyListeners();
+    }
+
+    (:advanced)
     function onTimer() as Void{
         if(!eventReceived){
             // slow update when no position events are received within timer
@@ -250,9 +290,9 @@ class Data
         }else{
             eventReceived = false;
         }
-        $.getApp().fieldManager.cleanup();
     }
 
+    (:advanced)
     function onPosition(info as Position.Info) as Void{
         // transform to xy
         var position = info.position;
@@ -263,6 +303,7 @@ class Data
         }
     }
 
+    (:advanced)
     hidden function setInfo(positionInfo as Position.Info|Null, activityInfo as Activity.Info|Null, stats as Stats) as Void{
         // position info
         var xy = null;
@@ -289,12 +330,6 @@ class Data
         // activity info
         if(activityInfo != null){
             // update altitude
-            if(altitudeCalculator != null && Activity.Info has :ambientPressure){
-                var pressure = activityInfo.ambientPressure;
-                if(pressure != null){
-                    activityInfo.altitude = altitudeCalculator.calculateAltitude(pressure);
-                }
-            }
             self.activityInfo = activityInfo;
         }
 
@@ -305,15 +340,18 @@ class Data
         notifyListeners();
     }
 
+    (:advanced)
     hidden function addBreadcrump(xy as XyPoint|Null) as Void{
         breadcrumps.add(xy);
         checkBreadcrumpsMax();
     }
 
+    (:advanced)
     function getBreadcrumps() as Array<XyPoint|Null>{
         return breadcrumps;
     }
 
+    (:advanced)
     hidden function calculateXY(latlon as Array<Decimal>) as XyPoint{
         if(latlonCenter != null){
             return getXYbetweenPoints(latlonCenter, latlon);
@@ -323,6 +361,7 @@ class Data
         }
     }
 
+    (:advanced)
     hidden function getXYbetweenPoints(latlon1 as Array<Decimal>, latlon2 as Array<Decimal>) as XyPoint{
         var lat1 = latlon1[0];
         var lon1 = latlon1[1];

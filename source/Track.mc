@@ -2,10 +2,12 @@ import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Position;
 import Toybox.Attention;
+import MyBarrel.Math2;
 
 typedef TrackPoint as Array<Float>; // [x, y, elapsedDistance]
 typedef TrackPoints as Array<TrackPoint>;
 
+(:advanced)
 class Track{
 	private enum SearchDirection{
 		SEARCH_FORWARD = 0x1,
@@ -42,7 +44,7 @@ class Track{
 
     function initialize(rawData as Array){
         if(rawData.size() < 3 || rawData.size() > 4){
-            throw new MyTools.MyException("Wrong Track data format received from phone");
+            throw new MyException("Wrong Track data format received from phone");
         }
         var info = rawData[0] as Array;
 
@@ -102,7 +104,7 @@ class Track{
         distances = [] as Array<Float>;
         var distance = 0f;
 		if(count <= 0){
-			throw new MyTools.MyException("Track contains no points");
+			throw new MyException("Track contains no points");
 		}
 		var x = null;
 		var y = null;
@@ -237,7 +239,7 @@ class Track{
 		return Math.sqrt(pointDistanceSquared(x1, y1, x2, y2)) as Float;
 	}
 	hidden function pointDistanceSquared(x1 as Float, y1 as Float, x2 as Float, y2 as Float) as Float{
-		return (MyMath.sqr(x2-x1) + MyMath.sqr(y2-y1)) as Float;
+		return (Math2.sqr(x2-x1) + Math2.sqr(y2-y1)) as Float;
 	}
 
 	function isOnTrack() as Boolean{

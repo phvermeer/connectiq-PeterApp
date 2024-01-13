@@ -7,11 +7,11 @@ import Toybox.Activity;
 import Toybox.Time;
 using Toybox.Timer;
 using Toybox.Math;
-import MyList;
-import MyGraph;
-import MyLayout;
-using MyTools;
+import MyBarrel.Lists;
+import MyBarrel.Graph;
+import MyBarrel.Layout;
 
+(:advanced)
 class TrackProfileField extends MyDataField{
 	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
 	var track as Track?;
@@ -38,11 +38,11 @@ class TrackProfileField extends MyDataField{
 			:maxCount => 50,
 			:listener => self,
 		});
-		serie = new MyGraph.Serie({
+		serie = new Graph.Serie({
 			:data => data,
-			:style => MyGraph.DRAW_STYLE_FILLED,
+			:style => Graph.DRAW_STYLE_FILLED,
 		});
-		trend = new MyGraph.Trend({
+		trend = new Graph.Trend({
 			:series => [serie] as Array<Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
@@ -61,7 +61,7 @@ class TrackProfileField extends MyDataField{
 
 	function onLayout(dc as Graphics.Dc){
 		// init graph sizes
-		var helper = MyLayout.getLayoutHelper({
+		var helper = Layout.getLayoutHelper({
 			:xMin => locX,
 			:xMax => locX + width,
 			:yMin => locY,
@@ -88,10 +88,10 @@ class TrackProfileField extends MyDataField{
 		}
 	}
 
-	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-		if(id == SETTING_TRACK){
+	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+		if(id == Settings.ID_TRACK){
 			setTrack(value as Track|Null);
-		}else if(id == SETTING_DARK_MODE){
+		}else if(id == Settings.ID_DARK_MODE){
 			setDarkMode(value as Boolean);
 		}
 	}

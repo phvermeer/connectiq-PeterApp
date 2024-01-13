@@ -3,8 +3,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
-import MyTools;
-import MyDrawables;
+import MyBarrel.Drawables;
 
 class TestField extends NumericField{
     hidden var v as Float = 0.666666666f;
@@ -22,8 +21,8 @@ class TestField extends NumericField{
     function onData(data as Data){
         updateValue();
     }
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_AUTOLAP || id == SETTING_AUTOLAP_DISTANCE){
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_AUTOLAP || id == Settings.ID_AUTOLAP_DISTANCE){
             updateValue();
         }
     }

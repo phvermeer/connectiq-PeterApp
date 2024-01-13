@@ -2,7 +2,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Activity as Activity;
-import MyViews;
+import MyBarrel.Views;
 
 class ConfirmDelegate extends WatchUi.ConfirmationDelegate{
 	enum Action {
@@ -29,8 +29,8 @@ class ConfirmDelegate extends WatchUi.ConfirmationDelegate{
 class StopView extends MyView {
 	var confirmation as ConfirmDelegate?;
 
-    function initialize() {
-        MyView.initialize();
+    function initialize(delegate as MyViewDelegate){
+        MyView.initialize(delegate);
     }
         
     // Load your resources here
@@ -118,7 +118,7 @@ class StopView extends MyView {
 		dimensions = dc.getTextDimensions("X", font);
 		x = width*25/100;
 		y = height*52/100;
-		var drawable = new MyDrawables.IconUp({
+		var drawable = new Drawables.IconUp({
 			:locX => x,
 			:locY => y,
 			:width => dimensions[0],
@@ -135,7 +135,7 @@ class StopView extends MyView {
 		dimensions = dc.getTextDimensions("X", font);
 		x = width*25/100;
 		y = height*65/100;
-		drawable = new IconDown({
+		drawable = new Drawables.IconDown({
 			:locX => x,
 			:locY => y,
 			:width => dimensions[0],
@@ -150,6 +150,7 @@ class StopView extends MyView {
     // the state of this View and prepare it to be shown. This includes
     // loading resources into memory.
     function onShow() as Void {
+		MyView.onShow();
 		if(confirmation != null){
 	    	// continu action after confirmation result
 			if(confirmation.nextAction != null){
@@ -166,10 +167,11 @@ class StopView extends MyView {
 				}
 
 				// Switch to start views
-				var delegate = $.getApp().delegate;
+				var delegate = getDelegate();
 				if(delegate != null){
-					var view = new StartView();
-					delegate.switchToView(view, WatchUi.SLIDE_IMMEDIATE);	
+					// replace last screen
+					var view = new StartView(delegate);
+					WatchUi.switchToView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
 				}
 			}
 		}
@@ -179,6 +181,7 @@ class StopView extends MyView {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() as Void {
+		MyView.onHide();
     }
 
 	function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
@@ -213,4 +216,18 @@ class StopView extends MyView {
 			return false;
 		}
 	}   
+
+
+	function onBack(sender as MyViewDelegate) as Boolean{
+		// Open DataView with correct fields
+		var app = $.getApp();
+		var screensSettings = app.settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
+
+		var view = new DataView(0, screensSettings, sender);
+		app.settings.addListener(view);
+		app.session.addListener(view);
+
+		WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
+		return true;
+	}
 }

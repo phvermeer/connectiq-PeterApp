@@ -3,8 +3,10 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Position;
 import Toybox.Application;
-import MyLayout;
+import MyBarrel.Layout;
+import MyBarrel.Math2;
 
+(:advanced)
 class TrackField extends MyDataField{
     hidden var track as Track?;
     hidden var xyCurrent as Array<Float>|Null;
@@ -21,7 +23,7 @@ class TrackField extends MyDataField{
         MyDataField.initialize(options);
         track = options.get(:track);
 
-        zoomFactor = $.getApp().settings.get(SETTING_ZOOMFACTOR) as Float;
+        zoomFactor = $.getApp().settings.get(Settings.ID_ZOOMFACTOR) as Float;
 
         legend = new TrackScaleLegend({
             :zoomFactor => zoomFactor,
@@ -40,11 +42,11 @@ class TrackField extends MyDataField{
         var deviceSettings = System.getDeviceSettings();
         var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
         var fieldSize = (width > height) ? height : width;
-        markerSize = MyMath.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
+        markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
 
         // determine the drawing area's
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
             :yMin => locY,
@@ -52,7 +54,7 @@ class TrackField extends MyDataField{
         });
 
         // positioning legend (scale indicator)
-        helper.align(legend, MyLayout.ALIGN_BOTTOM);
+        helper.align(legend, Layout.ALIGN_BOTTOM);
 
         positionMarker.locX = locX + width/2;
         positionMarker.locY = locY + height/2;
@@ -149,11 +151,11 @@ class TrackField extends MyDataField{
 
                         // interpolate
                         if(skip1 && !skip2){
-                            var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                            var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
                             x1 = xy[0];
                             y1 = xy[1];
                         }else if(!skip1 && skip2){
-                            var xy = MyMath.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                            var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
                             x2 = xy[0];
                             y2 = xy[1];
                         }
@@ -176,7 +178,7 @@ class TrackField extends MyDataField{
                 y2 = yOffset + zoomFactor * xyCurrent[1];
 
                 if(skip1){
-                    var xy = MyMath.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                    var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
                     x1 = xy[0];
                     y1 = xy[1];
                 }
@@ -225,24 +227,24 @@ class TrackField extends MyDataField{
         var settings = $.getApp().settings;
         if(x <= locX + area){
             // zoom out
-            settings.set(SETTING_ZOOMFACTOR, zoomFactor / 1.3);
+            settings.set(Settings.ID_ZOOMFACTOR, zoomFactor / 1.3);
         }else if(x >= locX + width - area){
             // zoom in
-            settings.set(SETTING_ZOOMFACTOR, zoomFactor * 1.3);
+            settings.set(Settings.ID_ZOOMFACTOR, zoomFactor * 1.3);
         }else{
             return false;
         }
         return true;
     }
 
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
         // internal background updates
         MyDataField.onSetting(id, value);
 
-        if(id == SETTING_ZOOMFACTOR){
+        if(id == Settings.ID_ZOOMFACTOR){
             // update zoomfactor
             setZoomFactor(value as Float);
-        }else if(id == SETTING_TRACK){
+        }else if(id == Settings.ID_TRACK){
             setTrack(value as Track?);
         }
     }

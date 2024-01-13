@@ -2,9 +2,10 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Activity;
 import Toybox.Timer;
-import MyViews;
+import MyBarrel.Views;
 
-class AltitudePickerDelegate extends MyViews.NumberPicker2Delegate{
+(:advanced)
+class AltitudePickerDelegate extends Views.NumberPicker2Delegate{
 	var parent as AltitudeCalibrationMenu;
 
 	function initialize(picker as NumberPicker2, parent as AltitudeCalibrationMenu){
@@ -17,6 +18,7 @@ class AltitudePickerDelegate extends MyViews.NumberPicker2Delegate{
 	}
 }
 
+(:advanced)
 class AltitudeCalibrationMenu extends MyMenu {
 	const ITEM_CALIBRATE_ENABLE = 0;
 	const ITEM_CALIBRATE_MANUAL = 1;
@@ -29,8 +31,8 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 	function initialize(options as Dictionary){
 		var settings = $.getApp().settings;
-		var p0 = settings.get(SETTING_ALTITUDE_P0) as Float;
-		var t0 = settings.get(SETTING_ALTITUDE_T0) as Float;
+		var p0 = settings.get(Settings.ID_ALTITUDE_P0) as Float;
+		var t0 = settings.get(Settings.ID_ALTITUDE_T0) as Float;
 
 		calibration = new Altitude.Calibration({
 			:p0 => p0,
@@ -41,7 +43,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.altitudeCalibration) as String });
 		self.options = options;
 
-		var id = SETTING_ALTITUDE_CALIBRATED;
+		var id = Settings.ID_ALTITUDE_CALIBRATED;
 		addItem(
 			new WatchUi.ToggleMenuItem(
 				WatchUi.loadResource(Rez.Strings.calibration) as String,
@@ -50,7 +52,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 					:disabled => (options.get(id) as Dictionary).get(false) as String,
 				},
 				ITEM_CALIBRATE_ENABLE,
-				getApp().settings.get(SETTING_ALTITUDE_CALIBRATED) as Boolean,
+				getApp().settings.get(Settings.ID_ALTITUDE_CALIBRATED) as Boolean,
 				null
 			)
 		);
@@ -82,7 +84,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 		var i = findItemById(ITEM_CALIBRATE_ENABLE);
 		var item = getItem(i);
 		if(item != null){
-			var id = SETTING_ALTITUDE_CALIBRATED;
+			var id = Settings.ID_ALTITUDE_CALIBRATED;
 			var value = settings.get(id) as Lang.Boolean;
 			var valueName = (options.get(id) as Dictionary).get(value) as String;
 			item.setSubLabel(valueName);
@@ -112,7 +114,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 		case ITEM_CALIBRATE_ENABLE:
 			// save toggled value
 			var enabled = (item as ToggleMenuItem).isEnabled();
-			settings.set(SETTING_ALTITUDE_CALIBRATED, enabled);
+			settings.set(Settings.ID_ALTITUDE_CALIBRATED, enabled);
 
 			// update displayed altitude value
 			if(info != null){
@@ -125,7 +127,7 @@ class AltitudeCalibrationMenu extends MyMenu {
 
 		// Select Number menu
 		case ITEM_CALIBRATE_MANUAL:
-			var numberPicker = new MyViews.NumberPicker2(altitude != null ? altitude.toNumber() : 0);
+			var numberPicker = new Views.NumberPicker2(altitude != null ? altitude.toNumber() : 0);
 			var delegate = new AltitudePickerDelegate(numberPicker, self);
 			WatchUi.pushView(numberPicker, delegate, WatchUi.SLIDE_IMMEDIATE);
 			break;
@@ -135,8 +137,8 @@ class AltitudeCalibrationMenu extends MyMenu {
 				var h = calibration.altitude;
 				if(p != null && h != null){
 					calibration.calibrate(p, h);
-					settings.set(SETTING_ALTITUDE_P0, calibration.p0 as Float);
-					settings.set(SETTING_ALTITUDE_T0, calibration.t0 as Float);
+					settings.set(Settings.ID_ALTITUDE_P0, calibration.p0 as Float);
+					settings.set(Settings.ID_ALTITUDE_T0, calibration.t0 as Float);
 				}
 			}
 			break;
@@ -159,8 +161,8 @@ class AltitudeCalibrationMenu extends MyMenu {
 				calibration.calibrate(p, altitude.toFloat());
 
 				var settings = $.getApp().settings;
-				settings.set(SETTING_ALTITUDE_P0, calibration.p0);
-				settings.set(SETTING_ALTITUDE_T0, calibration.t0);
+				settings.set(Settings.ID_ALTITUDE_P0, calibration.p0);
+				settings.set(Settings.ID_ALTITUDE_T0, calibration.t0);
 			}
 		}
 	}

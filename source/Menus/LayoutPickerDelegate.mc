@@ -1,17 +1,17 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Application;
+import MyBarrel.Views;
 
-class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
+(:advanced)
+class LayoutPickerDelegate extends MyViewDelegate{
 	hidden var screenIndex as Lang.Number;
-	hidden var dataView as DataView;
 	hidden var screensSettings as DataView.ScreensSettings;
 	hidden var layoutId as LayoutId;
 	hidden var fieldIds as Array<DataFieldId>;
 	hidden var fieldIdsInitial as Array<DataFieldId>;
 
-	function initialize(dataView as DataView, screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
-		self.dataView = dataView;
+	function initialize(screenIndex as Lang.Number, screensSettings as DataView.ScreensSettings){
 		self.screenIndex = screenIndex;
 		self.screensSettings = screensSettings;
 
@@ -21,7 +21,7 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 		fieldIds = screenSettings[DataView.SETTING_FIELDS] as Array<DataFieldId>;
 		fieldIdsInitial = fieldIds;
 
-		BehaviorDelegate.initialize();
+		MyViewDelegate.initialize();
 	}
 
 	function onNextPage() as Boolean{
@@ -55,9 +55,13 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 		var fieldManager = $.getApp().fieldManager;
 		var fields = fieldManager.getFields(fieldIds);
 
-		dataView.setFieldsLayout(layout);
-		dataView.setFields(fields);
-		WatchUi.requestUpdate();
+		var view = getView();
+		if(view != null && view instanceof DataView){
+			var dataView = view as DataView;
+			dataView.setFieldsLayout(layout);
+			dataView.setFields(fields);
+			WatchUi.requestUpdate();
+		}
 	}
 	
 	function onSelect() as Lang.Boolean{
@@ -66,7 +70,12 @@ class LayoutPickerDelegate extends WatchUi.BehaviorDelegate{
 		screenSettings[DataView.SETTING_LAYOUT] = layoutId;
 		screenSettings[DataView.SETTING_FIELDS] = fieldIds;
 
-		$.getApp().settings.set(SETTING_DATASCREENS, screensSettings);
+		$.getApp().settings.set(Settings.ID_DATASCREENS, screensSettings);
 		return true;
+	}
+
+	function onBack(){
+		// prevent opening the stop screen
+		return false;
 	}
 }

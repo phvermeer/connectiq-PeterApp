@@ -2,8 +2,9 @@ using Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Lang;
 using Toybox.System;
-import MyMath;
+import MyBarrel.Math2;
 
+(:advanced)
 class TrackPositionMarker extends WatchUi.Drawable{
 	hidden var heading as Float?;
 	hidden var radius as Float;
@@ -29,7 +30,7 @@ class TrackPositionMarker extends WatchUi.Drawable{
 		
 		// determine the marker size and thickness
 		var deviceSettings = System.getDeviceSettings();
-		var screenSize = MyMath.max([deviceSettings.screenWidth, deviceSettings.screenHeight] as Array<Number>).toFloat();
+		var screenSize = Math2.max([deviceSettings.screenWidth, deviceSettings.screenHeight] as Array<Number>).toFloat();
 		radius = screenSize / 10f;
 		penWidth = Math.ceil(screenSize / 200f).toNumber();
 	}

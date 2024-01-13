@@ -1,6 +1,7 @@
-import MyDrawables;
+import MyBarrel.Drawables;
 import Toybox.Lang;
 import Toybox.Graphics;
+import MyBarrel.Layout;
 
 class CompassField extends MyDataField{
     var compass as Compass;
@@ -16,7 +17,7 @@ class CompassField extends MyDataField{
 
     function onLayout(dc as Dc) as Void{
         var margin = Math.ceil(dc.getWidth()*0.01).toNumber();
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :margin => margin,
             :xMin => locX,
             :xMax => locX + width,

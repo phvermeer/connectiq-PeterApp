@@ -4,7 +4,6 @@ import Toybox.WatchUi;
 using Toybox.Timer;
 import Toybox.Activity;
 using Toybox.Time;
-import MyTools;
 
 enum SessionState {
 	SESSION_STATE_IDLE,
@@ -163,21 +162,21 @@ class Session{
 	}
 
 	// **** Settings *****
-	function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_AUTOPAUSE){
+	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_AUTOPAUSE){
             setAutoPause(value as Boolean);
-        }else if(id == SETTING_AUTOLAP){
+        }else if(id == Settings.ID_AUTOLAP){
             setAutoLapEnabled(value as Boolean);
-		}else if(id == SETTING_AUTOLAP_DISTANCE){
+		}else if(id == Settings.ID_AUTOLAP_DISTANCE){
 			setAutoLapDistance(value as Float);
-		}else if(id == SETTING_SPORT){
+		}else if(id == Settings.ID_SPORT){
 			setSport(value as Sport);
 		}
 	}
 
 	public function setSport(sport as Activity.Sport) as Void{
 		if(mSession != null){
-			throw new MyTools.MyException("Session options can only be set if the session is not started before");
+			throw new MyException("Session options can only be set if the session is not started before");
 		}
 		var name =
 			(sport == Activity.SPORT_WALKING) ? WatchUi.loadResource(Rez.Strings.walking) :
@@ -193,7 +192,7 @@ class Session{
 		var sport = mOptions.get(:sport) as Activity.Sport?;
 		var settings = $.getApp().settings;
 		if(sport == null){
-			sport = settings.get(SETTING_SPORT) as Activity.Sport;  
+			sport = settings.get(Settings.ID_SPORT) as Activity.Sport;  
 		}
 		return sport;
 	}

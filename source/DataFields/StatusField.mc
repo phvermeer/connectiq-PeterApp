@@ -2,9 +2,10 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
-import MyTools;
-import MyDrawables;
+import MyBarrel.Drawables;
+import MyBarrel.Layout;
 
+//(:advanced)
 class StatusField extends MyLabeledField{
     var gpsIndicator as GpsSignalIndicator;
 
@@ -17,7 +18,7 @@ class StatusField extends MyLabeledField{
     }) {
         options.put(:label, WatchUi.loadResource(Rez.Strings.gps));
         MyLabeledField.initialize(options);
-        gpsIndicator = new MyDrawables.GpsSignalIndicator({
+        gpsIndicator = new Drawables.GpsSignalIndicator({
             :darkMode => darkMode,
         });
     }
@@ -25,10 +26,10 @@ class StatusField extends MyLabeledField{
         MyLabeledField.onLayout(dc);
 
         var margin = Math.ceil(0.02 * dc.getHeight()).toNumber();
-        var helper = MyLayout.getLayoutHelper({
+        var helper = Layout.getLayoutHelper({
             :xMin => locX,
             :xMax => locX + width,
-            :yMin => label.locY + label.height,
+            :yMin => (label != null) ? label.locY + label.height : locY,
             :yMax => locY + height,
             :margin => margin,
         });
@@ -42,10 +43,13 @@ class StatusField extends MyLabeledField{
     }
 
     function onData(data as Data){
-        var quality = data.positionInfo.accuracy;
-        if(quality != gpsIndicator.quality){
-            gpsIndicator.quality = quality;
-            refresh();
+        var info = data.activityInfo;
+        if(info != null){
+            var quality = info.currentLocationAccuracy;
+            if(quality != null && quality != gpsIndicator.quality){
+                gpsIndicator.quality = quality;
+                refresh();
+            }
         }
     }
 

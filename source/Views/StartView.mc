@@ -2,17 +2,17 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
-import MyViews;
-import MyDrawables;
+import MyBarrel.Views;
+import MyBarrel.Drawables;
 
-class StartView extends MyViews.MyView {
+class StartView extends MyView {
     var hintStart as Drawable;
     var icon as Icon;
     var text as Text;
 
-    function initialize() {
-        MyView.initialize();
-        hintStart = new MyDrawables.HintStart({});
+    function initialize(delegate as MyViewDelegate){
+        MyView.initialize(delegate);
+        hintStart = new Drawables.HintStart({});
         icon = new Icon({});
         text = new WatchUi.Text({
             :text => WatchUi.loadResource(Rez.Strings.start) as String,
@@ -36,7 +36,8 @@ class StartView extends MyViews.MyView {
     }
 
     function onShow() as Void{
-        var sport = getApp().settings.get(SETTING_SPORT) as Activity.Sport;
+        MyView.onShow();
+        var sport = getApp().settings.get(Settings.ID_SPORT) as Activity.Sport;
         icon.setBitmap(Session.getIcon(sport));
     }
 
@@ -65,14 +66,14 @@ class StartView extends MyViews.MyView {
 
                 // Show DataView
                 var settings = app.settings;
-                var screensSettings = settings.get(SETTING_DATASCREENS) as DataView.ScreensSettings;
+                var screensSettings = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
 			
 				// Open the data screen
-				var view = new DataView(0, screensSettings);
+				var view = new DataView(0, screensSettings, sender);
                 settings.addListener(view);
                 session.addListener(view);
 
-				sender.switchToView(view, WatchUi.SLIDE_IMMEDIATE);
+				WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
 				return true;
 			}
 			default:

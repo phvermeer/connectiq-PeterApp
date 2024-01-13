@@ -6,7 +6,7 @@ import Toybox.Timer;
 import Toybox.Attention;
 import Toybox.Position;
 import Toybox.Activity;
-import MyViews;
+import MyBarrel.Layout;
 
 // interfaces for generic function support
 typedef SessionStateListener as interface {
@@ -16,37 +16,55 @@ typedef SessionStateListener as interface {
 class App extends Application.AppBase {
     var settings as Settings;
     var session as Session;
+    (:advanced)
     var track as Track?;
     var fieldManager as FieldManager;
     var data as Data;
-    var delegate as ViewDelegate?;
 //    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
+    (:basic)
+    function initialize() {
+        AppBase.initialize();
+        log("1");
+        session = new Session({});
+        log("2");
+        settings = new Settings();
+        log("3");
+        data = new Data({});
+        log("4");
+        fieldManager = new FieldManager();
+        log("5");
+
+        // link events
+        data.addListener(fieldManager);
+    }
+
+    (:advanced)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
 
         data = new Data({
-            :breadcrumpsEnabled => settings.get(SETTING_BREADCRUMPS) as Boolean,
-            :breadcrumpsDistance => settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number,
-            :breadCrumpsMax => settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number,
+            :breadcrumpsEnabled => settings.get(Settings.ID_BREADCRUMPS) as Boolean,
+            :breadcrumpsDistance => settings.get(Settings.ID_BREADCRUMPS_MIN_DISTANCE) as Number,
+            :breadCrumpsMax => settings.get(Settings.ID_BREADCRUMPS_MAX_COUNT) as Number,
         });
 
         fieldManager = new FieldManager();
 
         session = new Session({
-            :sport => settings.get(SETTING_SPORT) as Activity.Sport,
-            :autoLapEnabled => settings.get(SETTING_AUTOLAP) as Boolean,
-            :autoLapDistance => settings.get(SETTING_AUTOLAP_DISTANCE) as Float,
-            :autoPause => settings.get(SETTING_AUTOPAUSE) as Boolean,
+            :sport => settings.get(Settings.ID_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(Settings.ID_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(Settings.ID_AUTOLAP_DISTANCE) as Float,
+            :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
         });
 
 
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
-        var trackData = settings.get(SETTING_TRACK);
+        var trackData = settings.get(Settings.ID_TRACK);
         if(trackData instanceof Array){
             track = new Track(trackData as Array);
             data.setTrack(track);
@@ -65,6 +83,13 @@ class App extends Application.AppBase {
     }
 
     // onStop() is called when your application is exiting
+    (:basic)
+    function onStop(state as Dictionary?) as Void {
+        data.stopTimer();
+        session.stop();
+        started = false;
+    }
+    (:advanced)    
     function onStop(state as Dictionary?) as Void {
         data.stopTimer();
         data.stopPositioning();
@@ -72,6 +97,24 @@ class App extends Application.AppBase {
         started = false;
     }
 
+    (:basic)
+    function onSessionState(state as SessionState) as Void {
+        // start/stop positioning events
+        switch(state){
+            case SESSION_STATE_IDLE:
+            case SESSION_STATE_STOPPED:
+                // stop events
+	            data.stopTimer();
+                break;
+            case SESSION_STATE_BUSY:
+                // start events
+                data.startTimer();
+                break;
+        }
+    }
+
+
+    (:advanced)
     function onSessionState(state as SessionState) as Void {
         // start/stop positioning events
         switch(state){
@@ -98,25 +141,23 @@ class App extends Application.AppBase {
             }
 
             // save track data in storage and inform listeners
-            settings.set(SETTING_TRACK, data as Array<PropertyValueType>);
+            settings.set(Settings.ID_TRACK, data as Array<PropertyValueType>);
         }
     }
 
     // Return the initial view of your application here
     function getInitialView() as Array<Views or InputDelegates>? {
-        var view = new StartView();
-        delegate = new ViewDelegate(view);
+        var delegate = new ViewDelegate();
+        var view = new StartView(delegate);
         return [ view, delegate ] as Array<Views or InputDelegates>;
-    }
-
-    function getDelegate() as ViewDelegate{
-        if(delegate != null){
-            return delegate;
-        }
-        throw new MyTools.MyException("Delegate is not yet available");
     }
 }
 
 function getApp() as App {
     return Application.getApp() as App;
+}
+
+function log(msg as String) as Void{
+    var stats = Toybox.System.getSystemStats();
+    Toybox.System.println(Lang.format("$1$ ($2$%)", [msg, 100f * stats.usedMemory/stats.totalMemory]));
 }

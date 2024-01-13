@@ -3,33 +3,35 @@ import Toybox.Activity;
 import Toybox.Application;
 import Toybox.Application.Storage;
 import Toybox.Graphics;
-import MyTools;
-
-enum SettingId{
-    // global settings
-    SETTING_SPORT = 0,
-    SETTING_TRACK = 1,
-    SETTING_ZOOMFACTOR = 2,
-    SETTING_ALTITUDE_CALIBRATED = 3,
-    SETTING_ALTITUDE_P0 = 4,
-    SETTING_ALTITUDE_T0 = 5,
-    SETTING_GLOBAL_MAX = 5,
-    // profile settings
-    SETTING_DARK_MODE = 6,
-    SETTING_AUTOPAUSE = 7,
-    SETTING_AUTOLAP = 8,
-    SETTING_AUTOLAP_DISTANCE = 9,
-    SETTING_DATASCREENS = 10,
-    SETTING_BREADCRUMPS = 11,
-    SETTING_BREADCRUMPS_MIN_DISTANCE = 12,
-    SETTING_BREADCRUMPS_MAX_COUNT = 13,
-    SETTING_PROFILE_MAX = 13,
-}
 
 class Settings{
+    enum Id{
+        // global settings
+        ID_SPORT = 0,
+        ID_TRACK = 1,
+        ID_ZOOMFACTOR = 2,
+        ID_ALTITUDE_CALIBRATED = 3,
+        ID_ALTITUDE_P0 = 4,
+        ID_ALTITUDE_T0 = 5,
+        ID_GLOBAL_MAX = 5,
+        // profile settings
+        ID_DARK_MODE = 6,
+        ID_AUTOPAUSE = 7,
+        ID_AUTOLAP = 8,
+        ID_AUTOLAP_DISTANCE = 9,
+        ID_DATASCREENS = 10,
+        ID_BREADCRUMPS = 11,
+        ID_BREADCRUMPS_MIN_DISTANCE = 12,
+        ID_BREADCRUMPS_MAX_COUNT = 13,
+        ID_PROFILE_MAX = 13,
+    }
+
+    (:basic)
+    typedef ValueType as PropertyValueType;
+    (:advanced)
     typedef ValueType as PropertyValueType|Track;
     typedef IListener as interface{
-        function onSetting(id as SettingId, value as ValueType) as Void;
+        function onSetting(id as Id, value as ValueType) as Void;
     };
 
     hidden enum ProfileSection{
@@ -42,20 +44,20 @@ class Settings{
 
     // default values
 	static const DEFAULT_VALUES = {
-        SETTING_SPORT => Activity.SPORT_WALKING,
-        SETTING_TRACK => null,
-        SETTING_ZOOMFACTOR=> 1.0f,
-        SETTING_ALTITUDE_CALIBRATED => false,
-        SETTING_ALTITUDE_P0 => 100000f,
-        SETTING_ALTITUDE_T0 => 25f,
-        SETTING_DARK_MODE => false,
-        SETTING_AUTOPAUSE => true,
-        SETTING_AUTOLAP => false,
-        SETTING_AUTOLAP_DISTANCE => 1000,
-        SETTING_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true]],
-        SETTING_BREADCRUMPS => true,
-	    SETTING_BREADCRUMPS_MIN_DISTANCE => 50,
-	    SETTING_BREADCRUMPS_MAX_COUNT => 50,
+        ID_SPORT => Activity.SPORT_WALKING,
+        ID_TRACK => null,
+        ID_ZOOMFACTOR=> 1.0f,
+        ID_ALTITUDE_CALIBRATED => false,
+        ID_ALTITUDE_P0 => 100000f,
+        ID_ALTITUDE_T0 => 25f,
+        ID_DARK_MODE => false,
+        ID_AUTOPAUSE => true,
+        ID_AUTOLAP => false,
+        ID_AUTOLAP_DISTANCE => 1000,
+        ID_DATASCREENS => [[LAYOUT_ONE_FIELD, [DATAFIELD_TEST], true]],
+        ID_BREADCRUMPS => true,
+	    ID_BREADCRUMPS_MIN_DISTANCE => 50,
+	    ID_BREADCRUMPS_MAX_COUNT => 50,
 	};    
 
     hidden var globalData as Array<PropertyValueType>;
@@ -66,61 +68,61 @@ class Settings{
 
     function initialize(){
         // load global data
-        var size = SETTING_GLOBAL_MAX+1;
+        var size = ID_GLOBAL_MAX+1;
         var data = Storage.getValue(SECTION_GLOBAL);
         globalData = (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
             : data as Array<PropertyValueType>;
 
         // load profile data
-        var sport = get(SETTING_SPORT) as Activity.Sport;
+        var sport = get(ID_SPORT) as Activity.Sport;
         profileId = getProfileSection(sport);
         profileData = getProfileData(profileId);
 
         // compatibility updates
         // 6: backgroundColor => darkMode
-        var ids = [SETTING_DARK_MODE];
+        var ids = [ID_DARK_MODE];
         for(var i=0; i<ids.size(); i++){
-            var id = ids[i] as SettingId;
+            var id = ids[i] as Id;
             var value = get(id);
             if(!(value instanceof Boolean)){
                 value = DEFAULT_VALUES.get(id as Number) as Boolean;
-                set(SETTING_DARK_MODE, value);
+                set(ID_DARK_MODE, value);
             }
         }
     }
     hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
-        var size = SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX;
+        var size = ID_PROFILE_MAX - ID_GLOBAL_MAX;
         var data = Storage.getValue(profileId as Number);
         return (data == null || (data as Array).size() != size)
             ? new Array<PropertyValueType>[size]
             : data as Array<PropertyValueType>;
     }
 
-    function get(settingId as SettingId) as ValueType{
+    function get(settingId as Id) as ValueType{
         var id = settingId as Number;
         var value = null;
-        if(id <= SETTING_GLOBAL_MAX){
+        if(id <= ID_GLOBAL_MAX){
             value = globalData[id] as PropertyValueType;
-        }else if(id <= SETTING_PROFILE_MAX){
-            value =  profileData[id - (SETTING_GLOBAL_MAX + 1)] as PropertyValueType;
+        }else if(id <= ID_PROFILE_MAX){
+            value =  profileData[id - (ID_GLOBAL_MAX + 1)] as PropertyValueType;
         }
         if(value == null){
             // get default value
             value = DEFAULT_VALUES.get(id) as ValueType?;
-//            if(value == null){
-//                throw new MyTools.MyException(Lang.format("No default value available for setting $1$", [settingId]));
-//            }
+            //  if(value == null){
+            //      throw new MyException(Lang.format("No default value available for setting $1$", [settingId]));
+            //  }
             self.set(settingId, value);
         }
         return value;
     }
 
-    function set(settingId as SettingId, value as ValueType) as Void{
+    function set(settingId as Id, value as ValueType) as Void{
         // update instance and app data
         var id = settingId as Number;
-        if (id <= SETTING_GLOBAL_MAX){
-            if(id == SETTING_SPORT){
+        if (id <= ID_GLOBAL_MAX){
+            if(id == ID_SPORT){
                 //disable changing a profile during an active session
                 var session = $.getApp().session;
                 if(session.getState() != SESSION_STATE_IDLE){
@@ -130,13 +132,13 @@ class Settings{
 
             globalData[id] = value;
             Storage.setValue(SECTION_GLOBAL, globalData);
-        }else if(id <= SETTING_PROFILE_MAX){
-            profileData[id - (SETTING_GLOBAL_MAX + 1)] = value;
+        }else if(id <= ID_PROFILE_MAX){
+            profileData[id - (ID_GLOBAL_MAX + 1)] = value;
             Storage.setValue(profileId as Number, profileData);
         }
 
         // check if the profile is changed
-        if(settingId == SETTING_SPORT){
+        if(settingId == ID_SPORT){
             var profileIdNew = getProfileSection(value as Sport);
             if(profileIdNew != profileId){
                 // profile is changed
@@ -146,17 +148,26 @@ class Settings{
         }
 
         // convert raw track data to Track
-        if(settingId == SETTING_TRACK && value instanceof Array){
-            value = new Track(value as Array);
+        if(settingId == ID_TRACK && value instanceof Array){
+            value = convertToTrack(value);
         }
 
         // inform listeners
         notifyListeners(settingId, value);
     }
 
+    (:basic)
+    function convertToTrack(value as ValueType) as ValueType{
+        return value;
+    }
+    (:advanced)
+    function convertToTrack(value as ValueType) as ValueType{
+        return new Track(value as Array);
+    }
+
     function clear() as Void{
-        globalData = new Array<PropertyValueType>[SETTING_GLOBAL_MAX+1];
-        profileData = new Array<PropertyValueType>[SETTING_PROFILE_MAX - SETTING_GLOBAL_MAX];
+        globalData = new Array<PropertyValueType>[ID_GLOBAL_MAX+1];
+        profileData = new Array<PropertyValueType>[ID_PROFILE_MAX - ID_GLOBAL_MAX];
         Storage.clearValues();
     }
 
@@ -192,7 +203,7 @@ class Settings{
             }
         }
     }
-    hidden function notifyListeners(id as SettingId, value as ValueType) as Void{
+    hidden function notifyListeners(id as Id, value as ValueType) as Void{
         for(var i=listeners.size()-1; i>=0; i--){
             var ref = listeners[i];
             var l = ref.get();

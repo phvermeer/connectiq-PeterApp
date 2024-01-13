@@ -4,29 +4,30 @@ import Toybox.Graphics;
 using Toybox.System;
 using Toybox.Activity;
 
+(:advanced)
 class MainMenu extends MyMenu {
 	
 	const OPTIONS = {
-		SETTING_DARK_MODE => {
+		Settings.ID_DARK_MODE => {
 			false => WatchUi.loadResource(Rez.Strings.white) as String,
 			true => WatchUi.loadResource(Rez.Strings.black) as String,
 		},
-		SETTING_SPORT => {
+		Settings.ID_SPORT => {
 			Activity.SPORT_WALKING => WatchUi.loadResource(Rez.Strings.walking) as String,
 			Activity.SPORT_HIKING => WatchUi.loadResource(Rez.Strings.hiking) as String,
 			Activity.SPORT_RUNNING => WatchUi.loadResource(Rez.Strings.running) as String,
 			Activity.SPORT_CYCLING => WatchUi.loadResource(Rez.Strings.cycling) as String,
 		},
-		SETTING_AUTOLAP => {
+		Settings.ID_AUTOLAP => {
 			false => WatchUi.loadResource(Rez.Strings.off) as String,
 			true => WatchUi.loadResource(Rez.Strings.on) as String,
 		},
-		SETTING_AUTOPAUSE => {
+		Settings.ID_AUTOPAUSE => {
 			false => WatchUi.loadResource(Rez.Strings.off) as String,
 			true => WatchUi.loadResource(Rez.Strings.on) as String,
 		},
         
-		SETTING_AUTOLAP_DISTANCE => {
+		Settings.ID_AUTOLAP_DISTANCE => {
 			100 => "100m",
 			200 => "200m",
 			500 => "500m",
@@ -35,11 +36,11 @@ class MainMenu extends MyMenu {
 			5000 => "5km",		
 			10000 => "10km",		
 		},
-		SETTING_BREADCRUMPS => {
+		Settings.ID_BREADCRUMPS => {
 			false => WatchUi.loadResource(Rez.Strings.off) as String,
 			true => WatchUi.loadResource(Rez.Strings.on) as String,
 		},
-		SETTING_BREADCRUMPS_MIN_DISTANCE => {
+		Settings.ID_BREADCRUMPS_MIN_DISTANCE => {
 			10 => "10m",
 			20 => "20m",
 			50 => "50m",
@@ -47,14 +48,14 @@ class MainMenu extends MyMenu {
 			200 => "200m",
 			500 => "500m",
 		},
-		SETTING_BREADCRUMPS_MAX_COUNT => {
+		Settings.ID_BREADCRUMPS_MAX_COUNT => {
 			10 => "10",
 			20 => "20",
 			50 => "50",
 			100 => "100",
 			200 => "200",
 		},
-		SETTING_ALTITUDE_CALIBRATED => {
+		Settings.ID_ALTITUDE_CALIBRATED => {
 			false => WatchUi.loadResource(Rez.Strings.off) as String,
 			true => WatchUi.loadResource(Rez.Strings.on) as String,
 		}
@@ -73,7 +74,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		var id = SETTING_SPORT;
+		var id = Settings.ID_SPORT;
 		addItem( // index 1
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.activity) as String,
@@ -92,7 +93,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		id = SETTING_DARK_MODE;
+		id = Settings.ID_DARK_MODE;
 		addItem(// index 3
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.backgroundColor) as String,
@@ -120,7 +121,7 @@ class MainMenu extends MyMenu {
 			)
 		);
 
-		id = SETTING_AUTOPAUSE;
+		id = Settings.ID_AUTOPAUSE;
 		addItem(// index 6
 			new WatchUi.ToggleMenuItem(
 				WatchUi.loadResource(Rez.Strings.autoPause) as String,
@@ -153,7 +154,7 @@ class MainMenu extends MyMenu {
 
 	}
 
-	function getCurrentValueText(id as SettingId) as String{
+	function getCurrentValueText(id as Settings.Id) as String{
 		var value = getApp().settings.get(id) as String or Numeric or Boolean;
 		return (OPTIONS.get(id as Number) as Dictionary).get(value) as String;
 	}
@@ -162,37 +163,37 @@ class MainMenu extends MyMenu {
 		var settings = getApp().settings;
 		// Update sub titles with values of settings changed in sub menus
 		// Sport
-		(getItem(1) as MenuItem).setSubLabel(getCurrentValueText(SETTING_SPORT));
+		(getItem(1) as MenuItem).setSubLabel(getCurrentValueText(Settings.ID_SPORT));
 
 		// Altitude Calibration
-		var enabled = settings.get(SETTING_ALTITUDE_CALIBRATED) as Boolean;
-		var subLabel = (OPTIONS.get(SETTING_ALTITUDE_CALIBRATED) as Dictionary).get(enabled) as String;
+		var enabled = settings.get(Settings.ID_ALTITUDE_CALIBRATED) as Boolean;
+		var subLabel = (OPTIONS.get(Settings.ID_ALTITUDE_CALIBRATED) as Dictionary).get(enabled) as String;
 		(getItem(2) as MenuItem).setSubLabel(subLabel);
 
 		// Background Color
-		(getItem(3) as MenuItem).setSubLabel(getCurrentValueText(SETTING_DARK_MODE));
+		(getItem(3) as MenuItem).setSubLabel(getCurrentValueText(Settings.ID_DARK_MODE));
 
 		// Auto Lap
-		enabled = settings.get(SETTING_AUTOLAP) as Boolean;
-		var distance = settings.get(SETTING_AUTOLAP_DISTANCE) as Float;
+		enabled = settings.get(Settings.ID_AUTOLAP) as Boolean;
+		var distance = settings.get(Settings.ID_AUTOLAP_DISTANCE) as Float;
 		subLabel = enabled
-			? (OPTIONS.get(SETTING_AUTOLAP_DISTANCE) as Dictionary).get(distance) as String
-			: (OPTIONS.get(SETTING_AUTOLAP) as Dictionary).get(enabled) as String;
+			? (OPTIONS.get(Settings.ID_AUTOLAP_DISTANCE) as Dictionary).get(distance) as String
+			: (OPTIONS.get(Settings.ID_AUTOLAP) as Dictionary).get(enabled) as String;
 		(getItem(4) as MenuItem).setSubLabel(subLabel);
 
 		// Breadcrump Distance
-		enabled = settings.get(SETTING_BREADCRUMPS) as Boolean;
-		var count = settings.get(SETTING_BREADCRUMPS_MAX_COUNT) as Number;
-		distance = settings.get(SETTING_BREADCRUMPS_MIN_DISTANCE) as Number;
+		enabled = settings.get(Settings.ID_BREADCRUMPS) as Boolean;
+		var count = settings.get(Settings.ID_BREADCRUMPS_MAX_COUNT) as Number;
+		distance = settings.get(Settings.ID_BREADCRUMPS_MIN_DISTANCE) as Number;
 		subLabel = enabled
 			? Lang.format("$1$ x $2$m", [count, distance])
-			: (OPTIONS.get(SETTING_BREADCRUMPS) as Dictionary).get(enabled) as String;
+			: (OPTIONS.get(Settings.ID_BREADCRUMPS) as Dictionary).get(enabled) as String;
 		(getItem(5) as MenuItem).setSubLabel(subLabel);
 	}
 	
 	// this could be modified or overridden for customization
 	function onSelect(item) as Boolean{
-		var id = item.getId() as SettingId;
+		var id = item.getId() as Settings.Id;
 
 		// Toggle menu items
 		if(item instanceof ToggleMenuItem){
@@ -211,8 +212,8 @@ class MainMenu extends MyMenu {
 					break;
 				}
 			// Option menus
-			case SETTING_SPORT:
-			case SETTING_DARK_MODE:
+			case Settings.ID_SPORT:
+			case Settings.ID_DARK_MODE:
 			{
 				var menu = new MyOptionsMenu(
 					WatchUi.loadResource(Rez.Strings.backgroundColor) as String,
@@ -247,7 +248,7 @@ class MainMenu extends MyMenu {
 			case "clearTrack":
 				var app = getApp();
 				app.track = null;
-				app.settings.set(SETTING_TRACK, null);
+				app.settings.set(Settings.ID_TRACK, null);
 				break;
 			case "clearSettings":
 				getApp().settings.clear();

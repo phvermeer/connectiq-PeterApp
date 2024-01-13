@@ -2,6 +2,7 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
+(:advanced)
 class DataScreenMenu extends MyMenu {
 	protected var screenIndex as Lang.Number;
 	hidden var screensSettings as DataView.ScreensSettings;
@@ -85,27 +86,28 @@ class DataScreenMenu extends MyMenu {
 		var id = item.getId() as String|DataView.SettingId;
 		var app = $.getApp();
 		var settings = app.settings;
-
 		switch(id){
 			// Open LayoutPicker
 			case DataView.SETTING_LAYOUT:
 			case DataView.SETTING_FIELDS:
-				var view = new DataView(screenIndex, screensSettings);
+				var delegate = (id == DataView.SETTING_LAYOUT)
+					? new LayoutPickerDelegate(screenIndex, screensSettings)
+					: new FieldPickerDelegate(screenIndex, screensSettings);
+				var view = new DataView(screenIndex, screensSettings, delegate);
+
 				settings.addListener(view);
 				app.data.addListener(view);
-				var delegate = (id == DataView.SETTING_LAYOUT)
-					? new LayoutPickerDelegate(view, screenIndex, screensSettings)
-					: new FieldPickerDelegate(view, screenIndex, screensSettings);
+				
 				WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);				
 				return true;
 			// Toggle menus
 			case DataView.SETTING_ENABLED:
 				screensSettings[screenIndex][DataView.SETTING_ENABLED] = (item as ToggleMenuItem).isEnabled();
-				settings.set(SETTING_DATASCREENS, screensSettings);
+				settings.set(Settings.ID_DATASCREENS, screensSettings);
 				return true;
 			case "remove":
 				screensSettings = screensSettings.slice(null, screenIndex-1).addAll(screensSettings.slice(screenIndex+1, null));
-				settings.set(SETTING_DATASCREENS, screensSettings);
+				settings.set(Settings.ID_DATASCREENS, screensSettings);
 
 				WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 				return true;

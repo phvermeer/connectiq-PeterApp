@@ -4,10 +4,10 @@ import Toybox.WatchUi;
 import Toybox.System;
 import Toybox.Activity;
 import Toybox.Math;
-import MyViews;
-import MyMath;
-import MyDrawables;
-import MyLayout;
+import MyBarrel.Views;
+import MyBarrel.Math2;
+import MyBarrel.Drawables;
+import MyBarrel.Layout;
 
 enum LayoutId {
 	LAYOUT_ONE_FIELD = 0,
@@ -20,7 +20,7 @@ enum LayoutId {
 	LAYOUT_MAX = 6,
 }
 
-class DataView extends MyViews.MyView{
+class DataView extends MyView{
 	enum SettingId {
 		SETTING_LAYOUT = 0,
 		SETTING_FIELDS = 1,
@@ -39,24 +39,28 @@ class DataView extends MyViews.MyView{
     hidden var updateIndicator as Edge;
     hidden var darkMode as Boolean;
 
-    function initialize(screenIndex as Number, screensSettings as ScreensSettings){
-        MyView.initialize();
+    function initialize(
+        screenIndex as Number, 
+        screensSettings as ScreensSettings, 
+        delegate as MyViewDelegate
+    ){
+        MyView.initialize(delegate);
 
-        self.screenIndex = MyMath.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
+        self.screenIndex = Math2.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
         self.screensSettings = screensSettings;
 
-        edge = new MyDrawables.Edge({
-            :position => MyDrawables.EDGE_ALL,
+        edge = new Drawables.Edge({
+            :position => Edge.EDGE_ALL,
             :color => Graphics.COLOR_TRANSPARENT,
         });
 
         // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
-        darkMode = settings.get(SETTING_DARK_MODE) as Boolean;
+        darkMode = settings.get(Settings.ID_DARK_MODE) as Boolean;
 
         updateIndicator = new Edge( {
             :darkMode => darkMode,
-            :position => MyDrawables.EDGE_TOP,
+            :position => Edge.EDGE_TOP,
         } );
     }
 
@@ -75,6 +79,13 @@ class DataView extends MyViews.MyView{
         MyView.onHide();
     }
 
+    function onBack(sender as MyViewDelegate) as Boolean{
+        // Open StopView
+        var view = new StopView(sender);
+        WatchUi.switchToView(view, sender, WatchUi.SLIDE_IMMEDIATE);
+        return true;
+    }
+
     // event handler for graphical layout 
     function onLayout(dc as Dc){
         var screenSettings = screensSettings[screenIndex];
@@ -89,7 +100,7 @@ class DataView extends MyViews.MyView{
             dc.clear();
         }
 
-        var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             var field = fields[i];
             var fieldLayout = layout[i];
@@ -112,9 +123,9 @@ class DataView extends MyViews.MyView{
         }
 
         // show update indicator
-        updateIndicator.position = (updateIndicator.position == MyDrawables.EDGE_RIGHT)
-            ? MyDrawables.EDGE_BOTTOM
-            : (updateIndicator.position - 90) as EdgePos;
+        updateIndicator.position = (updateIndicator.position == Edge.EDGE_RIGHT)
+            ? Edge.EDGE_BOTTOM
+            : (updateIndicator.position - 90) as Edge.EdgePos;
 
         updateIndicator.draw(dc);
     }
@@ -127,7 +138,7 @@ class DataView extends MyViews.MyView{
 
     // update all fields with current layout
     hidden function updateFieldsLayout() as Void{
-        var count = MyMath.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
         for(var i=0; i<count; i++){
             updateFieldLayout(fields[i], layout[i]);
         }
@@ -203,55 +214,62 @@ class DataView extends MyViews.MyView{
     function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
         // forward event to fields
         for(var i=0; i<fields.size(); i++){
-            var field = fields[i];
             var xy = clickEvent.getCoordinates();
+
+            // compare xy with layout position
+            var fieldLayout = layout[i] as FieldLayout; // [x,y,w,h]
             if(
-                xy[0] >= field.locX && 
-                xy[0] <= field.locX + field.width && 
-                xy[1] >= field.locY && 
-                xy[1] <= field.locY + field.height
+                xy[0] >= fieldLayout[0] && 
+                xy[0] <= fieldLayout[0] + fieldLayout[2] && 
+                xy[1] >= fieldLayout[1] && 
+                xy[1] <= fieldLayout[1] + fieldLayout[3]
             ){
-                return field.onTap(clickEvent);
+                return onFieldTap(clickEvent, i, fields[i]);
             }            
         }
         return false;
     }
+    hidden function onFieldTap(clickEvent as ClickEvent, fieldIndex as Number, field as MyDataField) as Boolean{
+        return field.onTap(clickEvent);
+    }
 
-    function onSwipe(sender as MyViewDelegate, swipeEvent as WatchUi.SwipeEvent) as Lang.Boolean{
+    function onPreviousPage(sender as MyViewDelegate) as Boolean{
+        swipePage(false);
+        return true;
+    }
+    function onNextPage(sender as MyViewDelegate) as Boolean{
+        swipePage(true);
+        return true;
+    }
+    hidden function swipePage(forward as Boolean) as Void{
         var count = screensSettings.size();
 
-        switch(swipeEvent.getDirection()){
-            case WatchUi.SWIPE_DOWN:
-                // next screen id
-                do{
-                    screenIndex++;
-                    if(screenIndex >= count){
-                        screenIndex = 0;
-                    }
-                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
-                break;
-            case WatchUi.SWIPE_UP:
-                do{
-                    screenIndex--;
-                    if(screenIndex <0){
-                        screenIndex = count-1;
-                    }
-                }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
-                break;
-            default:
-                return false;
+        if(!forward){
+            // next screen id
+            do{
+                screenIndex++;
+                if(screenIndex >= count){
+                    screenIndex = 0;
+                }
+            }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
+        }else{
+            do{
+                screenIndex--;
+                if(screenIndex <0){
+                    screenIndex = count-1;
+                }
+            }while(!(screensSettings[screenIndex][SETTING_ENABLED] as Boolean));
         }
         // show new screen
         var screenSettings = screensSettings[screenIndex] as ScreenSettings;
         applyScreenSettings(screenSettings);
         WatchUi.requestUpdate();
-        return true;
     }
 
     hidden static function distributeSpace(total as Number, margin as Number, parts as Array<Number>) as Array<Number>{
         var count = parts.size();
         var total_ = total - (count - 1) * margin;
-        var factor = 1f * total_ / MyMath.sum(parts);
+        var factor = 1f * total_ / Math2.sum(parts);
         var results = [] as Array<Number>;
         var spare = total_;
         for(var i=0; i<parts.size(); i++){
@@ -392,8 +410,8 @@ class DataView extends MyViews.MyView{
         }
     }
 
-    function onSetting(id as SettingId, value as Settings.ValueType) as Void{
-        if(id == SETTING_DATASCREENS){
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_DATASCREENS){
             var screensSettings = value as ScreensSettings;
             if(screenIndex >= screensSettings.size()){
                 // current screen is removed, jump to first screen
@@ -405,7 +423,7 @@ class DataView extends MyViews.MyView{
 
             var screenSettings = screensSettings[screenIndex] as ScreenSettings;
             applyScreenSettings(screenSettings);
-        }else if(id == SETTING_DARK_MODE){
+        }else if(id == Settings.ID_DARK_MODE){
             self.darkMode = value as Boolean;
         }
     }

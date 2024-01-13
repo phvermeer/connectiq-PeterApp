@@ -1,6 +1,7 @@
 import Toybox.WatchUi;
 import Toybox.Lang;
 
+(:advanced)
 class AutoLapMenu extends MyMenu {
 	hidden var options as Lang.Dictionary;
 
@@ -8,7 +9,7 @@ class AutoLapMenu extends MyMenu {
 		MyMenu.initialize({ :title => WatchUi.loadResource(Rez.Strings.autoLap) as String });
 		self.options = options;
 
-		var id = SETTING_AUTOLAP;
+		var id = Settings.ID_AUTOLAP;
 		
 		addItem(
 			new WatchUi.ToggleMenuItem(
@@ -23,7 +24,7 @@ class AutoLapMenu extends MyMenu {
 			)
 		);
 
-		id = SETTING_AUTOLAP_DISTANCE;
+		id = Settings.ID_AUTOLAP_DISTANCE;
 		addItem(
 			new WatchUi.MenuItem(
 				WatchUi.loadResource(Rez.Strings.distance) as String,
@@ -38,19 +39,19 @@ class AutoLapMenu extends MyMenu {
 	function onShow(){
 		// Update status of settings changed in sub menus
 		// Auto Lap Distance
-		var id = SETTING_AUTOLAP_DISTANCE;
+		var id = Settings.ID_AUTOLAP_DISTANCE;
 		var value = getApp().settings.get(id) as Lang.Number;
 		(getItem(1) as MenuItem).setSubLabel((options.get(id) as Dictionary).get(value) as String);
 	}
 
 	// this could be modified or overridden for customization
 	function onSelect(item as MenuItem) as Boolean{
-		var id = item.getId() as SettingId;
+		var id = item.getId() as Settings.Id;
 
 		switch(id){
 		
 		// Option menus
-		case SETTING_AUTOLAP_DISTANCE:
+		case Settings.ID_AUTOLAP_DISTANCE:
 
 			var menu = new MyOptionsMenu(
 				WatchUi.loadResource(Rez.Strings.distance) as String,
@@ -61,7 +62,7 @@ class AutoLapMenu extends MyMenu {
 			return true;
 
 		// Toggle menus
-		case SETTING_AUTOLAP:
+		case Settings.ID_AUTOLAP:
 			getApp().settings.set(id, (item as ToggleMenuItem).isEnabled());
 			return true;
 		default:

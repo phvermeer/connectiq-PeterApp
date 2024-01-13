@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Graphics;
 
+(:advanced)
 class FieldsMainMenu extends MyMenu{
 	hidden var fieldsSections as Dictionary;
 	hidden var dataView as DataView;

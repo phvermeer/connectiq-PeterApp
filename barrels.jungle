@@ -1,0 +1,6 @@
+# Do not hand edit this file. To make changes run the
+# "Configure Monkey Barrels" command.
+
+MyBarrel = [barrels\MyBarrel\monkey.jungle]
+base.barrelPath = $(base.barrelPath);$(MyBarrel)
+
