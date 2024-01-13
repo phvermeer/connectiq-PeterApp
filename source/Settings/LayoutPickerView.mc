@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import MyBarrel.Views;
 
+(:basic)
 class LayoutPickerView extends DataView{
     hidden var settings as Settings;
     hidden var layoutId as Number;
@@ -15,7 +16,6 @@ class LayoutPickerView extends DataView{
         initialFields = screenSettings[DataView.SETTING_FIELDS] as Array<DataFieldId>;
 
         DataView.initialize(screenIndex, screensSettings, delegate);
-        log("LayoutPickerView initialized");
     }
 
     function onBack(sender as MyViewDelegate) as Boolean{
@@ -49,11 +49,7 @@ class LayoutPickerView extends DataView{
         return true;
     }
 
-    function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
-        saveLayout();
-        return true;
-    }
-    function onKey(sender as MyViewDelegate, keyEvent as KeyEvent) as Boolean{
+    function onSelect(sender as MyViewDelegate) as Boolean{
         saveLayout();
         return true;
     }
