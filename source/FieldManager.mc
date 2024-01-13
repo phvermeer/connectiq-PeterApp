@@ -62,8 +62,32 @@ class FieldManager{
         var options = {};
         var field
             = (id == DATAFIELD_TEST) ? new TestField(options)
+            : (id == DATAFIELD_ELAPSED_TIME) ? new MultiDataField(id, options)
+//            : (id == DATAFIELD_TRACK_MAP) ? new TrackField(options)
+//            : (id == DATAFIELD_TRACK_OVERVIEW) ? new TrackOverviewField(options)
+//            : (id == DATAFIELD_TRACK_PROFILE) ? new TrackProfileField(options)
+            : (id == DATAFIELD_COMPASS) ? new CompassField(options)
+            : (id == DATAFIELD_CURRENT_SPEED) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_AVG_SPEED) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_MAX_SPEED) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new MultiDataField(id, options)
+//            : (id == DATAFIELD_REMAINING_DISTANCE) ? new RemainingDistanceField(id, options)
+            //: (id == DATAFIELD_ELEVATION_SPEED) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_TOTAL_ASCENT) ?  new MultiDataField(id, options)
+            : (id == DATAFIELD_TOTAL_DESCENT) ?  new MultiDataField(id, options)
+            : (id == DATAFIELD_HEART_RATE) ?  new MultiDataField(id, options)
+            : (id == DATAFIELD_AVG_HEARTRATE) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_MAX_HEARTRATE) ?  new MultiDataField(id, options)
+            : (id == DATAFIELD_OXYGEN_SATURATION) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_ENERGY_RATE) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_PRESSURE) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_SEALEVEL_PRESSURE) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_ALTITUDE) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_CLOCK) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_MEMORY) ? new MultiDataField(id, options)
+            : (id == DATAFIELD_BATTERY) ? new MultiDataField(id, options)
             : (id == DATAFIELD_EMPTY) ? new EmptyField(options)
-            : (id == DATAFIELD_ELAPSED_DISTANCE) ? new ElapsedDistanceField(options)
+            : (id == DATAFIELD_STATUS) ? new StatusField(options)
             : new ElapsedDistanceField(options);
 
         // keep weak link in buffer for new requests

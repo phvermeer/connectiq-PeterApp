@@ -3,7 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.System;
 
-(:advanced)
+// (:advanced)
 class MultiDataField extends NumericField{
 
     hidden var fieldId as DataFieldId;

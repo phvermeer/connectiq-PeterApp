@@ -3,32 +3,44 @@ import Toybox.WatchUi;
 using Toybox.Graphics;
 
 (:basic)
-class DistanceFieldsMenu extends ListMenu{
+class FieldsSubMenu extends MyMenu{
 	hidden var settings as Settings;
 	hidden var screenIndex as Number;
 	hidden var fieldIndex as Number;
-
-	function initialize(delegate as MyMenuDelegate, settings as Settings, screenIndex as Number, fieldIndex as Number){
+    (:basic)
+	function initialize(
+        delegate as MyMenuDelegate, 
+        settings as Settings, 
+        screenIndex as Number, 
+        fieldIndex as Number, 
+        title as String, 
+        fieldList as Dictionary
+    ){
 		self.settings = settings;
 		self.screenIndex = screenIndex;
 		self.fieldIndex = fieldIndex;
 
-		ListMenu.initialize(
-            delegate,
-            WatchUi.loadResource(Rez.Strings.distanceFields) as String,
-            [
-                WatchUi.loadResource(Rez.Strings.distance),
-                WatchUi.loadResource(Rez.Strings.remainingDistance),
-            ] as Array<String>
-        );
+   		MyMenu.initialize(delegate,
+		{
+		  :title => title
+		});
+
+        var ids = fieldList.keys();
+        var names = fieldList.values();
+        for(var i=0; i<ids.size(); i++){
+            addItem(
+				new WatchUi.MenuItem(
+					names[i] as String,
+					null,
+					ids[i] as Number,
+					{}
+				)
+			);
+        }
 	}
 
  	function onSelect(sender as MyMenuDelegate, item as WatchUi.MenuItem) as Boolean {
-		var id = item.getId() as String;
-
-        var fieldId = (id == 0)
-            ? DATAFIELD_ELAPSED_DISTANCE
-            : DATAFIELD_REMAINING_DISTANCE;
+		var fieldId = item.getId() as DataFieldId;
 
         // save field selection
         var screensSettings = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
@@ -38,6 +50,8 @@ class DistanceFieldsMenu extends ListMenu{
         screenSettings[DataView.SETTING_FIELDS] = fieldIds;
         screensSettings[screenIndex] = screenSettings;
         settings.set(Settings.ID_DATASCREENS, screensSettings);
+
+        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
         WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 		return true;
 	}
