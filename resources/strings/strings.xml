@@ -58,7 +58,6 @@
 	<string id="cancel">Annuleren</string>
     
     <!-- Colors -->
-    backgroundColor
     <string id="backgroundColor">Achtergrond Kleur</string>
     <string id="white">Wit</string>
     <string id="black">Zwart</string>
