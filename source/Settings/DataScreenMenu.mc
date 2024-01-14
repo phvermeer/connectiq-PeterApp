@@ -69,6 +69,15 @@ class DataScreenMenu extends MyMenu{
                 {}
             )
         );
+
+        addItem(
+            new WatchUi.MenuItem(
+                WatchUi.loadResource(Rez.Strings.remove) as String,
+                null,
+                -1,
+                {}
+            )
+        );
     }
 
     function onSelect(sender as MyMenuDelegate, item as MenuItem) as Boolean{
@@ -82,7 +91,6 @@ class DataScreenMenu extends MyMenu{
             screen[DataView.SETTING_ENABLED] = (item as ToggleMenuItem).isEnabled();
             screens[screenIndex] = screen;
             settings.set(Settings.ID_DATASCREENS, screens as Settings.ValueType);
-            return true;
         }else if(id == DataView.SETTING_LAYOUT || id == DataView.SETTING_FIELDS){
             // open customized dataview to pick layout or field
             var delegate = new Views.MyViewDelegate();
@@ -92,9 +100,16 @@ class DataScreenMenu extends MyMenu{
             data.addListener(view);
             settings.addListener(view);
             WatchUi.pushView(view, delegate, WatchUi.SLIDE_IMMEDIATE);
-            return true;
+        }else if(id == -1){
+            // remove this datascreen
+            screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
+            screen = screens[screenIndex];
+            screens.remove(screen);
+            settings.set(Settings.ID_DATASCREENS, screens);
+            WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
         }else{
             return false;
         }
+        return true;
     }
 }

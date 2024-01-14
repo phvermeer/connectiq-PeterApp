@@ -51,6 +51,13 @@ class DataScreensMenu extends MyMenu{
             // show menu for selected dataview
             var menu = new DataScreenMenu(id, settings, sender);
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_IMMEDIATE);
+        }else if(id == -1){
+            // add new screen
+            var screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
+            var screensDefault = Settings.DEFAULT_VALUES[Settings.ID_DATASCREENS] as DataView.ScreensSettings;
+            screens.add(screensDefault[0]);
+            settings.set(Settings.ID_DATASCREENS, screens);
+            updateItems();
         }
 
         return true;

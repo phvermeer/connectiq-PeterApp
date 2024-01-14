@@ -10,34 +10,28 @@ class MyOptionsMenu extends MyMenu{
 		delegate as MyMenuDelegate, 
 		settings as Settings, 
 		id as Settings.Id,
-		options as {
-			:title as String,
-			:values as Dictionary,
-		}
+		title as String,
+		textValues as Dictionary // { <value1> => <text1>, <value2> => <text2>, ... , <valueN> => <textn> }
 	){
 		self.settings = settings;
 		self.id = id;
 
 		// header
-		MyMenu.initialize(delegate, options);
+		MyMenu.initialize(delegate, { :title => title });
 
 		// create menu items for each option
-		var values = options.get(:values) as Dictionary;
-		if(values != null){			
-			var ids = values.keys() as Array<Settings.Id>; 
-			var titles = values.values() as Array<String>;
+		var values = textValues.keys() as Array<Settings.Id>;
+		var names = textValues.values() as Array<String>;
 
-			for(var i=0; i<values.size(); i++){
-				addItem(
-					new WatchUi.MenuItem(
-						titles[i],
-						null,
-						ids[i],
-						{}
-					)
-				);
-			}
-
+		for(var i=0; i<textValues.size(); i++){
+			addItem(
+				new WatchUi.MenuItem(
+					names[i],
+					null,
+					values[i],
+					{}
+				)
+			);
 		}
 	}
 	
