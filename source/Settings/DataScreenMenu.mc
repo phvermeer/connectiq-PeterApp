@@ -2,7 +2,6 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import MyBarrel.Views;
 
-(:basic)
 class DataScreenMenu extends MyMenu{
     hidden var settings as Settings;
     hidden var screenIndex as Number;

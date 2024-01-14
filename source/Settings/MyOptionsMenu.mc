@@ -2,7 +2,6 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Application;
 
-(:basic)
 class MyOptionsMenu extends MyMenu{
 	var settings as Settings;
 	var id as Settings.Id;

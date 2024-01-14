@@ -1,7 +1,6 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-(:basic)
 class MainMenu extends MyMenu{
     hidden var settings as Settings;
 
