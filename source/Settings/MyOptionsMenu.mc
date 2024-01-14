@@ -45,7 +45,7 @@ class MyOptionsMenu extends MyMenu{
 	// events
 	function onSelect(sender as MyMenuDelegate, item as MenuItem) as Boolean {
 		var value = item.getId() as PropertyValueType;
-		getApp().settings.set(id, value);
+		settings.set(id, value);
 		
 		WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
 		return true;

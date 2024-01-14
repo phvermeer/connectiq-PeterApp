@@ -55,6 +55,27 @@ class MainMenu extends MyMenu{
                 );
             }
         }
+
+		addItem(
+			new WatchUi.MenuItem(
+				WatchUi.loadResource(Rez.Strings.autoLap) as String,
+				getAutoLapSubLabel(),
+				Settings.ID_AUTOLAP,
+				{}
+			)
+		);
+    }
+
+    hidden function getAutoLapSubLabel() as String{
+        var enabled = settings.get(Settings.ID_AUTOLAP) as Boolean;
+        var distance = settings.get(Settings.ID_AUTOLAP_DISTANCE) as Number;
+        if(!enabled){
+            return WatchUi.loadResource(Rez.Strings.off) as String;
+        }else{
+            var info = AutoLapMenu.getOptionsInfo(Settings.ID_AUTOLAP_DISTANCE);
+            var values = info.get(:values) as Dictionary;
+            return values.get(distance) as String;
+        }
     }
 
     // update shown values
@@ -66,6 +87,20 @@ class MainMenu extends MyMenu{
                 var values = info.get(:values) as Dictionary;
                 var label = values.get(value as Object) as String;
                 item.setSubLabel(label);
+            }
+        }else if(id == Settings.ID_AUTOLAP || id == Settings.ID_AUTOLAP_DISTANCE){
+            var item = getItem(findItemById(Settings.ID_AUTOLAP));
+            if(item != null){
+                item.setSubLabel(getAutoLapSubLabel());
+            }
+        }
+        
+        if(id == Settings.ID_SPORT){
+            // sport is changed => new set of settings related to this sport
+            var ids = [Settings.ID_DARK_MODE, Settings.ID_AUTOPAUSE, Settings.ID_AUTOLAP];
+            for(var i=0; i<ids.size(); i++){
+                id = ids[i] as Settings.Id;
+                onSetting(id, settings.get(id));
             }
         }
     }
@@ -110,6 +145,9 @@ class MainMenu extends MyMenu{
         if(id == Settings.ID_DATASCREENS){
             // open menu with all datascreen settings
             var menu = new DataScreensMenu(sender, settings);
+            WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
+        }else if(id == Settings.ID_AUTOLAP){
+            var menu = new AutoLapMenu(sender, settings);
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
         }else if(
             id == Settings.ID_SPORT || 
