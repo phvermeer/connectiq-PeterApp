@@ -16,6 +16,7 @@ class MainMenu extends MyMenu{
 
         // create menu items for main menu
         var ids = [
+            Settings.ID_DATASCREENS,
             Settings.ID_SPORT,
             Settings.ID_DARK_MODE,
             Settings.ID_AUTOLAP,
@@ -202,6 +203,9 @@ class MainMenu extends MyMenu{
         }else if(id == -1){
             // clear settings
             settings.clear();
+        }else if(id == -2){
+            // clear track
+            $.getApp().track = null;
         }else{
             throw new MyException("unhandled onSelect event");
         }
