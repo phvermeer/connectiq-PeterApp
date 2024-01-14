@@ -91,7 +91,7 @@ class FieldManager{
         if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new ElapsedDistanceField(options); }
+        { field = new EmptyField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
@@ -150,7 +150,7 @@ class FieldManager{
         if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new ElapsedDistanceField(options); }
+        { field = new EmptyField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
