@@ -77,6 +77,7 @@ class App extends Application.AppBase {
         data.addListener(self);
         settings.addListener(session);
         settings.addListener(data); // breadcrumps settings
+        settings.addListener(self); // track changes
         session.addListener(self); // modify data interval/start/stop
     }
 
@@ -134,6 +135,13 @@ class App extends Application.AppBase {
                 // start events
                 data.startPositioning();
                 break;
+        }
+    }
+
+    (:advanced)
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_TRACK){
+            self.track = (value as Track);
         }
     }
 

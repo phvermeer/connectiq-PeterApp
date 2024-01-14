@@ -22,7 +22,8 @@ class MainMenu extends MyMenu{
             Settings.ID_AUTOLAP,
             Settings.ID_AUTOPAUSE,
             Settings.ID_BREADCRUMPS,
-            -1 // clear settings
+            -1, // clear settings
+            -2, // clear track
         ];
 
         for(var i=0; i<ids.size(); i++){
@@ -77,6 +78,8 @@ class MainMenu extends MyMenu{
             return WatchUi.loadResource(Rez.Strings.breadcrumps) as String;
         }else if(id == -1){
             return WatchUi.loadResource(Rez.Strings.clearSettings) as String;
+        }else if(id == -2){
+            return WatchUi.loadResource(Rez.Strings.clearTrack) as String;
         }else{
             return "?";
         }
@@ -205,7 +208,7 @@ class MainMenu extends MyMenu{
             settings.clear();
         }else if(id == -2){
             // clear track
-            $.getApp().track = null;
+            settings.set(Settings.ID_TRACK, null);
         }else{
             throw new MyException("unhandled onSelect event");
         }
