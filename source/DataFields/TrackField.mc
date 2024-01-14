@@ -287,7 +287,7 @@ class TrackField extends MyDataField{
         var xy = data.xy;
         var info = data.positionInfo;
         var quality = info.accuracy;
-        if(xy != null && quality >= Position.QUALITY_USABLE && xy != xyCurrent){
+        if(xy != null && quality >= Position.QUALITY_POOR && xy != xyCurrent){
             var heading = info.heading;
             xyCurrent = xy;
             positionMarker.setHeading(heading);
