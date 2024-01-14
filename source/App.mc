@@ -29,6 +29,9 @@ class App extends Application.AppBase {
         settings = new Settings();
         session = new Session({
             :sport => settings.get(Settings.ID_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(Settings.ID_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(Settings.ID_AUTOLAP_DISTANCE) as Float,
+            :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
         });
         data = new Data({});
         fieldManager = new FieldManager();
