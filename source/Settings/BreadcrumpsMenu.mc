@@ -112,7 +112,10 @@ class BreadcrumpsMenu extends MyMenu{
 
     // update changed values
     function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
-        if(id == Settings.ID_AUTOLAP_DISTANCE){
+        if(
+            id == Settings.ID_BREADCRUMPS_MAX_COUNT ||
+            id == Settings.ID_BREADCRUMPS_MIN_DISTANCE
+        ){
             var item = getItem(findItemById(id));
             if(item != null){
                 var subLabel = getSubLabel(id);
