@@ -102,7 +102,7 @@ class App extends Application.AppBase {
         started = false;
     }
 
-    function onData(data as Data) as Void{
+    function onActivityInfo(info as Activity.Info) as Void{
         fieldManager.cleanup();
     }
     

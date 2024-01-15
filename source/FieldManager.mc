@@ -145,9 +145,9 @@ class FieldManager{
         if(id == DATAFIELD_PRESSURE){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_ALTITUDE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_CLOCK){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MEMORY){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_CLOCK){ field = new SystemStatsField(id, options); }else
+        if(id == DATAFIELD_MEMORY){ field = new SystemStatsField(id, options); }else
+        if(id == DATAFIELD_BATTERY){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
         { field = new EmptyField(options); }

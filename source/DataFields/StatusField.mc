@@ -2,6 +2,7 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
+import Toybox.Activity;
 import MyBarrel.Drawables;
 import MyBarrel.Layout;
 
@@ -42,14 +43,11 @@ class StatusField extends MyLabeledField{
         gpsIndicator.draw(dc);
     }
 
-    function onData(data as Data){
-        var info = data.activityInfo;
-        if(info != null){
-            var quality = info.currentLocationAccuracy;
-            if(quality != null && quality != gpsIndicator.quality){
-                gpsIndicator.quality = quality;
-                refresh();
-            }
+    function onActivityInfo(info as Activity.Info) as Void{
+        var quality = info.currentLocationAccuracy;
+        if(quality != null && quality != gpsIndicator.quality){
+            gpsIndicator.quality = quality;
+            refresh();
         }
     }
 

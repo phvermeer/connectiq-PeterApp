@@ -21,7 +21,7 @@ class RemainingDistanceField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onData(data as Data) as Void{
+    function onActivityInfo(info as Activity.Info) as Void{
         var track = $.getApp().track;
         var value = null;
         var color = Graphics.COLOR_RED;

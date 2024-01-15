@@ -248,18 +248,15 @@ class Session{
 		}
 	}
 
-	function onData(data as Data) as Void{
-		var info = data.activityInfo;
-		if(info != null){
-			if(currentLapInfo != null){
-				currentLapInfo.update(info);
-			}
-			if(mAutoPause){
-				checkPaused(info);
-			}
-			if(mAutoLapEnabled){
-				checkAutoLap(info);
-			}
+	function onActivityInfo(info as Activity.Info) as Void{
+		if(currentLapInfo != null){
+			currentLapInfo.update(info);
+		}
+		if(mAutoPause){
+			checkPaused(info);
+		}
+		if(mAutoLapEnabled){
+			checkAutoLap(info);
 		}
 	}
 

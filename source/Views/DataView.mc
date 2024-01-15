@@ -224,7 +224,9 @@ class DataView extends MyView{
                 xy[1] >= fieldLayout[1] && 
                 xy[1] <= fieldLayout[1] + fieldLayout[3]
             ){
-                return onFieldTap(clickEvent, i, fields[i]);
+                if(onFieldTap(clickEvent, i, fields[i])){
+                    return true;
+                }
             }            
         }
         return false;

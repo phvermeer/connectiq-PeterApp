@@ -239,8 +239,10 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onData(data as Data) as Void{
-        var xy = data.xy;
+    function onPosition(info as Position.Info) as Void{
+        var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
+            ? [track.xCurrent, track.yCurrent] as Array<Float>
+            : null;
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

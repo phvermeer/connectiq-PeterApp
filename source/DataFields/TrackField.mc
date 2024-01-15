@@ -283,9 +283,10 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onData(data as Data) as Void{
-        var xy = data.xy;
-        var info = data.positionInfo;
+    function onPosition(info as Position.Info) as Void{
+        var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
+            ? [track.xCurrent, track.yCurrent] as Array<Float>
+            : null;
         var quality = info.accuracy;
         if(xy != null && quality >= Position.QUALITY_POOR && xy != xyCurrent){
             var heading = info.heading;
