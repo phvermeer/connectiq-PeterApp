@@ -12,9 +12,15 @@ class Data
     typedef XyPoint as Array<Float>;
     typedef IListener as interface{
         function onData(data as Data) as Void;
+        function onActivityInfo(info as Activity.Info) as Void;
+        function onPosition(heading as Float) as Void;
+        function onSystemStats(stats as System.Stats) as Void;
     };
-    class Listener{
+    class Listener{ // dummy to have at least one object with given symbols
         function onData(data as Data) as Void{}
+        function onActivityInfo(info as Activity.Info) as Void{}
+        function onPosition(heading as Float) as Void;
+        function onSystemStats(stats as System.Stats) as Void{}
     }
 
     (:advanced)
@@ -27,7 +33,13 @@ class Data
     (:advanced)
     public var xy as XyPoint|Null;
 
-    hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
+    // listeners
+    hidden var dataListeners as Listeners = new Listeners(:onData);
+    (:development)
+    hidden var activityInfoListeners as Listeners = new Listeners(:onActivityInfo);
+    (:development)
+    hidden var systemStatsListeners as Listeners = new Listeners(:onSystemStats);
+
     hidden var timerStarted as Boolean = false;
     (:advanced)
     hidden var positioningStarted as Boolean = false;
@@ -299,7 +311,7 @@ class Data
         if(info.accuracy >= Position.QUALITY_POOR && position != null){
             eventReceived = true;
             setInfo(info, Activity.getActivityInfo(), System.getSystemStats());
-            notifyListeners();
+            dataListeners.notify(self);
         }
     }
 
@@ -331,13 +343,14 @@ class Data
         if(activityInfo != null){
             // update altitude
             self.activityInfo = activityInfo;
+            activityInfoListeners.notify(activityInfo);
         }
 
         // system stats
         self.stats = stats;
 
         // notify listeners
-        notifyListeners();
+        dataListeners.notify(self);
     }
 
     (:advanced)
@@ -373,33 +386,19 @@ class Data
     }
 
     // Listeners
+    (:released)
     function addListener(listener as Object) as Void{
-        if((listener as IListener) has :onData){
-            listeners.add(listener.weak());
+        dataListeners.add(listener);
+    }
 
-            // initial trigger
-            (listener as IListener).onData(self);
-        }
-    }
-    function removeListener(listener as Object) as Void{
-        // loop through array to look for listener
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l == null || l.equals(listener)){
-                listeners.remove(ref);
-            }
-        }
-    }
-    hidden function notifyListeners() as Void{
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l != null){
-                (l as IListener).onData(self);
-            }else{
-                listeners.remove(ref);
-            }
-        }
+    // additional listener function for different info from data
+    // - activityInfo
+    // - stats
+    // - positionInfo
+    (:development)
+    function addListener(listener as Object) as Void{
+        dataListeners.add(listener);
+        activityInfoListeners.add(listener);
+        systemStatsListeners.add(listener);
     }
 }

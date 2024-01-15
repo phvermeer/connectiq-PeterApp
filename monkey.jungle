@@ -8,5 +8,11 @@ base.MyBarrel.annotations = views;drawables;layout;math;lists;graph;numberPicker
 # vivoactive3.sourcePath = source-vivoactive3
 # vivoactive3.resourcePath = resources-vivoactive3
 
-base.excludeAnnotations = basic;depreciated
-vivoactive3.excludeAnnotations = advanced;depreciated
+# available annotations:
+#   basic/advanced
+#   old/new
+#   depreciated
+
+base.excludeAnnotations = basic;depreciated;development
+vivoactive3.excludeAnnotations = advanced;depreciated;development
+vivoactive4.excludeAnnotations = basic;depreciated;released

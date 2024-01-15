@@ -4,9 +4,10 @@ import Toybox.WatchUi;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import MyBarrel.Drawables;
+using Toybox.Activity;
 
 class TestField extends NumericField{
-    hidden var v as Float = 0.666666666f;
+    hidden var counter as Number = 0;
 
     function initialize(options as {
         :locX as Numeric,
@@ -14,36 +15,12 @@ class TestField extends NumericField{
         :width as Numeric,
         :height as Numeric,
     }) {
-        options.put(:label, "next lap");
+        options.put(:label, "counter");
         NumericField.initialize(options);
     }
-/*
-    function onData(data as Data){
-        updateValue();
-    }
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
-        if(id == Settings.ID_AUTOLAP || id == Settings.ID_AUTOLAP_DISTANCE){
-            updateValue();
-        }
-    }
 
-    hidden function updateValue() as Void{
-        // auto lap test data
-        var session = $.getApp().session;
-        var enabled = session.mAutoLapEnabled;
-        if(!enabled){
-            setValue(null);
-        }else{
-            var lapStartedAt = session.mLastLapDistance;
-            var lapDistance = session.mAutoLapDistance;
-            var lapEndsAt = lapStartedAt + lapDistance;
-            setValue(lapEndsAt/1000f);
-        }
-    }
-*/
-    function onTap(clickEvent as ClickEvent) as Boolean{
-        v *= 10;
-        value.text = formatDecimal(v, 2, 5);
-        return true;
+    function onActivityInfo(info as Activity.Info) as Void{
+        counter++;
+        setValue(counter);
     }
 }
