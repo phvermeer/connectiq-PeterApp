@@ -7,11 +7,14 @@ class Listeners{
     function initialize(method as Symbol){
         self.method = method;
     }
-    function add(listener as Object) as Void{
+    function add(listener as Object, initialInfo as Object|Null) as Void{
         if(listener has method){
             var weakListener = listener.weak();
             if(weakListeners.indexOf(weakListener)<0){
                 weakListeners.add(listener.weak());
+                if(initialInfo != null){
+                    invoke(listener, initialInfo);
+                }
             }
         }
     }

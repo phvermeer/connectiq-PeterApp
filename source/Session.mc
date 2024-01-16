@@ -315,6 +315,6 @@ class Session{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        mListeners.add(listener);
+        mListeners.add(listener, mState);
     }
 }

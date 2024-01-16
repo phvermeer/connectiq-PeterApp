@@ -372,14 +372,14 @@ class Data
 
     (:basic)
     function addListener(listener as Object) as Void{
-        activityInfoListeners.add(listener);
-        systemStatsListeners.add(listener);
+        activityInfoListeners.add(listener, Activity.getActivityInfo());
+        systemStatsListeners.add(listener, System.getSystemStats());
     }
 
     (:advanced)
     function addListener(listener as Object) as Void{
-        activityInfoListeners.add(listener);
-        systemStatsListeners.add(listener);
-        positionListeners.add(listener);
+        activityInfoListeners.add(listener, Activity.getActivityInfo());
+        systemStatsListeners.add(listener, System.getSystemStats());
+        positionListeners.add(listener, Position.getInfo());
     }
 }

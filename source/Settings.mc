@@ -197,7 +197,7 @@ class Settings{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        listeners.add(listener);
+        listeners.add(listener, null);
     }
     hidden function notifyListeners(id as Id, value as ValueType) as Void{
         listeners.notify([id, value]);
