@@ -59,20 +59,23 @@ class FieldManager{
         }
 
         var app = $.getApp();
-        var options = {};
+        var options = {
+            :darkMode => app.settings.get(Settings.ID_DARK_MODE) as Boolean
+        };
+
         var field = null;
         if(id == DATAFIELD_TEST){ field = new TestField(options); }else
         if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
-//          if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
-//          if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
-//          if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
+        // if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
+        // if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
+        // if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
         if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
         if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
-//         if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
-        //  if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
+        // if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
+        // if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
@@ -88,7 +91,7 @@ class FieldManager{
         if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new ElapsedDistanceField(options); }
+        { field = new EmptyField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
@@ -112,9 +115,10 @@ class FieldManager{
 
         // else create a new datafield
         var app = $.getApp();
-        var darkMode = app.settings.get(Settings.ID_DARK_MODE) as Boolean;
+        var options = {
+            :darkMode => app.settings.get(Settings.ID_DARK_MODE) as Boolean
+        };
 
-        var options = { :darkMode => darkMode };
         if(app.track != null){
             options.put(:track, app.track);
         }
@@ -146,7 +150,7 @@ class FieldManager{
         if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new ElapsedDistanceField(options); }
+        { field = new EmptyField(options); }
 
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());

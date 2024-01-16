@@ -2,7 +2,6 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import MyBarrel.Views;
 
-(:basic)
 class FieldPickerView extends DataView{
     hidden var settings as Settings;
 

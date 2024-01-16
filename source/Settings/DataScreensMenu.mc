@@ -1,12 +1,10 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-
-(:basic)
 class DataScreensMenu extends MyMenu{
     hidden var settings as Settings;
 
-    function initialize(settings as Settings, delegate as MyMenuDelegate){
+    function initialize(delegate as MyMenuDelegate, settings as Settings){
         self.settings = settings;
         MyMenu.initialize(delegate,{
             :title => WatchUi.loadResource(Rez.Strings.dataScreens) as String,
@@ -53,6 +51,13 @@ class DataScreensMenu extends MyMenu{
             // show menu for selected dataview
             var menu = new DataScreenMenu(id, settings, sender);
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_IMMEDIATE);
+        }else if(id == -1){
+            // add new screen
+            var screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
+            var screensDefault = Settings.DEFAULT_VALUES[Settings.ID_DATASCREENS] as DataView.ScreensSettings;
+            screens.add(screensDefault[0]);
+            settings.set(Settings.ID_DATASCREENS, screens);
+            updateItems();
         }
 
         return true;

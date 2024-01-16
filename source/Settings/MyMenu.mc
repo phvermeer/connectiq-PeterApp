@@ -1,7 +1,6 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-(:basic)
 class MyMenu extends WatchUi.Menu2{
     private var weakDelegate as WeakReference;
 	private var visible as Boolean = false;

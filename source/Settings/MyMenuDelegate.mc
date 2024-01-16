@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 import Toybox.Lang;
 
-(:basic)
 class MyMenuDelegate extends WatchUi.Menu2InputDelegate {
     private var weakMenus as Array<WeakReference> = [] as Array<WeakReference>;
 	

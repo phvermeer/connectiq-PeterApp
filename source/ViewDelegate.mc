@@ -13,18 +13,10 @@ class ViewDelegate extends Views.MyViewDelegate {
         MyViewDelegate.initialize();
     }
 
-    (:basic)
     function onMenu() as Boolean {
         var delegate = new MyMenuDelegate();
         var settings = $.getApp().settings;
         var menu = new MainMenu(delegate, settings);
-        WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_UP);
-        return true;
-    }
-
-    (:advanced)
-    function onMenu() as Boolean {
-        var menu = new MainMenu();
         WatchUi.pushView(menu, menu.getDelegate(), WatchUi.SLIDE_UP);
         return true;
     }

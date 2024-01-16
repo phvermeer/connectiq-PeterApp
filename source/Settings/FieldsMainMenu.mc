@@ -2,7 +2,6 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Graphics;
 
-(:basic)
 class FieldsMainMenu extends MyMenu{
 	hidden var settings as Settings;
 	hidden var screenIndex as Number;

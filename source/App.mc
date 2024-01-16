@@ -26,18 +26,21 @@ class App extends Application.AppBase {
     (:basic)
     function initialize() {
         AppBase.initialize();
-        log("1");
-        session = new Session({});
-        log("2");
         settings = new Settings();
-        log("3");
+        session = new Session({
+            :sport => settings.get(Settings.ID_SPORT) as Activity.Sport,
+            :autoLapEnabled => settings.get(Settings.ID_AUTOLAP) as Boolean,
+            :autoLapDistance => settings.get(Settings.ID_AUTOLAP_DISTANCE) as Float,
+            :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
+        });
         data = new Data({});
-        log("4");
         fieldManager = new FieldManager();
-        log("5");
 
         // link events
-        data.addListener(fieldManager);
+        data.addListener(session);
+        data.addListener(self);
+        settings.addListener(session);
+        session.addListener(self); // modify data interval/start/stop
     }
 
     (:advanced)
@@ -71,8 +74,10 @@ class App extends Application.AppBase {
         }
 
         data.addListener(session);
+        data.addListener(self);
         settings.addListener(session);
         settings.addListener(data); // breadcrumps settings
+        settings.addListener(self); // track changes
         session.addListener(self); // modify data interval/start/stop
     }
 
@@ -97,6 +102,10 @@ class App extends Application.AppBase {
         started = false;
     }
 
+    function onData(data as Data) as Void{
+        fieldManager.cleanup();
+    }
+    
     (:basic)
     function onSessionState(state as SessionState) as Void {
         // start/stop positioning events
@@ -113,7 +122,6 @@ class App extends Application.AppBase {
         }
     }
 
-
     (:advanced)
     function onSessionState(state as SessionState) as Void {
         // start/stop positioning events
@@ -127,6 +135,13 @@ class App extends Application.AppBase {
                 // start events
                 data.startPositioning();
                 break;
+        }
+    }
+
+    (:advanced)
+    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+        if(id == Settings.ID_TRACK){
+            self.track = (value as Track);
         }
     }
 

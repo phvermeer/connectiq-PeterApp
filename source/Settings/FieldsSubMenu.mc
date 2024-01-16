@@ -2,12 +2,11 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Graphics;
 
-(:basic)
 class FieldsSubMenu extends MyMenu{
 	hidden var settings as Settings;
 	hidden var screenIndex as Number;
 	hidden var fieldIndex as Number;
-    (:basic)
+
 	function initialize(
         delegate as MyMenuDelegate, 
         settings as Settings, 

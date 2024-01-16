@@ -213,7 +213,7 @@ class DataView extends MyView{
     // event handler for screen touch
     function onTap(sender as MyViewDelegate, clickEvent as ClickEvent) as Boolean{
         // forward event to fields
-        for(var i=0; i<fields.size(); i++){
+        for(var i=fields.size()-1; i>=0; i--){
             var xy = clickEvent.getCoordinates();
 
             // compare xy with layout position

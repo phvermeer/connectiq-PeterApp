@@ -21,13 +21,20 @@ class EmptyField extends MyDataField{
         MyDataField.onShow();
         counter = COUNTER;
     }
+
+    function onData(data as Data){
+        if(counter > 0){
+            counter--;
+            if(counter==0){
+                refresh();
+            }
+        }
+    }
     function onUpdate(dc as Dc){
         if(counter > 0){
             dc.setPenWidth(1);
             dc.setColor(getForegroundColor(), getBackgroundColor());
             dc.drawRectangle(locX, locY, width, height);
-            counter--;
         }
-
     }
 }

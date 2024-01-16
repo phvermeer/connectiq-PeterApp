@@ -5,7 +5,7 @@ import Toybox.Activity;
 import Toybox.Math;
 import Toybox.Timer;
 
-(:advanced)
+(:depreciated)
 module Altitude{
     function validatePositionInfo(positionInfo as Position.Info) as Void{
         var position = positionInfo.position;

@@ -2,7 +2,6 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import MyBarrel.Views;
 
-(:basic)
 class LayoutPickerView extends DataView{
     hidden var settings as Settings;
     hidden var layoutId as Number;
