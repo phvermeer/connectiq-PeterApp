@@ -1,13 +1,8 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
-import Toybox.Graphics;
-import Toybox.Application;
-import Toybox.Activity;
 import MyBarrel.Views;
 
 class ViewDelegate extends Views.MyViewDelegate {
-    // current dataView index
-    hidden var dataViewIndex as Number = 0;
 
     function initialize() {
         MyViewDelegate.initialize();

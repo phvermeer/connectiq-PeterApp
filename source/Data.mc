@@ -24,7 +24,7 @@ class Data
     // listeners
     hidden var activityInfoListeners as Listeners = new Listeners(:onActivityInfo);
     hidden var systemStatsListeners as Listeners = new Listeners(:onSystemStats);
-    (:development)
+    (:advanced)
     hidden var positionListeners as Listeners = new Listeners(:onPosition);
 
     hidden var timerStarted as Boolean = false;

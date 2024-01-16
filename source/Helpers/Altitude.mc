@@ -1,3 +1,4 @@
+/*
 import Toybox.Lang;
 import Toybox.Position;
 import Toybox.Communications;
@@ -5,7 +6,6 @@ import Toybox.Activity;
 import Toybox.Math;
 import Toybox.Timer;
 
-(:depreciated)
 module Altitude{
     function validatePositionInfo(positionInfo as Position.Info) as Void{
         var position = positionInfo.position;
@@ -241,3 +241,4 @@ module Altitude{
         }
     }
 }
+*/
