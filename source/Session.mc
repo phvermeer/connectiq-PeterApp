@@ -41,7 +41,9 @@ class LapInfo{
 }
 
 class Session{
+	(:advanced)
 	public var currentLapInfo as LapInfo?;
+	(:advanced)
 	public var previousLapInfo as LapInfo?;
 
     hidden var mListeners as Listeners = new Listeners(:onSessionState);
@@ -224,6 +226,12 @@ class Session{
 		}
 	}
 
+	(:basic)
+	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
+		// skip lap info handling for (:basic)
+	}
+
+	(:advanced)
 	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
 		var info = Activity.getActivityInfo() as Activity.Info;
 		switch(eventType){
@@ -244,6 +252,7 @@ class Session{
 		}
 	}
 
+	(:advanced)
 	function onActivityInfo(info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
@@ -255,6 +264,16 @@ class Session{
 			checkAutoLap(info);
 		}
 	}
+	(:basic)
+	function onActivityInfo(info as Activity.Info) as Void{
+		if(mAutoPause){
+			checkPaused(info);
+		}
+		if(mAutoLapEnabled){
+			checkAutoLap(info);
+		}
+	}
+
 
 	function checkPaused(info as Activity.Info) as Void{
 		// increase delay counter if the pause state is invalid for currentspeed
