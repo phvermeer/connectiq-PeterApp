@@ -20,11 +20,14 @@ class Listeners{
             var weaklistener = weakListeners[i] as WeakReference;
             var listener = weaklistener.get() as Object|Null;
             if(listener != null){
-                listener.method(method).invoke(info);
+                invoke(listener, info);
             }else{
                 weakListeners.remove(weaklistener);
                 i--;
             }
         }
+    }
+    hidden function invoke(listener as Object, info as Object) as Void{
+        listener.method(method).invoke(info);
     }
 }

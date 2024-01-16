@@ -4,6 +4,17 @@ import Toybox.Application;
 import Toybox.Application.Storage;
 import Toybox.Graphics;
 
+class SettingsListeners extends Listeners{
+    function initialize(){
+        Listeners.initialize(:onSetting);
+    }
+
+    function invoke(listener as Object, info as Object){
+        var params = info as Array;
+        listener.method(method).invoke(params[0], params[1]);
+    }
+}
+
 class Settings{
     enum Id{
         // global settings
@@ -30,9 +41,6 @@ class Settings{
     typedef ValueType as PropertyValueType;
     (:advanced)
     typedef ValueType as PropertyValueType|Track;
-    typedef IListener as interface{
-        function onSetting(id as Id, value as ValueType) as Void;
-    };
 
     hidden enum ProfileSection{
         SECTION_GLOBAL = 0,
@@ -64,7 +72,7 @@ class Settings{
     hidden var profileId as ProfileSection;
     hidden var profileData as Array<PropertyValueType>;
 
-    hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
+    hidden var listeners as SettingsListeners = new SettingsListeners();
 
     function initialize(){
         // load global data
@@ -189,29 +197,9 @@ class Settings{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        if((listener as IListener) has :onSetting){
-            listeners.add(listener.weak());
-        }
-    }
-    function removeListener(listener as Object) as Void{
-        // loop through array to look for listener
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l == null || l.equals(listener)){
-                listeners.remove(ref);
-            }
-        }
+        listeners.add(listener);
     }
     hidden function notifyListeners(id as Id, value as ValueType) as Void{
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l != null){
-                (l as IListener).onSetting(id, value);
-            }else{
-                listeners.remove(ref);
-            }
-        }
+        listeners.notify([id, value]);
     }
 }
