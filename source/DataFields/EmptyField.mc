@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.Graphics;
 import MyBarrel.Drawables;
 import MyBarrel.Layout;
+import Toybox.Activity;
 
 class EmptyField extends MyDataField{
     const COUNTER = 2;
@@ -22,7 +23,7 @@ class EmptyField extends MyDataField{
         counter = COUNTER;
     }
 
-    function onData(data as Data){
+    function onActivityInfo(info as Activity.Info) as Void{
         if(counter > 0){
             counter--;
             if(counter==0){

@@ -45,11 +45,9 @@ class MultiDataField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onData(data as Data) as Void{
-        var info = data.activityInfo;
+    function onActivityInfo(info as Activity.Info) as Void{
         var value
-            = (info == null) ? null 
-            : (fieldId == DATAFIELD_ELAPSED_TIME) ? formatTime(info.timerTime)
+            = (fieldId == DATAFIELD_ELAPSED_TIME) ? formatTime(info.timerTime)
             : (fieldId == DATAFIELD_CURRENT_SPEED) ? toSpeedUnit(info.currentSpeed)
             : (fieldId == DATAFIELD_AVG_SPEED) ? toSpeedUnit(info.averageSpeed)
             : (fieldId == DATAFIELD_MAX_SPEED) ? toSpeedUnit(info.maxSpeed)
@@ -64,12 +62,6 @@ class MultiDataField extends NumericField{
             : (fieldId == DATAFIELD_ENERGY_RATE) ? info.energyExpenditure
             : (fieldId == DATAFIELD_PRESSURE) ? toPressureUnit(info.ambientPressure)
             : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? toPressureUnit(info.meanSeaLevelPressure)
-
-            // system stats
-            : (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
-            : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100f * data.stats.usedMemory / data.stats.totalMemory)
-            : (fieldId == DATAFIELD_BATTERY) ? formatPercentage(data.stats.battery)
-
             : null;
 
         setValue(value);

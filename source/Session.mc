@@ -41,14 +41,10 @@ class LapInfo{
 }
 
 class Session{
-    typedef IListener as interface{
-        function onSessionState(state as SessionState) as Void;
-    };
-
 	public var currentLapInfo as LapInfo?;
 	public var previousLapInfo as LapInfo?;
 
-    hidden var mListeners as Array<WeakReference> = [] as Array<WeakReference>;
+    hidden var mListeners as Listeners = new Listeners(:onSessionState);
 	hidden var mState as SessionState = SESSION_STATE_IDLE;
 	hidden var mSession as ActivityRecording.Session? = null;
 	hidden var mOptions as { 
@@ -94,7 +90,7 @@ class Session{
 	hidden function setState(state as SessionState) as Void{
 		if(mState != state){
 			mState = state;
-			notifyListeners(state);
+			mListeners.notify(state);
 		}
 	}
 	public function getState() as SessionState{
@@ -248,18 +244,15 @@ class Session{
 		}
 	}
 
-	function onData(data as Data) as Void{
-		var info = data.activityInfo;
-		if(info != null){
-			if(currentLapInfo != null){
-				currentLapInfo.update(info);
-			}
-			if(mAutoPause){
-				checkPaused(info);
-			}
-			if(mAutoLapEnabled){
-				checkAutoLap(info);
-			}
+	function onActivityInfo(info as Activity.Info) as Void{
+		if(currentLapInfo != null){
+			currentLapInfo.update(info);
+		}
+		if(mAutoPause){
+			checkPaused(info);
+		}
+		if(mAutoLapEnabled){
+			checkAutoLap(info);
 		}
 	}
 
@@ -303,30 +296,6 @@ class Session{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        if((listener as IListener) has :onSessionState){
-            mListeners.add(listener.weak());
-			(listener as IListener).onSessionState(mState);
-        }
-    }
-    function removeListener(listener as Object) as Void{
-        // loop through array to look for listener
-        for(var i=mListeners.size()-1; i>=0; i--){
-            var ref = mListeners[i];
-            var l = ref.get();
-            if(l == null || l.equals(listener)){
-                mListeners.remove(ref);
-            }
-        }
-    }
-    hidden function notifyListeners(state as SessionState) as Void{
-        for(var i=mListeners.size()-1; i>=0; i--){
-            var ref = mListeners[i];
-            var l = ref.get();
-            if(l != null){
-                (l as IListener).onSessionState(state);
-            }else{
-                mListeners.remove(ref);
-            }
-        }
+        mListeners.add(listener);
     }
 }

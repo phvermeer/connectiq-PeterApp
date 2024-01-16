@@ -10,24 +10,23 @@ class Data
    	static const EARTH_RADIUS = 6371000f;
     (:advanced)
     typedef XyPoint as Array<Float>;
-    typedef IListener as interface{
-        function onData(data as Data) as Void;
-    };
-    class Listener{
-        function onData(data as Data) as Void{}
-    }
 
-    (:advanced)
-    public var positionInfo as Position.Info;
-    public var activityInfo as Activity.Info|Null;
-    public var stats as System.Stats;
+//    (:advanced)
+//    public var positionInfo as Position.Info;
+//    public var activityInfo as Activity.Info|Null;
+//    public var stats as System.Stats;
 
     (:advanced)
     hidden var track as Track?;
     (:advanced)
     public var xy as XyPoint|Null;
 
-    hidden var listeners as Array<WeakReference> = [] as Array<WeakReference>;
+    // listeners
+    hidden var activityInfoListeners as Listeners = new Listeners(:onActivityInfo);
+    hidden var systemStatsListeners as Listeners = new Listeners(:onSystemStats);
+    (:advanced)
+    hidden var positionListeners as Listeners = new Listeners(:onPosition);
+
     hidden var timerStarted as Boolean = false;
     (:advanced)
     hidden var positioningStarted as Boolean = false;
@@ -59,8 +58,8 @@ class Data
         :latCenter as Decimal,
         :lonCenter as Decimal,
     }){
-        activityInfo = Activity.getActivityInfo();
-        stats = System.getSystemStats();
+//        activityInfo = Activity.getActivityInfo();
+//        stats = System.getSystemStats();
     }
 
     (:advanced)
@@ -76,10 +75,6 @@ class Data
         breadcrumpsEnabled = options.hasKey(:breadcrumpsEnabled) ? options.get(:breadcrumpsEnabled) as Boolean : true;
         interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
         track = options.get(:track) as Track|Null;
-
-        activityInfo = Activity.getActivityInfo();
-        positionInfo = Position.getInfo();
-        stats = System.getSystemStats();
     }
 
     (:basic)
@@ -167,7 +162,8 @@ class Data
         if(track != null){
             setCenter(track.latlonCenter);
         }else{
-            var position = self.positionInfo.position;
+            var posInfo = Position.getInfo();
+            var position = posInfo.position;
             if(position != null){
                 var latlon = position.toRadians();
                 setCenter(latlon);
@@ -270,11 +266,11 @@ class Data
     (:basic)    
     function onTimer() as Void{
         var info = Activity.getActivityInfo();
-        self.stats = System.getSystemStats();
         if(info != null){
-            self.activityInfo = info;
+            activityInfoListeners.notify(info);
         }
-        notifyListeners();
+        var stats = System.getSystemStats();
+        systemStatsListeners.notify(stats);
     }
 
     (:advanced)
@@ -299,7 +295,7 @@ class Data
         if(info.accuracy >= Position.QUALITY_POOR && position != null){
             eventReceived = true;
             setInfo(info, Activity.getActivityInfo(), System.getSystemStats());
-            notifyListeners();
+            positionListeners.notify(info);
         }
     }
 
@@ -308,8 +304,6 @@ class Data
         // position info
         var xy = null;
         if(positionInfo != null){
-            self.positionInfo = positionInfo;
-
             // position => xy
             var position = positionInfo.position;
             if(positionInfo.accuracy >= Position.QUALITY_POOR && position != null){
@@ -330,14 +324,11 @@ class Data
         // activity info
         if(activityInfo != null){
             // update altitude
-            self.activityInfo = activityInfo;
+            activityInfoListeners.notify(activityInfo);
         }
 
         // system stats
-        self.stats = stats;
-
-        // notify listeners
-        notifyListeners();
+        systemStatsListeners.notify(stats);
     }
 
     (:advanced)
@@ -373,33 +364,22 @@ class Data
     }
 
     // Listeners
-    function addListener(listener as Object) as Void{
-        if((listener as IListener) has :onData){
-            listeners.add(listener.weak());
 
-            // initial trigger
-            (listener as IListener).onData(self);
-        }
+    // additional listener function for different info from data
+    // - activityInfo
+    // - stats
+    // - positionInfo
+
+    (:basic)
+    function addListener(listener as Object) as Void{
+        activityInfoListeners.add(listener);
+        systemStatsListeners.add(listener);
     }
-    function removeListener(listener as Object) as Void{
-        // loop through array to look for listener
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l == null || l.equals(listener)){
-                listeners.remove(ref);
-            }
-        }
-    }
-    hidden function notifyListeners() as Void{
-        for(var i=listeners.size()-1; i>=0; i--){
-            var ref = listeners[i];
-            var l = ref.get();
-            if(l != null){
-                (l as IListener).onData(self);
-            }else{
-                listeners.remove(ref);
-            }
-        }
+
+    (:advanced)
+    function addListener(listener as Object) as Void{
+        activityInfoListeners.add(listener);
+        systemStatsListeners.add(listener);
+        positionListeners.add(listener);
     }
 }

@@ -14,9 +14,8 @@ class ElapsedDistanceField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onData(data as Data) as Void{
-        var info = data.activityInfo;
-        var value = (info != null) ? info.elapsedDistance : null;
+    function onActivityInfo(info as Activity.Info) as Void{
+        var value = info.elapsedDistance;
         setValue(value);
     }
 }

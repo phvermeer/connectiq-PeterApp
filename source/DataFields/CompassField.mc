@@ -1,6 +1,7 @@
 import MyBarrel.Drawables;
 import Toybox.Lang;
 import Toybox.Graphics;
+import Toybox.Activity;
 import MyBarrel.Layout;
 
 class CompassField extends MyDataField{
@@ -29,13 +30,10 @@ class CompassField extends MyDataField{
         helper.resizeToMax(compass, true);
     }
 
-    function onData(data as Data) as Void{
-        var info = data.activityInfo;
-        var bearing = (info != null)
-            ? (Activity.Info has :bearing)
-                ? info.bearing
-                : info.currentHeading
-            : null;
+    function onActivityInfo(info as Activity.Info) as Void{
+        var bearing = (Activity.Info has :bearing)
+            ? info.bearing
+            : info.currentHeading;
 
         if(compass.bearing != bearing){
             compass.bearing = bearing;

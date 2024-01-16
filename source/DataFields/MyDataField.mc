@@ -66,10 +66,6 @@ class MyDataField extends WatchUi.Drawable{
         // override this function
     }
 
-    public function onData(data as Data) as Void{
-        // called periodicly from external
-    }
-
     public function onTap(clickEvent as ClickEvent) as Boolean{
         // override this function
         return false;

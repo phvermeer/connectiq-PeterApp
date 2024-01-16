@@ -72,7 +72,7 @@ class TrackProfileField extends MyDataField{
 		helper.resizeToMax(trend, true);
 	}
 
-	function onData(data as Data) as Void{
+	function onPosition(info as Position.Info) as Void{
 		var x = (track != null) ? track.distanceElapsed : null;
 		serie.xCurrent = x;
 	}
