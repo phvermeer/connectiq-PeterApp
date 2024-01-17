@@ -24,18 +24,24 @@ class RemainingDistanceField extends NumericField{
     function onActivityInfo(info as Activity.Info) as Void{
         var track = $.getApp().track;
         var value = null;
-        var color = Graphics.COLOR_RED;
-        if(track != null && track.isOnTrack()){
-            if(self.value.color == color){
-                color = getForegroundColor();
+        var useAlertColor = false;
+        if(track != null){
+            if(!track.isOnTrack()){
+                useAlertColor = true;
             }
 
             var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
-            var distanceOffTrack = (track.distanceOffTrack != null) ? track.distanceOffTrack as Float : 0f;
-            value = formatDistance(track.distanceTotal + distanceOffTrack - distanceElapsed);
+            value = formatDistance(track.distanceTotal - distanceElapsed);
+            setValue(value);
+        }else{
+            setValue(null);
         }
-        self.value.color = color;
-        setValue(value);
+        // use alert color RED when off track
+        var hasAlertColor = self.value.color == Graphics.COLOR_RED;
+        if(hasAlertColor != useAlertColor){
+            self.value.color = useAlertColor ? Graphics.COLOR_RED : getForegroundColor();
+        }
+        
     }
 
     static function formatDistance(value as Numeric|Null) as Numeric|Null{
