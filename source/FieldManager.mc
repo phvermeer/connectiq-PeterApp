@@ -116,12 +116,10 @@ class FieldManager{
         // else create a new datafield
         var app = $.getApp();
         var options = {
-            :darkMode => app.settings.get(Settings.ID_DARK_MODE) as Boolean
+            :darkMode => app.settings.get(Settings.ID_DARK_MODE) as Boolean,
+            :trackAManger => app.trackManager,
         };
-
-        if(app.track != null){
-            options.put(:track, app.track);
-        }
+        
         var field = null;
         if(id == DATAFIELD_TEST){ field = new TestField(options); }else
         if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else

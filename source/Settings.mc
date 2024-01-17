@@ -9,7 +9,7 @@ class SettingsListeners extends Listeners{
         Listeners.initialize(:onSetting);
     }
 
-    function invoke(listener as Object, info as Object){
+    function invoke(listener as Object, info as Object|Null){
         var params = info as Array;
         listener.method(method).invoke(params[0], params[1]);
     }

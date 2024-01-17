@@ -18,7 +18,7 @@ class Listeners{
             }
         }
     }
-    function notify(info as Object) as Void{
+    function notify(info as Object|Null) as Void{
         for(var i=0; i<weakListeners.size(); i++){
             var weaklistener = weakListeners[i] as WeakReference;
             var listener = weaklistener.get() as Object|Null;
@@ -30,7 +30,7 @@ class Listeners{
             }
         }
     }
-    hidden function invoke(listener as Object, info as Object) as Void{
+    hidden function invoke(listener as Object, info as Object|Null) as Void{
         listener.method(method).invoke(info);
     }
 }

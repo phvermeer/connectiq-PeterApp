@@ -6,7 +6,7 @@ import MyBarrel.Layout;
 
 (:advanced)
 class TrackOverviewField extends MyDataField{
-    hidden var track as Track?;
+    hidden var trackManager as TrackManager;
     hidden var bitmap as BufferedBitmap?;
     hidden var xOffset as Numeric = 0;
     hidden var yOffset as Numeric = 0;
@@ -16,13 +16,13 @@ class TrackOverviewField extends MyDataField{
     hidden var xyCurrent as Array<Float>|Null;
 
     function initialize(options as {
-        :track as Track
+        :darkMode as Boolean
     }){
         MyDataField.initialize(options);
-        track = options.get(:track);
+        trackManager = $.getApp().trackManager;
 
-        if(track != null && track.xCurrent != null && track.yCurrent != null){
-            xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
+        if(trackManager.xy != null){
+            xyCurrent = trackManager.xy;
         }
     }
 
@@ -34,22 +34,24 @@ class TrackOverviewField extends MyDataField{
         markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
         // update the bitmap
-        updateBitmap(track);
+        updateBitmap(trackManager.track);
     }
 
     function onUpdate(dc as Dc){
+        var track = trackManager.track;
         if(track != null && bitmap != null){
-            var track = self.track as Track;
             var bitmap = self.bitmap as BufferedBitmap;
 
             // Draw the track
             dc.drawBitmap(locX as Numeric, locY as Numeric, bitmap);
 
             // Draw the finish marker
-            var i = track.count-1;
+            var count = track.xyValues.size();
+            var i = count-1;
             if(i>0){
-                var x = xOffset + zoomFactor * track.xValues[i];
-                var y = yOffset + zoomFactor * track.yValues[i];
+                var xy = track.xyValues[i];
+                var x = xOffset + zoomFactor * xy[0] as Float;
+                var y = yOffset + zoomFactor * xy[1] as Float;
                 var color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x, y, markerSize);
@@ -106,20 +108,22 @@ class TrackOverviewField extends MyDataField{
             var dc = bitmap.getDc();
 
             if(dc != null){
-                var count = track.count;
+                var count = track.xyValues.size();
 
                 var penWidth = getTrackThickness(zoomFactor);
                 dc.setPenWidth(penWidth);
                 dc.setColor(trackColor, backgroundColor);
 
-                var x1 = xOffset + zoomFactor * track.xValues[0];
-                var y1 = yOffset + zoomFactor * track.yValues[0];
+                var xy1 = track.xyValues[0];
+                var x1 = xOffset + zoomFactor * xy1[0];
+                var y1 = yOffset + zoomFactor * xy1[1];
                 var x2;
                 var y2;
 
                 for(var i=1; i<count; i++){
-                    x2 = xOffset + zoomFactor * track.xValues[i];
-                    y2 = yOffset + zoomFactor * track.yValues[i];
+                    var xy2 = track.xyValues[i];
+                    x2 = xOffset + zoomFactor * xy2[0];
+                    y2 = yOffset + zoomFactor * xy2[1];
 
                     dc.drawLine(x1, y1, x2, y2);
 
@@ -183,7 +187,7 @@ class TrackOverviewField extends MyDataField{
         MyDataField.onSetting(id, value);
         if(id == Settings.ID_TRACK){
             // update the track bitmap
-            track = value as Track?;
+            var track = value as Track?;
             updateBitmap(track);
             refresh();
         }
@@ -233,16 +237,14 @@ class TrackOverviewField extends MyDataField{
         MyDataField.setDarkMode(darkMode);
 
         // update track bitmap with updated colors
-        var track = $.getApp().track;
+        var track = trackManager.track;
         if(track != null && bitmap != null){
             updateBitmap(track);
         }
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
-        var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
-            ? [track.xCurrent, track.yCurrent] as Array<Float>
-            : null;
+        var xy = trackManager.xy;
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

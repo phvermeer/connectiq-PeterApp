@@ -73,8 +73,7 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onActivityInfo(info as Activity.Info) as Void{
-		var x = (track != null) ? track.distanceElapsed : null;
-		serie.xCurrent = x;
+		serie.xCurrent = $.getApp().trackManager.elapsedDistance;
 	}
 
 	function onUpdate(dc as Graphics.Dc){

@@ -8,7 +8,7 @@ import MyBarrel.Math2;
 
 (:advanced)
 class TrackField extends MyDataField{
-    hidden var track as Track?;
+    hidden var trackManager as TrackManager;
     hidden var xyCurrent as Array<Float>|Null;
     hidden var legend as TrackScaleLegend;
     hidden var positionMarker as TrackPositionMarker;
@@ -17,13 +17,13 @@ class TrackField extends MyDataField{
     hidden var markerSize as Number = 3;
 
     function initialize(options as {
-        :track as Track,
         :xyCurrent as Array<Float>,
     }){
         MyDataField.initialize(options);
-        track = options.get(:track);
-
-        zoomFactor = $.getApp().settings.get(Settings.ID_ZOOMFACTOR) as Float;
+        var app = $.getApp();
+        trackManager = app.trackManager;
+        xyCurrent = trackManager.xy;
+        zoomFactor = app.settings.get(Settings.ID_ZOOMFACTOR) as Float;
 
         legend = new TrackScaleLegend({
             :zoomFactor => zoomFactor,
@@ -68,6 +68,7 @@ class TrackField extends MyDataField{
         // draw the map
         var xOffset = locX + width/2;
         var yOffset = locY + height/2;
+        var xyCurrent = trackManager.xy;
         if(xyCurrent != null ){
             xOffset -= zoomFactor * xyCurrent[0];
             yOffset -= zoomFactor * xyCurrent[1];
@@ -83,24 +84,27 @@ class TrackField extends MyDataField{
         var yMin = locY;
         var yMax = locY + height;
 
-        if(self.track != null){
-            var track = self.track as Track;
+        var track = trackManager.track;
+        if(track != null){
             color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
             var colorToDo = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-            x1 = xOffset + zoomFactor * track.xValues[0];
-            y1 = yOffset + zoomFactor * track.yValues[0];
+            var xy1 = track.xyValues[0];
+            x1 = xOffset + zoomFactor * xy1[0];
+            y1 = yOffset + zoomFactor * xy1[1];
             var skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
             var sectionDone = true;
-            for(var i=1; i<track.count; i++){
-                x2 = xOffset + zoomFactor * track.xValues[i];
-                y2 = yOffset + zoomFactor * track.yValues[i];
+            var count = track.xyValues.size();
+            for(var i=1; i<count; i++){
+                var xy2 = track.xyValues[i];
+                x2 = xOffset + zoomFactor * xy2[0];
+                y2 = yOffset + zoomFactor * xy2[1];
 
-                if(i-1==track.iCurrent){
+                if(i-1==trackManager.index){
                     // extra interpolated point to switch color done => todo
                     if(sectionDone){
-                        var l = track.lambdaCurrent;
+                        var l = trackManager.lambda;
                         if(l != null){
                             x2 = x1 + (x2-x1)*l;
                             y2 = y1 + (y2-y1)*l;
@@ -188,9 +192,11 @@ class TrackField extends MyDataField{
         }
 
         if(track != null){
-            var i = track.count - 1;
-            var x = xOffset + zoomFactor * track.xValues[i];
-            var y = yOffset + zoomFactor * track.yValues[i];
+            var trackCount = track.xyValues.size();
+            var i = trackCount - 1;
+            var xy = track.xyValues[i];
+            var x = xOffset + zoomFactor * xy[0];
+            var y = yOffset + zoomFactor * xy[1];
 
             // draw finish marker
    	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
@@ -211,11 +217,6 @@ class TrackField extends MyDataField{
             legend.setZoomFactor(zoomFactor);
             refresh();
         }
-    }
-
-    hidden function setTrack(track as Track?) as Void{
-        self.track = track;
-        refresh();
     }
 
     function onTap(clickEvent as ClickEvent) as Boolean{
@@ -245,7 +246,7 @@ class TrackField extends MyDataField{
             // update zoomfactor
             setZoomFactor(value as Float);
         }else if(id == Settings.ID_TRACK){
-            setTrack(value as Track?);
+            refresh();
         }
     }
 
@@ -284,9 +285,7 @@ class TrackField extends MyDataField{
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
-        var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
-            ? [track.xCurrent, track.yCurrent] as Array<Float>
-            : null;
+        var xy = trackManager.xy;
         var accuracy = info.currentLocationAccuracy;
         if(xy != null && accuracy != null && accuracy >= Position.QUALITY_POOR && xy != xyCurrent){
             xyCurrent = xy;

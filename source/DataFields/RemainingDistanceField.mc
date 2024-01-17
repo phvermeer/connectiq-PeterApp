@@ -22,16 +22,17 @@ class RemainingDistanceField extends NumericField{
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
-        var track = $.getApp().track;
+        var trackManager = $.getApp().trackManager;
+        var track = trackManager.track;
         var value = null;
         var useAlertColor = false;
         if(track != null){
-            if(!track.isOnTrack()){
+            if(!trackManager.isOnTrack()){
                 useAlertColor = true;
             }
 
-            var distanceElapsed = (track.distanceElapsed != null) ? track.distanceElapsed as Float : 0f;
-            value = formatDistance(track.distanceTotal - distanceElapsed);
+            var elapsedDistance = (trackManager.elapsedDistance != null) ? trackManager.elapsedDistance as Float : 0f;
+            value = formatDistance(track.distance - elapsedDistance);
             setValue(value);
         }else{
             setValue(null);
