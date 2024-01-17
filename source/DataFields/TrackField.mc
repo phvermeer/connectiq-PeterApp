@@ -1,7 +1,7 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.WatchUi;
-import Toybox.Position;
+import Toybox.Activity;
 import Toybox.Application;
 import MyBarrel.Layout;
 import MyBarrel.Math2;
@@ -283,15 +283,14 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onPosition(info as Position.Info) as Void{
+    function onActivityInfo(info as Activity.Info) as Void{
         var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
             ? [track.xCurrent, track.yCurrent] as Array<Float>
             : null;
-        var quality = info.accuracy;
-        if(xy != null && quality >= Position.QUALITY_POOR && xy != xyCurrent){
-            var heading = info.heading;
+        var accuracy = info.currentLocationAccuracy;
+        if(xy != null && accuracy != null && accuracy >= Position.QUALITY_POOR && xy != xyCurrent){
             xyCurrent = xy;
-            positionMarker.setHeading(heading);
+            positionMarker.setHeading(info.currentHeading);
             refresh();
         }
     }

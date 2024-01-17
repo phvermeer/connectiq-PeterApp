@@ -22,10 +22,8 @@ class Data
     public var xy as XyPoint|Null;
 
     // listeners
-    hidden var activityInfoListeners as Listeners = new Listeners(:onActivityInfo);
-    hidden var systemStatsListeners as Listeners = new Listeners(:onSystemStats);
-    (:advanced)
-    hidden var positionListeners as Listeners = new Listeners(:onPosition);
+    hidden var infoListeners as Listeners = new Listeners(:onActivityInfo);
+    hidden var statsListeners as Listeners = new Listeners(:onSystemStats);
 
     hidden var timerStarted as Boolean = false;
     (:advanced)
@@ -48,6 +46,8 @@ class Data
     (:advanced)
     hidden var latlonCenter as Array<Decimal>|Null;
     hidden var timer as Timer.Timer = new Timer.Timer();
+    hidden var info as Activity.Info?;
+    hidden var stats as System.Stats?;
 
     // Collector of historical position data in a register
     (:basic)
@@ -267,10 +267,11 @@ class Data
     function onTimer() as Void{
         var info = Activity.getActivityInfo();
         if(info != null){
-            activityInfoListeners.notify(info);
+            self.info = info;
+            infoListeners.notify(info);
         }
-        var stats = System.getSystemStats();
-        systemStatsListeners.notify(stats);
+        self.stats = System.getSystemStats();
+        statsListeners.notify(stats);
     }
 
     (:advanced)
@@ -278,57 +279,60 @@ class Data
         if(!eventReceived){
             // slow update when no position events are received within timer
             var info = Activity.getActivityInfo();
+            var stats = System.getSystemStats();
+            self.stats = stats;
             if(info != null){
+                self.info = info;
+
                 // process info
-                var stats = System.getSystemStats();
-                setInfo(null, info, stats);
+                processInfo(info, stats);
+
+                infoListeners.notify(info);
             }
+            statsListeners.notify(stats);            
         }else{
             eventReceived = false;
         }
     }
 
     (:advanced)
-    function onPosition(info as Position.Info) as Void{
+    function onPosition(posInfo as Position.Info) as Void{
         // transform to xy
-        var position = info.position;
-        if(info.accuracy >= Position.QUALITY_POOR && position != null){
+        var position = posInfo.position;
+        if(posInfo.accuracy >= Position.QUALITY_POOR && position != null){
             eventReceived = true;
-            setInfo(info, Activity.getActivityInfo(), System.getSystemStats());
-            positionListeners.notify(info);
+            var info = Activity.getActivityInfo();
+            var stats = System.getSystemStats();
+            self.stats = stats;
+
+            if(info != null){
+                self.info = info;
+                processInfo(info, stats);
+                infoListeners.notify(info);
+            }
+            statsListeners.notify(stats);
         }
     }
 
     (:advanced)
-    hidden function setInfo(positionInfo as Position.Info|Null, activityInfo as Activity.Info|Null, stats as Stats) as Void{
-        // position info
+    hidden function processInfo(info as Activity.Info, stats as Stats) as Void{
+        // position => xy
         var xy = null;
-        if(positionInfo != null){
-            // position => xy
-            var position = positionInfo.position;
-            if(positionInfo.accuracy >= Position.QUALITY_POOR && position != null){
-                var latlon = position.toRadians();
-                xy = calculateXY(latlon);
+        var position = info.currentLocation;
+        var accuracy = info.currentLocationAccuracy;
+        if(position != null && accuracy != null && accuracy >= Position.QUALITY_POOR && position != null){
+            var latlon = position.toRadians();
+            xy = calculateXY(latlon);
 
-                // update track (do not wait for listeners events to update position on track)
-                if(track != null){
-                    track.setCurrentXY(xy[0], xy[1]);
-                }
+            // update track (do not wait for listeners events to update position on track)
+            if(track != null){
+                track.setCurrentXY(xy[0], xy[1]);
             }
         }
         updateBreadcrumps(self.xy, xy);
 
         // keep last point
         self.xy = xy;
-
-        // activity info
-        if(activityInfo != null){
-            // update altitude
-            activityInfoListeners.notify(activityInfo);
-        }
-
-        // system stats
-        systemStatsListeners.notify(stats);
     }
 
     (:advanced)
@@ -370,16 +374,8 @@ class Data
     // - stats
     // - positionInfo
 
-    (:basic)
     function addListener(listener as Object) as Void{
-        activityInfoListeners.add(listener, Activity.getActivityInfo());
-        systemStatsListeners.add(listener, System.getSystemStats());
-    }
-
-    (:advanced)
-    function addListener(listener as Object) as Void{
-        activityInfoListeners.add(listener, Activity.getActivityInfo());
-        systemStatsListeners.add(listener, System.getSystemStats());
-        positionListeners.add(listener, Position.getInfo());
+        infoListeners.add(listener, info);
+        statsListeners.add(listener, stats);
     }
 }
