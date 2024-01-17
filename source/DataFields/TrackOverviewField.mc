@@ -1,6 +1,6 @@
 import Toybox.Lang;
 import Toybox.Graphics;
-import Toybox.Position;
+import Toybox.Activity;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
 
@@ -239,7 +239,7 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onPosition(info as Position.Info) as Void{
+    function onActivityInfo(info as Activity.Info) as Void{
         var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
             ? [track.xCurrent, track.yCurrent] as Array<Float>
             : null;
