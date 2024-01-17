@@ -6,7 +6,7 @@ import Toybox.Application;
 import MyBarrel.Layout;
 import MyBarrel.Math2;
 
-(:advanced)
+(:track)
 class TrackField extends MyDataField{
     hidden var trackManager as TrackManager;
     hidden var xyCurrent as Array<Float>|Null;
@@ -131,11 +131,50 @@ class TrackField extends MyDataField{
         color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-        var points = $.getApp().data.getBreadcrumps();
+        drawBreadcrumps(dc, xOffset, yOffset, zoomFactor);
+
+
+        if(track != null){
+            var trackCount = track.xyValues.size();
+            var i = trackCount - 1;
+            var xy = track.xyValues[i];
+            var x = xOffset + zoomFactor * xy[0];
+            var y = yOffset + zoomFactor * xy[1];
+
+            // draw finish marker
+   	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
+            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(x, y, markerSize);
+        }
+
+        // draw current position marker
+        if(xyCurrent != null){
+            positionMarker.draw(dc);
+        }
+    }
+
+    (:noBreadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        // do nothing
+    }
+
+    (:breadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        var points = $.getApp().data.breadcrumps;
         var count = points.size();
         if(count >= 1){
             var p1 = points[0];
             var skip1 = true;
+
+            var x1 = 0f;
+            var y1 = 0f;
+            var x2 = 0f;
+            var y2 = 0f;
+            var xMin = locX;
+            var xMax = locX + width;
+            var yMin = locY;
+            var yMax = locY + height;
+
             if(p1 != null){
                 x1 = xOffset + zoomFactor * p1[0];
                 y1 = yOffset + zoomFactor * p1[1];
@@ -189,24 +228,6 @@ class TrackField extends MyDataField{
 
                 dc.drawLine(x1, y1, x2, y2);
             }
-        }
-
-        if(track != null){
-            var trackCount = track.xyValues.size();
-            var i = trackCount - 1;
-            var xy = track.xyValues[i];
-            var x = xOffset + zoomFactor * xy[0];
-            var y = yOffset + zoomFactor * xy[1];
-
-            // draw finish marker
-   	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
-            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(x, y, markerSize);
-        }
-
-        // draw current position marker
-        if(xyCurrent != null){
-            positionMarker.draw(dc);
         }
     }
 

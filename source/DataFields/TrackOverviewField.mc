@@ -4,7 +4,7 @@ import Toybox.Activity;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
 
-(:advanced)
+(:track)
 class TrackOverviewField extends MyDataField{
     hidden var trackManager as TrackManager;
     hidden var bitmap as BufferedBitmap?;
@@ -130,56 +130,71 @@ class TrackOverviewField extends MyDataField{
                     x1 = x2;
                     y1 = y2;
                 }
-
-                // breadcrumps
-                var breadcrumps = $.getApp().data.getBreadcrumps();
-                count = breadcrumps.size();
-                if(count>=2){
-                    var xMin = locX;
-                    var xMax = locX + width;
-                    var yMin = locY;
-                    var yMax = locY + height;
-
-                    dc.setColor(breadcrumpColor, backgroundColor);
-                    var p1 = breadcrumps[0];
-                    var skip1 = true;
-                    if(p1 != null){
-                        x1 = xOffset + zoomFactor * p1[0];
-                        y1 = yOffset + zoomFactor * p1[1];
-                        skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-                    }
-                    for(var i=1; i<breadcrumps.size(); i++){
-                        var p2 = breadcrumps[i];
-                        if(p2 != null){
-                            x2 = xOffset + zoomFactor * p2[0];
-                            y2 = yOffset + zoomFactor * p2[1];
-                            var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
-
-                            // interpolate with points outside field area
-                            if(skip1 && !skip2){
-                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                                x1 = xy[0];
-                                y1 = xy[1];
-                            }else if(!skip1 && skip2){
-                                var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
-                                x2 = xy[0];
-                                y2 = xy[1];
-                            }
-
-                            if(p1 != null && (!skip1 || !skip2)){
-                                dc.drawLine(x1, y1, x2, y2);
-                            }
-                            x1 = x2;
-                            y1 = y2;
-                            skip1 = skip2;
-                        }
-                        p1 = p2;
-                    }
-                }
+                
+                // draw breadcrumps
+                dc.setColor(breadcrumpColor, backgroundColor);
+                drawBreadcrumps(dc, xOffset, yOffset, zoomFactor);
             }
         }else{
             // clear bitmap
             self.bitmap = null;
+        }
+    }
+
+    (:noBreadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        // do nothing
+    }
+
+    (:breadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        // breadcrumps
+        var breadcrumps = $.getApp().data.breadcrumps;
+        var count = breadcrumps.size();
+        if(count>=2){
+            var x1 = 0f;
+            var y1 = 0f;
+            var x2 = 0f;
+            var y2 = 0f;
+            var xMin = locX;
+            var xMax = locX + width;
+            var yMin = locY;
+            var yMax = locY + height;
+
+            var p1 = breadcrumps[0];
+            var skip1 = true;
+            if(p1 != null){
+                x1 = xOffset + zoomFactor * p1[0];
+                y1 = yOffset + zoomFactor * p1[1];
+                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
+            }
+            for(var i=1; i<breadcrumps.size(); i++){
+                var p2 = breadcrumps[i];
+                if(p2 != null){
+                    x2 = xOffset + zoomFactor * p2[0];
+                    y2 = yOffset + zoomFactor * p2[1];
+                    var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+
+                    // interpolate with points outside field area
+                    if(skip1 && !skip2){
+                        var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                        x1 = xy[0];
+                        y1 = xy[1];
+                    }else if(!skip1 && skip2){
+                        var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                        x2 = xy[0];
+                        y2 = xy[1];
+                    }
+
+                    if(p1 != null && (!skip1 || !skip2)){
+                        dc.drawLine(x1, y1, x2, y2);
+                    }
+                    x1 = x2;
+                    y1 = y2;
+                    skip1 = skip2;
+                }
+                p1 = p2;
+            }
         }
     }
 

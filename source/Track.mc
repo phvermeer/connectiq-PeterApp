@@ -4,7 +4,7 @@ import Toybox.Position;
 import Toybox.Attention;
 import MyBarrel.Math2;
 
-(:advanced)
+(:track)
 class Track{
 	// static track data
     var name as String;

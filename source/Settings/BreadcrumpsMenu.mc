@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 
+(:breadcrumps)
 class BreadcrumpsMenu extends MyMenu{
     var settings as Settings;
 

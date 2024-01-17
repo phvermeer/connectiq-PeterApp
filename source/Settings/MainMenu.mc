@@ -20,17 +20,27 @@ class MainMenu extends MyMenu{
             Settings.ID_SPORT,
             Settings.ID_DARK_MODE,
             Settings.ID_AUTOLAP,
-            Settings.ID_AUTOPAUSE,
-            Settings.ID_BREADCRUMPS,
-            -1, // clear settings
-            -2, // clear track
+            Settings.ID_AUTOPAUSE
         ];
+        if(Data has :breadcrumps){ 
+            ids.add(Settings.ID_BREADCRUMPS);
+        }
+        ids.add(-1); // clear settings
+
+        if(App has :trackManager){ 
+            ids.add(-2); // clear track
+        }
 
         for(var i=0; i<ids.size(); i++){
             var id = ids[i] as Settings.Id|Number;
             var menuItem = createMenuItem(id);
             addItem(menuItem);
         }
+    }
+
+    (:noBreadcrumps)
+    hidden function addBreadcrumpsId(ids as Array) as Array{
+        return ids;
     }
 
     hidden function createMenuItem(id as Number|Settings.Id) as MenuItem{
@@ -104,22 +114,31 @@ class MainMenu extends MyMenu{
             }
 
         }else if(id == Settings.ID_BREADCRUMPS){
-            var enabled = settings.get(Settings.ID_BREADCRUMPS) as Boolean;
-            if(enabled){
-                var count = settings.get(Settings.ID_BREADCRUMPS_MAX_COUNT) as Number;
-                var distance = settings.get(Settings.ID_BREADCRUMPS_MIN_DISTANCE) as Number;
-                var textCounts = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS_MAX_COUNT);
-                var textDistances = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS_MIN_DISTANCE);
-                return Lang.format("$1$ x $2$",[textCounts.get(count) as String, textDistances.get(distance) as String]);
-            }else{
-                var textValues = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS);
-                return textValues.get(enabled) as String;
-            }
-
+            return getSubLabelBreadcrumps();
         }else{
             return null;
         }
     }
+
+    (:breadcrumps)
+    hidden function getSubLabelBreadcrumps() as String|Null{
+        var enabled = settings.get(Settings.ID_BREADCRUMPS) as Boolean;
+        if(enabled){
+            var count = settings.get(Settings.ID_BREADCRUMPS_MAX_COUNT) as Number;
+            var distance = settings.get(Settings.ID_BREADCRUMPS_MIN_DISTANCE) as Number;
+            var textCounts = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS_MAX_COUNT);
+            var textDistances = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS_MIN_DISTANCE);
+            return Lang.format("$1$ x $2$",[textCounts.get(count) as String, textDistances.get(distance) as String]);
+        }else{
+            var textValues = BreadcrumpsMenu.getTextValues(Settings.ID_BREADCRUMPS);
+            return textValues.get(enabled) as String;
+        }
+
+    }
+    (:noBreadcrumps)
+    hidden function getSubLabelBreadcrumps() as String|Null{ return null; }
+    
+
 
     static function getTextValues(id as Settings.Id) as Dictionary{
         if(id == Settings.ID_SPORT){
@@ -193,8 +212,7 @@ class MainMenu extends MyMenu{
             var menu = new AutoLapMenu(sender, settings);
             WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
         }else if(id == Settings.ID_BREADCRUMPS){
-            var menu = new BreadcrumpsMenu(sender, settings);
-            WatchUi.pushView(menu, sender, WatchUi.SLIDE_LEFT);
+            pushBreadcrumpsMenu(sender, settings, WatchUi.SLIDE_LEFT);
         }else if(
             id == Settings.ID_SPORT || id == Settings.ID_DARK_MODE
         ){
@@ -214,5 +232,13 @@ class MainMenu extends MyMenu{
         }
         return true;
     }
+
+    (:breadcrumps)
+    hidden function pushBreadcrumpsMenu(delegate as MyMenuDelegate, settings as Settings, transition as SlideType) as Void{
+        var menu = new BreadcrumpsMenu(delegate, settings);
+        WatchUi.pushView(menu, delegate, transition);
+    }
+    (:noBreadcrumps)
+    hidden function pushBreadcrumpsMenu(delegate as MyMenuDelegate, settings as Settings, transition as SlideType) as Void{ return; }
 
 }

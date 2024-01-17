@@ -11,44 +11,45 @@ class Data
     hidden var statsListeners as Listeners = new Listeners(:onSystemStats);
 
     hidden var timerStarted as Boolean = false;
-    (:advanced)
+    (:track)
     hidden var eventReceived as Boolean = false;
 
     // settings
-    (:advanced)
+    (:track)
     hidden var interval as Number;
-    (:advanced)
+    (:breadcrumps)
     hidden var breadcrumpsEnabled as Boolean;
-    (:advanced)
-    hidden var breadcrumps as Array<XY|Null> = [] as Array<XY|Null>;
-    (:advanced)
+    (:breadcrumps)
+    var breadcrumps as Array<XY|Null> = [] as Array<XY|Null>;
+    (:breadcrumps)
     hidden var breadcrumpsDistance as Number;
-    (:advanced)
+    (:breadcrumps)
     hidden var breadcrumpsMax as Number;
 
-    (:advanced)
+    (:breadcrumps)
     hidden var latlonCenter as Array<Decimal>|Null;
     hidden var timer as Timer.Timer = new Timer.Timer();
     hidden var info as Activity.Info?;
     hidden var stats as System.Stats?;
+    (:track)
     hidden var xy as XY?;
 
     // Collector of historical position data in a register
-    (:basic)
+    (:noBreadcrumps)
     function initialize(options as {
-        :breadcrumpsEnabled as Boolean,
-        :breadcrumpsMax as Number, // max number of breadcrumps
-        :breadcrumpsDistance as Number, // minimal distance [m] between 2 archived points
+        :interval as Number,
     }){
-//        activityInfo = Activity.getActivityInfo();
-//        stats = System.getSystemStats();
+        if(Data has :interval){
+            interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
+        }
     }
 
-    (:advanced)
+    (:breadcrumps)
     function initialize(options as {
         :breadcrumpsEnabled as Boolean,
         :breadcrumpsMax as Number, // max number of breadcrumps
         :breadcrumpsDistance as Number, // minimal distance [m] between 2 archived points
+        :interval as Number,
     }){
         breadcrumpsMax = options.hasKey(:breadcrumpsMax) ? options.get(:breadcrumpsMax) as Number : 50;
         breadcrumpsDistance = options.hasKey(:breadcrumpsDistance) ? options.get(:breadcrumpsDistance) as Number : 50;
@@ -56,7 +57,7 @@ class Data
         interval = options.hasKey(:interval) ? options.get(:interval) as Number : 5000;
     }
 
-    (:basic)
+    (:noTrack)
     function startTimer() as Void{
         if(!timerStarted){
             // start timer events
@@ -64,7 +65,7 @@ class Data
             timerStarted = true;
         }
     }
-    (:advanced)
+    (:track)
     function startTimer() as Void{
         if(!timerStarted){
             // start timer events
@@ -82,7 +83,7 @@ class Data
     }
 
     // Settings
-    (:advanced)
+    (:breadcrumps)
     function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_BREADCRUMPS){
             setBreadcrumpsEnabled(value as Boolean);
@@ -93,7 +94,7 @@ class Data
         }
     }
 
-    (:advanced)
+    (:track)
     function setInterval(interval as Number) as Void{
         var doRestart = (timerStarted && interval != self.interval);
         self.interval = interval;
@@ -104,13 +105,13 @@ class Data
         }
     }
 
-    (:advanced)
+    (:breadcrumps)
     function setBreadcrumpsMax(max as Number) as Void{
         self.breadcrumpsMax = max;
         checkBreadcrumpsMax();
     }
 
-    (:advanced)
+    (:breadcrumps)
     hidden function checkBreadcrumpsMax() as Void{
         var size = breadcrumps.size();
         if(size > breadcrumpsMax){
@@ -118,12 +119,12 @@ class Data
         }
     }
 
-    (:advanced)
+    (:breadcrumps)
     hidden function setBreadcrumpsDistance(distance as Number) as Void{
         breadcrumpsDistance = distance;
     }
 
-    (:advanced)
+    (:breadcrumps)
     hidden function setBreadcrumpsEnabled(enabled as Boolean) as Void{
         breadcrumpsEnabled = enabled;
         if(!enabled){
@@ -131,7 +132,12 @@ class Data
         }
     }
 
-    (:advanced)
+    (:noBreadcrumps)
+    hidden function updateBreadcrumps(xyPrev as Object|Null, xyNew as Object|Null) as Void{
+        // do nothing
+    }
+    
+    (:breadcrumps)
     hidden function updateBreadcrumps(xyPrev as XY|Null, xyNew as XY|Null) as Void{
         if(breadcrumpsEnabled){
             // get distance between new point and last recorded point
@@ -168,7 +174,7 @@ class Data
             }
         }
     }
-    (:advanced)
+    (:breadcrumps)
     public function onPositionOffset(dxy as XY) as Void{
         var dx = dxy[0] as Float;
         var dy = dxy[1] as Float;
@@ -181,7 +187,7 @@ class Data
         }
     }
 
-    (:basic)    
+    (:noTrack)    
     function onTimer() as Void{
         var info = Activity.getActivityInfo();
         if(info != null){
@@ -192,7 +198,7 @@ class Data
         statsListeners.notify(stats);
     }
 
-    (:advanced)
+    (:track)
     function onTimer() as Void{
         if(!eventReceived){
             // slow update when no position events are received within timer
@@ -209,7 +215,7 @@ class Data
         }
     }
 
-    (:advanced)
+    (:track)
     function onPosition(xy as XY) as Void{
         // process xy for breadcrump
         updateBreadcrumps(self.xy, xy);
@@ -229,15 +235,27 @@ class Data
         statsListeners.notify(stats);
     }
 
-    (:advanced)
+    (:noTrack)
+    function onSessionState(state as SessionState) as Void {
+        // start/stop positioning events
+        switch(state){
+            case SESSION_STATE_IDLE:
+            case SESSION_STATE_STOPPED:
+                // stop events
+	            stopTimer();
+                break;
+            case SESSION_STATE_BUSY:
+                // start events
+                startTimer();
+                break;
+        }
+    }
+
+
+    (:breadcrumps)
     hidden function addBreadcrump(xy as XY|Null) as Void{
         breadcrumps.add(xy);
         checkBreadcrumpsMax();
-    }
-
-    (:advanced)
-    function getBreadcrumps() as Array<XY|Null>{
-        return breadcrumps;
     }
 
      // Listeners

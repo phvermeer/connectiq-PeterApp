@@ -4,10 +4,10 @@ import Toybox.Position;
 import Toybox.Attention;
 import MyBarrel.Math2;
 
-(:advanced)
+(:track)
 typedef XY as Array<Float>; // [x, y]
 
-(:advanced)
+(:track)
 class TrackManager{
 	static const EARTH_RADIUS = 6371000f;
 	static const DISTANCE_ONTRACK = 50f; // distance in meters from track to define as on-track
@@ -39,6 +39,9 @@ class TrackManager{
     function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
 		if(id == Settings.ID_TRACK){
 	        track = value as Track|Null;
+			if(track != null){
+				setCenter(track.latlonCenter);
+			}
 		}
     }
 

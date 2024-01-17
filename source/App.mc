@@ -16,14 +16,14 @@ typedef SessionStateListener as interface {
 class App extends Application.AppBase {
     var settings as Settings;
     var session as Session;
-    (:advanced)
+    (:track)
     var trackManager as TrackManager;
     var fieldManager as FieldManager;
     var data as Data;
 //    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
-    (:basic)
+    (:noTrack)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
@@ -43,7 +43,7 @@ class App extends Application.AppBase {
         session.addListener(self); // modify data interval/start/stop
     }
 
-    (:advanced)
+    (:track)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
@@ -79,6 +79,7 @@ class App extends Application.AppBase {
         settings.addListener(data); // breadcrumps settings
         settings.addListener(trackManager); // track changes
         session.addListener(trackManager); // modify data interval/start/stop
+        session.addListener(data);
         trackManager.addListener(data);
     }
 
@@ -99,22 +100,6 @@ class App extends Application.AppBase {
         fieldManager.cleanup();
     }
     
-    (:basic)
-    function onSessionState(state as SessionState) as Void {
-        // start/stop positioning events
-        switch(state){
-            case SESSION_STATE_IDLE:
-            case SESSION_STATE_STOPPED:
-                // stop events
-	            data.stopTimer();
-                break;
-            case SESSION_STATE_BUSY:
-                // start events
-                data.startTimer();
-                break;
-        }
-    }
-
     function onPhone(msg as Communications.Message) as Void{
         // receive track data
         if(msg.data instanceof Array){

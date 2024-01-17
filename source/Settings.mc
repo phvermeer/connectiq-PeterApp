@@ -37,9 +37,9 @@ class Settings{
         ID_PROFILE_MAX = 13,
     }
 
-    (:basic)
+    (:noTrack)
     typedef ValueType as PropertyValueType;
-    (:advanced)
+    (:track)
     typedef ValueType as PropertyValueType|Track;
 
     hidden enum ProfileSection{
@@ -164,11 +164,11 @@ class Settings{
         notifyListeners(settingId, value);
     }
 
-    (:basic)
+    (:noTrack)
     function convertToTrack(value as ValueType) as ValueType{
         return value;
     }
-    (:advanced)
+    (:track)
     function convertToTrack(value as ValueType) as ValueType{
         return new Track(value as Array);
     }
