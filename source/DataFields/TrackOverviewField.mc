@@ -4,7 +4,7 @@ import Toybox.Activity;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
 
-(:track)
+(:advanced)
 class TrackOverviewField extends MyDataField{
     hidden var trackManager as TrackManager;
     hidden var bitmap as BufferedBitmap?;
@@ -84,8 +84,8 @@ class TrackOverviewField extends MyDataField{
 
             helper.resizeToMax(dummy, false);
 
-            xOffset = dummy.locX + dummy.width/2;
-            yOffset = dummy.locY + dummy.height/2;
+            xOffset = dummy.locX - locX + dummy.width/2;
+            yOffset = dummy.locY - locY + dummy.height/2;
 
             // create the bitmap
             var trackColor = getTrackColor();

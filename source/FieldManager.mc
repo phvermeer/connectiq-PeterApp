@@ -48,7 +48,6 @@ class FieldManager{
         fieldRefs = {} as Dictionary<DataFieldId, WeakReference>;
     }
 
-    (:track)
     function getField(id as DataFieldId) as MyDataField{
         // check if field already is created
         var ref = fieldRefs.get(id);
@@ -66,16 +65,11 @@ class FieldManager{
         var field = null;
         if(id == DATAFIELD_TEST){ field = new TestField(options); }else
         if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
-        if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
-        if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
         if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
         if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
-        // if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
         if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
@@ -90,65 +84,13 @@ class FieldManager{
         if(id == DATAFIELD_MEMORY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
-        if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new EmptyField(options); }
-
-        // keep weak link in buffer for new requests
-        fieldRefs.put(id, field.weak());
-        log(Lang.format("Field $1$ is created", [id]));
-
-        // keep fields up-to-date
-        app.data.addListener(field);
-        app.settings.addListener(field);
-        return field;
-    }
-
-    (:noTrack)
-    function getField(id as DataFieldId) as MyDataField{
-        // check if field already is created
-        var ref = fieldRefs.get(id);
-        if(ref != null){
-            if(ref.stillAlive()){
-                return ref.get() as MyDataField;
+        if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else{
+            field = getTrackFields(id, options);
+            if(field == null){
+                field = new EmptyField(options);
             }
         }
 
-        // else create a new datafield
-        var app = $.getApp();
-        var options = {
-            :darkMode => app.settings.get(Settings.ID_DARK_MODE) as Boolean,
-        };
-        
-        var field = null;
-        if(id == DATAFIELD_TEST){ field = new TestField(options); }else
-        if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
-        // if(id == DATAFIELD_TRACK_MAP){ field = new TrackField(options); }else
-        // if(id == DATAFIELD_TRACK_OVERVIEW){ field = new TrackOverviewField(options); }else
-        // if(id == DATAFIELD_TRACK_PROFILE){ field = new TrackProfileField(options); }else
-        if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
-        if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
-        // if(id == DATAFIELD_REMAINING_DISTANCE){ field = new RemainingDistanceField(id, options); }else
-        //  if(id == DATAFIELD_ELEVATION_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_AVG_HEARTRATE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MAX_HEARTRATE){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_OXYGEN_SATURATION){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ENERGY_RATE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_PRESSURE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ALTITUDE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_CLOCK){ field = new SystemStatsField(id, options); }else
-        if(id == DATAFIELD_MEMORY){ field = new SystemStatsField(id, options); }else
-        if(id == DATAFIELD_BATTERY){ field = new SystemStatsField(id, options); }else
-        if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
-        // if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else
-        { field = new EmptyField(options); }
-
         // keep weak link in buffer for new requests
         fieldRefs.put(id, field.weak());
         log(Lang.format("Field $1$ is created", [id]));
@@ -158,6 +100,30 @@ class FieldManager{
         app.settings.addListener(field);
         return field;
     }
+
+    // additional optional fields
+    (:track)
+    function getTrackFields(id as DataFieldId, options as { :darkMode as Boolean }) as MyDataField|Null{
+        if(id == DATAFIELD_TRACK_MAP){ return new TrackField(options); }else
+        if(id == DATAFIELD_REMAINING_DISTANCE){ return new RemainingDistanceField(id, options); }else
+        { return getAdvancedFields(id, options); }
+    }
+    (:noTrack)
+    function getTrackFields(id as DataFieldId, options as { :darkMode as Boolean }) as MyDataField|Null{
+        return null;
+    }
+
+    (:advanced)
+    function getAdvancedFields(id as DataFieldId, options as { :darkMode as Boolean }) as MyDataField|Null{
+        if(id == DATAFIELD_TRACK_PROFILE){ return new TrackProfileField(options); }else  
+        if(id == DATAFIELD_TRACK_OVERVIEW){ return new TrackOverviewField(options); }else
+        { return null; }
+    }
+    (:basic)
+    function getAdvancedFields(id as DataFieldId, options as { :darkMode as Boolean }) as MyDataField|Null{
+        return null;
+    }
+
 
     function getFields(ids as Array<DataFieldId>) as Array<MyDataField>{
         var count = ids.size();
