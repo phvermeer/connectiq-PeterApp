@@ -10,8 +10,8 @@ base.MyBarrel.annotations = views;drawables;layout;math;lists;graph;numberPicker
 
 # available annotations:
 #   basic/advanced
-#   old/new
+#   original/replacement
 
-base.excludeAnnotations = basic
-vivoactive3.excludeAnnotations = advanced
-vivoactive4.excludeAnnotations = basic
+base.excludeAnnotations = basic;replacement
+vivoactive3.excludeAnnotations = advanced;original
+vivoactive4.excludeAnnotations = basic;replacement
