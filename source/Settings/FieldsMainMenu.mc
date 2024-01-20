@@ -48,13 +48,17 @@ class FieldsMainMenu extends MyMenu{
 		var id = item.getId() as String;
 		var menu = null;
 		if(id == 0){
+			var items = (App has :trackManager)
+				?{
+					DATAFIELD_ELAPSED_DISTANCE => WatchUi.loadResource(Rez.Strings.distance),
+					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
+				}:{
+					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
+				};
 			menu = new FieldsSubMenu(
 				sender, settings, screenIndex, fieldIndex,
 				WatchUi.loadResource(Rez.Strings.distanceFields) as String,
-				{
-					DATAFIELD_ELAPSED_DISTANCE => WatchUi.loadResource(Rez.Strings.distance),
-					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
-				}
+				items
 			);
 		}else if(id == 1){
 			menu = new FieldsSubMenu(
@@ -93,19 +97,23 @@ class FieldsMainMenu extends MyMenu{
 					DATAFIELD_CLOCK => WatchUi.loadResource(Rez.Strings.clock),
 					DATAFIELD_MEMORY => WatchUi.loadResource(Rez.Strings.memory),
 					DATAFIELD_BATTERY => WatchUi.loadResource(Rez.Strings.battery),
-					DATAFIELD_STATUS => WatchUi.loadResource(Rez.Strings.status),
 				}
 			);
 		}else if(id == 5){
-			menu = new FieldsSubMenu(
-				sender, settings, screenIndex, fieldIndex,
-				WatchUi.loadResource(Rez.Strings.positioningFields) as String,
-				{
+			var items = (App has :trackManager)
+				? {
 					DATAFIELD_TRACK_MAP => WatchUi.loadResource(Rez.Strings.navigation),
 					DATAFIELD_TRACK_OVERVIEW => WatchUi.loadResource(Rez.Strings.map),
 					DATAFIELD_TRACK_PROFILE => WatchUi.loadResource(Rez.Strings.profile),
+					DATAFIELD_STATUS => WatchUi.loadResource(Rez.Strings.status),					
 					DATAFIELD_COMPASS => WatchUi.loadResource(Rez.Strings.compass),
-				}
+				}:{
+					DATAFIELD_COMPASS => WatchUi.loadResource(Rez.Strings.compass),
+				};
+			menu = new FieldsSubMenu(
+				sender, settings, screenIndex, fieldIndex,
+				WatchUi.loadResource(Rez.Strings.positioningFields) as String,
+				items
 			);
 		}else if(id == 6){
 			menu = new FieldsSubMenu(

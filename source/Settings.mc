@@ -9,7 +9,7 @@ class SettingsListeners extends Listeners{
         Listeners.initialize(:onSetting);
     }
 
-    function invoke(listener as Object, info as Object){
+    function invoke(listener as Object, info as Object|Null){
         var params = info as Array;
         listener.method(method).invoke(params[0], params[1]);
     }
@@ -37,9 +37,9 @@ class Settings{
         ID_PROFILE_MAX = 13,
     }
 
-    (:basic)
+    (:noTrack)
     typedef ValueType as PropertyValueType;
-    (:advanced)
+    (:track)
     typedef ValueType as PropertyValueType|Track;
 
     hidden enum ProfileSection{
@@ -164,11 +164,11 @@ class Settings{
         notifyListeners(settingId, value);
     }
 
-    (:basic)
+    (:noTrack)
     function convertToTrack(value as ValueType) as ValueType{
         return value;
     }
-    (:advanced)
+    (:track)
     function convertToTrack(value as ValueType) as ValueType{
         return new Track(value as Array);
     }

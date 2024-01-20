@@ -4,7 +4,7 @@ import Toybox.Lang;
 using Toybox.System;
 import MyBarrel.Math2;
 
-(:advanced)
+(:track)
 class TrackPositionMarker extends WatchUi.Drawable{
 	hidden var heading as Float?;
 	hidden var radius as Float;

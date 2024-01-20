@@ -1,26 +1,22 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 import Toybox.WatchUi;
-import Toybox.Position;
 import Toybox.Application;
 import Toybox.Activity;
-import Toybox.Time;
 using Toybox.Timer;
 using Toybox.Math;
-import MyBarrel.Lists;
-import MyBarrel.Graph;
-import MyBarrel.Layout;
+import MyBarrel;
 
 (:advanced)
 class TrackProfileField extends MyDataField{
 	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
 	var track as Track?;
-	var xAxis as Axis;
-	var yAxis as Axis;
+	var xAxis as Graph.Axis;
+	var yAxis as Graph.Axis;
 
-	hidden var data as BufferedList;
-	hidden var serie as Serie;
-	hidden var trend as Trend;
+	hidden var data as Lists.BufferedList;
+	hidden var serie as Graph.Serie;
+	hidden var trend as Graph.Trend;
 
 	var xCurrent as Float|Null = null;
 	
@@ -32,9 +28,9 @@ class TrackProfileField extends MyDataField{
 	){
 		MyDataField.initialize(options);
 
-		xAxis = new Axis(0, 500); // distance 0..500m
-		yAxis = new Axis(0, 50); // altitude 0..50m
-		data = new BufferedList({
+		xAxis = new Graph.Axis(0, 500); // distance 0..500m
+		yAxis = new Graph.Axis(0, 50); // altitude 0..50m
+		data = new Lists.BufferedList({
 			:maxCount => 50,
 			:listener => self,
 		});
@@ -43,7 +39,7 @@ class TrackProfileField extends MyDataField{
 			:style => Graph.DRAW_STYLE_FILLED,
 		});
 		trend = new Graph.Trend({
-			:series => [serie] as Array<Serie>,
+			:series => [serie] as Array<Graph.Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 		});
@@ -73,8 +69,7 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onActivityInfo(info as Activity.Info) as Void{
-		var x = (track != null) ? track.distanceElapsed : null;
-		serie.xCurrent = x;
+		serie.xCurrent = $.getApp().trackManager.elapsedDistance;
 	}
 
 	function onUpdate(dc as Graphics.Dc){
@@ -106,7 +101,7 @@ class TrackProfileField extends MyDataField{
 
 				// fill elevation data
 				for(var i=0; i<altitudes.size(); i++){
-					data.add(new DataPoint(track.distances[i], altitudes[i]));
+					data.add(new Graph.DataPoint(track.distances[i], altitudes[i]));
 				}
 			}
 		}
@@ -149,7 +144,7 @@ class TrackProfileField extends MyDataField{
 	}
 
 	// adjust axis limits
-	hidden function updateAxisLimits(series as Array<Serie>) as Void{
+	hidden function updateAxisLimits(series as Array<Graph.Serie>) as Void{
 		var xMin = 0; // always start at distance 0
 		var xMax = null;
 		var yMin = null;

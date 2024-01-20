@@ -31,12 +31,10 @@ class CompassField extends MyDataField{
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
-        var bearing = (Activity.Info has :bearing)
-            ? info.bearing
-            : info.currentHeading;
+        var heading = info.currentHeading;
 
-        if(compass.bearing != bearing){
-            compass.bearing = bearing;
+        if(compass.heading != heading){
+            compass.heading = heading;
             refresh();
         }
     }

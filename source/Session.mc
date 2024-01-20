@@ -12,6 +12,7 @@ enum SessionState {
 	SESSION_STATE_STOPPED,
 }
 
+(:lapInfo)
 class LapInfo{
 	public var speed as Float?; // [m/s]
 	public var time as Number = 0; // [ms]
@@ -41,9 +42,9 @@ class LapInfo{
 }
 
 class Session{
-	(:advanced)
+	(:lapInfo)
 	public var currentLapInfo as LapInfo?;
-	(:advanced)
+	(:lapInfo)
 	public var previousLapInfo as LapInfo?;
 
     hidden var mListeners as Listeners = new Listeners(:onSessionState);
@@ -226,12 +227,11 @@ class Session{
 		}
 	}
 
-	(:basic)
+	(:noLapInfo)
 	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
-		// skip lap info handling for (:basic)
+		// do nothing
 	}
-
-	(:advanced)
+	(:lapInfo)
 	function onEvents(eventType as ActivityRecording.TimerEventType, eventData as Dictionary) as Void{
 		var info = Activity.getActivityInfo() as Activity.Info;
 		switch(eventType){
@@ -252,7 +252,7 @@ class Session{
 		}
 	}
 
-	(:advanced)
+	(:lapInfo)
 	function onActivityInfo(info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
@@ -264,7 +264,7 @@ class Session{
 			checkAutoLap(info);
 		}
 	}
-	(:basic)
+	(:noLapInfo)
 	function onActivityInfo(info as Activity.Info) as Void{
 		if(mAutoPause){
 			checkPaused(info);

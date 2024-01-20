@@ -16,14 +16,14 @@ typedef SessionStateListener as interface {
 class App extends Application.AppBase {
     var settings as Settings;
     var session as Session;
-    (:advanced)
-    var track as Track?;
+    (:track)
+    var trackManager as TrackManager;
     var fieldManager as FieldManager;
     var data as Data;
 //    var history as MyHistoryIterator = new MyHistoryIterator();
     var started as Boolean = false;
 
-    (:basic)
+    (:noTrack)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
@@ -43,7 +43,7 @@ class App extends Application.AppBase {
         session.addListener(self); // modify data interval/start/stop
     }
 
-    (:advanced)
+    (:track)
     function initialize() {
         AppBase.initialize();
         settings = new Settings();
@@ -55,6 +55,7 @@ class App extends Application.AppBase {
         });
 
         fieldManager = new FieldManager();
+        trackManager = new TrackManager();
 
         session = new Session({
             :sport => settings.get(Settings.ID_SPORT) as Activity.Sport,
@@ -63,22 +64,23 @@ class App extends Application.AppBase {
             :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
         });
 
-
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
         var trackData = settings.get(Settings.ID_TRACK);
         if(trackData instanceof Array){
-            track = new Track(trackData as Array);
-            data.setTrack(track);
+            var track = new Track(trackData as Array);
+            trackManager.onSetting(Settings.ID_TRACK, track);
         }
 
         data.addListener(session);
         data.addListener(self);
         settings.addListener(session);
         settings.addListener(data); // breadcrumps settings
-        settings.addListener(self); // track changes
-        session.addListener(self); // modify data interval/start/stop
+        settings.addListener(trackManager); // track changes
+        session.addListener(trackManager); // modify data interval/start/stop
+        session.addListener(data);
+        trackManager.addListener(data);
     }
 
     // onStart() is called on application start up
@@ -88,16 +90,8 @@ class App extends Application.AppBase {
     }
 
     // onStop() is called when your application is exiting
-    (:basic)
     function onStop(state as Dictionary?) as Void {
         data.stopTimer();
-        session.stop();
-        started = false;
-    }
-    (:advanced)    
-    function onStop(state as Dictionary?) as Void {
-        data.stopTimer();
-        data.stopPositioning();
         session.stop();
         started = false;
     }
@@ -106,45 +100,6 @@ class App extends Application.AppBase {
         fieldManager.cleanup();
     }
     
-    (:basic)
-    function onSessionState(state as SessionState) as Void {
-        // start/stop positioning events
-        switch(state){
-            case SESSION_STATE_IDLE:
-            case SESSION_STATE_STOPPED:
-                // stop events
-	            data.stopTimer();
-                break;
-            case SESSION_STATE_BUSY:
-                // start events
-                data.startTimer();
-                break;
-        }
-    }
-
-    (:advanced)
-    function onSessionState(state as SessionState) as Void {
-        // start/stop positioning events
-        switch(state){
-            case SESSION_STATE_IDLE:
-            case SESSION_STATE_STOPPED:
-                // stop events
-	            data.stopPositioning();
-                break;
-            case SESSION_STATE_BUSY:
-                // start events
-                data.startPositioning();
-                break;
-        }
-    }
-
-    (:advanced)
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
-        if(id == Settings.ID_TRACK){
-            self.track = (value as Track);
-        }
-    }
-
     function onPhone(msg as Communications.Message) as Void{
         // receive track data
         if(msg.data instanceof Array){

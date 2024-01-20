@@ -6,7 +6,7 @@ import MyBarrel.Layout;
 
 (:advanced)
 class TrackOverviewField extends MyDataField{
-    hidden var track as Track?;
+    hidden var trackManager as TrackManager;
     hidden var bitmap as BufferedBitmap?;
     hidden var xOffset as Numeric = 0;
     hidden var yOffset as Numeric = 0;
@@ -16,13 +16,13 @@ class TrackOverviewField extends MyDataField{
     hidden var xyCurrent as Array<Float>|Null;
 
     function initialize(options as {
-        :track as Track
+        :darkMode as Boolean
     }){
         MyDataField.initialize(options);
-        track = options.get(:track);
+        trackManager = $.getApp().trackManager;
 
-        if(track != null && track.xCurrent != null && track.yCurrent != null){
-            xyCurrent = [track.xCurrent, track.yCurrent] as Array<Float>;;
+        if(trackManager.xy != null){
+            xyCurrent = trackManager.xy;
         }
     }
 
@@ -34,22 +34,24 @@ class TrackOverviewField extends MyDataField{
         markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
         // update the bitmap
-        updateBitmap(track);
+        updateBitmap(trackManager.track);
     }
 
     function onUpdate(dc as Dc){
+        var track = trackManager.track;
         if(track != null && bitmap != null){
-            var track = self.track as Track;
             var bitmap = self.bitmap as BufferedBitmap;
 
             // Draw the track
             dc.drawBitmap(locX as Numeric, locY as Numeric, bitmap);
 
             // Draw the finish marker
-            var i = track.count-1;
+            var count = track.xyValues.size();
+            var i = count-1;
             if(i>0){
-                var x = xOffset + zoomFactor * track.xValues[i];
-                var y = yOffset + zoomFactor * track.yValues[i];
+                var xy = track.xyValues[i];
+                var x = xOffset + zoomFactor * xy[0] as Float;
+                var y = yOffset + zoomFactor * xy[1] as Float;
                 var color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x, y, markerSize);
@@ -82,8 +84,8 @@ class TrackOverviewField extends MyDataField{
 
             helper.resizeToMax(dummy, false);
 
-            xOffset = dummy.locX + dummy.width/2;
-            yOffset = dummy.locY + dummy.height/2;
+            xOffset = dummy.locX - locX + dummy.width/2;
+            yOffset = dummy.locY - locY + dummy.height/2;
 
             // create the bitmap
             var trackColor = getTrackColor();
@@ -106,72 +108,32 @@ class TrackOverviewField extends MyDataField{
             var dc = bitmap.getDc();
 
             if(dc != null){
-                var count = track.count;
+                var count = track.xyValues.size();
 
                 var penWidth = getTrackThickness(zoomFactor);
                 dc.setPenWidth(penWidth);
                 dc.setColor(trackColor, backgroundColor);
 
-                var x1 = xOffset + zoomFactor * track.xValues[0];
-                var y1 = yOffset + zoomFactor * track.yValues[0];
+                var xy1 = track.xyValues[0];
+                var x1 = xOffset + zoomFactor * xy1[0];
+                var y1 = yOffset + zoomFactor * xy1[1];
                 var x2;
                 var y2;
 
                 for(var i=1; i<count; i++){
-                    x2 = xOffset + zoomFactor * track.xValues[i];
-                    y2 = yOffset + zoomFactor * track.yValues[i];
+                    var xy2 = track.xyValues[i];
+                    x2 = xOffset + zoomFactor * xy2[0];
+                    y2 = yOffset + zoomFactor * xy2[1];
 
                     dc.drawLine(x1, y1, x2, y2);
 
                     x1 = x2;
                     y1 = y2;
                 }
-
-                // breadcrumps
-                var breadcrumps = $.getApp().data.getBreadcrumps();
-                count = breadcrumps.size();
-                if(count>=2){
-                    var xMin = locX;
-                    var xMax = locX + width;
-                    var yMin = locY;
-                    var yMax = locY + height;
-
-                    dc.setColor(breadcrumpColor, backgroundColor);
-                    var p1 = breadcrumps[0];
-                    var skip1 = true;
-                    if(p1 != null){
-                        x1 = xOffset + zoomFactor * p1[0];
-                        y1 = yOffset + zoomFactor * p1[1];
-                        skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-                    }
-                    for(var i=1; i<breadcrumps.size(); i++){
-                        var p2 = breadcrumps[i];
-                        if(p2 != null){
-                            x2 = xOffset + zoomFactor * p2[0];
-                            y2 = yOffset + zoomFactor * p2[1];
-                            var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
-
-                            // interpolate with points outside field area
-                            if(skip1 && !skip2){
-                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                                x1 = xy[0];
-                                y1 = xy[1];
-                            }else if(!skip1 && skip2){
-                                var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
-                                x2 = xy[0];
-                                y2 = xy[1];
-                            }
-
-                            if(p1 != null && (!skip1 || !skip2)){
-                                dc.drawLine(x1, y1, x2, y2);
-                            }
-                            x1 = x2;
-                            y1 = y2;
-                            skip1 = skip2;
-                        }
-                        p1 = p2;
-                    }
-                }
+                
+                // draw breadcrumps
+                dc.setColor(breadcrumpColor, backgroundColor);
+                drawBreadcrumps(dc, xOffset, yOffset, zoomFactor);
             }
         }else{
             // clear bitmap
@@ -179,11 +141,68 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
+    (:noBreadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        // do nothing
+    }
+
+    (:breadcrumps)
+    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
+        // breadcrumps
+        var breadcrumps = $.getApp().data.breadcrumps;
+        var count = breadcrumps.size();
+        if(count>=2){
+            var x1 = 0f;
+            var y1 = 0f;
+            var x2 = 0f;
+            var y2 = 0f;
+            var xMin = locX;
+            var xMax = locX + width;
+            var yMin = locY;
+            var yMax = locY + height;
+
+            var p1 = breadcrumps[0];
+            var skip1 = true;
+            if(p1 != null){
+                x1 = xOffset + zoomFactor * p1[0];
+                y1 = yOffset + zoomFactor * p1[1];
+                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
+            }
+            for(var i=1; i<breadcrumps.size(); i++){
+                var p2 = breadcrumps[i];
+                if(p2 != null){
+                    x2 = xOffset + zoomFactor * p2[0];
+                    y2 = yOffset + zoomFactor * p2[1];
+                    var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
+
+                    // interpolate with points outside field area
+                    if(skip1 && !skip2){
+                        var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                        x1 = xy[0];
+                        y1 = xy[1];
+                    }else if(!skip1 && skip2){
+                        var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
+                        x2 = xy[0];
+                        y2 = xy[1];
+                    }
+
+                    if(p1 != null && (!skip1 || !skip2)){
+                        dc.drawLine(x1, y1, x2, y2);
+                    }
+                    x1 = x2;
+                    y1 = y2;
+                    skip1 = skip2;
+                }
+                p1 = p2;
+            }
+        }
+    }
+
     function onSetting(id, value){
         MyDataField.onSetting(id, value);
         if(id == Settings.ID_TRACK){
             // update the track bitmap
-            track = value as Track?;
+            var track = value as Track?;
             updateBitmap(track);
             refresh();
         }
@@ -233,16 +252,14 @@ class TrackOverviewField extends MyDataField{
         MyDataField.setDarkMode(darkMode);
 
         // update track bitmap with updated colors
-        var track = $.getApp().track;
+        var track = trackManager.track;
         if(track != null && bitmap != null){
             updateBitmap(track);
         }
     }
 
     function onActivityInfo(info as Activity.Info) as Void{
-        var xy = (track != null && track.xCurrent != null && track.yCurrent != null)
-            ? [track.xCurrent, track.yCurrent] as Array<Float>
-            : null;
+        var xy = trackManager.xy;
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){

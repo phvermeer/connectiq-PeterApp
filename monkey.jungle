@@ -9,9 +9,13 @@ base.MyBarrel.annotations = views;drawables;layout;math;lists;graph;numberPicker
 # vivoactive3.resourcePath = resources-vivoactive3
 
 # available annotations:
-#   basic/advanced
-#   old/new
+#   breadcrumps/noBreadcrumps
+#   track/noTrack
+#   lapInfo/noLapInfo
 
-base.excludeAnnotations = basic
-vivoactive3.excludeAnnotations = advanced
-vivoactive4.excludeAnnotations = basic
+base.excludeAnnotations = noBreadcrumps;noTrack;lapInfo;basic
+#vivoactive3.excludeAnnotations = advanced
+#vivoactive4.excludeAnnotations = basic
+vivoactive4.excludeAnnotations = noBreadcrumps;noTrack;lapInfo;basic
+vivoactive3.excludeAnnotations = breadcrumps;noTrack;lapInfo;advanced
+vivoactive3.MyBarrel.annotations = views;drawables;layout;math
