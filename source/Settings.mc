@@ -133,7 +133,7 @@ class Settings{
             if(id == ID_SPORT){
                 //disable changing a profile during an active session
                 var session = $.getApp().session;
-                if(session.getState() != SESSION_STATE_IDLE){
+                if(session != null && session.getState() != SESSION_STATE_IDLE){
                     return;
                 }
             }
