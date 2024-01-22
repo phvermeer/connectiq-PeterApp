@@ -31,7 +31,6 @@ class TrackOverviewField extends MyDataField{
         var deviceSettings = System.getDeviceSettings();
         var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
         var fieldSize = (width > height) ? height : width;
-        markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
 
         // update the bitmap
         updateBitmap(trackManager.track);
@@ -43,7 +42,7 @@ class TrackOverviewField extends MyDataField{
             var bitmap = self.bitmap as BufferedBitmap;
 
             // Draw the track
-            dc.drawBitmap(locX as Numeric, locY as Numeric, bitmap);
+            dc.drawBitmap(locX, locY, bitmap);
 
             // Draw the finish marker
             var count = track.xyValues.size();
@@ -84,8 +83,10 @@ class TrackOverviewField extends MyDataField{
 
             helper.resizeToMax(dummy, false);
 
-            xOffset = dummy.locX - locX + dummy.width/2;
-            yOffset = dummy.locY - locY + dummy.height/2;
+            self.xOffset = dummy.locX + dummy.width/2;
+            self.yOffset = dummy.locY + dummy.height/2;
+            var xOffset = self.xOffset - locX;
+            var yOffset = self.yOffset - locY;
 
             // create the bitmap
             var trackColor = getTrackColor();
@@ -103,37 +104,39 @@ class TrackOverviewField extends MyDataField{
             var factorHor = (dummy.width.toFloat()) / (track.xMax - track.xMin);
             var factorVert = (dummy.height.toFloat()) / (track.yMax - track.yMin);
             zoomFactor = factorHor < factorVert ? factorHor : factorVert;
+            var trackThickness = getTrackThickness(zoomFactor);
+            markerSize = 2 * trackThickness;
 
             // draw the track and buffered breadcrumps
             var dc = bitmap.getDc();
 
             if(dc != null){
-                var count = track.xyValues.size();
+                dc.setPenWidth(trackThickness);
 
-                var penWidth = getTrackThickness(zoomFactor);
-                dc.setPenWidth(penWidth);
+                // draw track in bitmap
                 dc.setColor(trackColor, backgroundColor);
-
-                var xy1 = track.xyValues[0];
-                var x1 = xOffset + zoomFactor * xy1[0];
-                var y1 = yOffset + zoomFactor * xy1[1];
-                var x2;
-                var y2;
-
-                for(var i=1; i<count; i++){
-                    var xy2 = track.xyValues[i];
-                    x2 = xOffset + zoomFactor * xy2[0];
-                    y2 = yOffset + zoomFactor * xy2[1];
-
-                    dc.drawLine(x1, y1, x2, y2);
-
-                    x1 = x2;
-                    y1 = y2;
-                }
+                drawPoints(dc, track.xyValues, {
+                    :xOffset => xOffset, 
+                    :yOffset => yOffset,
+                    :xMin => 0,
+                    :xMax => width,
+                    :yMin => 0,
+                    :yMax => height,
+                    :zoomFactor => zoomFactor,
+                });
                 
                 // draw breadcrumps
-                dc.setColor(breadcrumpColor, backgroundColor);
-                drawBreadcrumps(dc, xOffset, yOffset, zoomFactor);
+                dc.setColor(breadcrumpColor, breadcrumpColor);
+                var breadcrumps = $.getApp().data.breadcrumps;
+                drawPoints(dc, breadcrumps, {
+                    :xOffset => xOffset, 
+                    :yOffset => yOffset,
+                    :xMin => 0,
+                    :xMax => width,
+                    :yMin => 0,
+                    :yMax => height,
+                    :zoomFactor => zoomFactor,
+                });
             }
         }else{
             // clear bitmap
@@ -141,59 +144,68 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    (:noBreadcrumps)
-    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
-        // do nothing
-    }
+    hidden static function drawPoints(
+        dc as Dc, 
+        pts as Array<XY|Null>, 
+        options as {
+            :xOffset as Numeric,
+            :xMin as Numeric,
+            :xMax as Numeric, 
+            :yOffset as Numeric,
+            :yMin as Numeric,
+            :yMax as Numeric,
+            :zoomFactor as Decimal,
+        }
+    ) as Void{
+        var count = pts.size();
+        if(count>2){
+            var xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
+            var yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
+            var xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
+            var xMax = options.hasKey(:xMax) ? options.get(:xMax) as Numeric: dc.getWidth();
+            var yMin = options.hasKey(:yMin) ? options.get(:yMin) as Numeric: 0;
+            var yMax = options.hasKey(:yMax) ? options.get(:yMax) as Numeric: dc.getHeight();
+            var zoomFactor = options.hasKey(:zoomFactor) ? options.get(:zoomFactor) as Numeric: 1f;
 
-    (:breadcrumps)
-    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
-        // breadcrumps
-        var breadcrumps = $.getApp().data.breadcrumps;
-        var count = breadcrumps.size();
-        if(count>=2){
-            var x1 = 0f;
-            var y1 = 0f;
-            var x2 = 0f;
-            var y2 = 0f;
-            var xMin = locX;
-            var xMax = locX + width;
-            var yMin = locY;
-            var yMax = locY + height;
-
-            var p1 = breadcrumps[0];
-            var skip1 = true;
-            if(p1 != null){
-                x1 = xOffset + zoomFactor * p1[0];
-                y1 = yOffset + zoomFactor * p1[1];
-                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-            }
-            for(var i=1; i<breadcrumps.size(); i++){
-                var p2 = breadcrumps[i];
-                if(p2 != null){
-                    x2 = xOffset + zoomFactor * p2[0];
-                    y2 = yOffset + zoomFactor * p2[1];
-                    var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
-
-                    // interpolate with points outside field area
-                    if(skip1 && !skip2){
-                        var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                        x1 = xy[0];
-                        y1 = xy[1];
-                    }else if(!skip1 && skip2){
-                        var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
-                        x2 = xy[0];
-                        y2 = xy[1];
-                    }
-
-                    if(p1 != null && (!skip1 || !skip2)){
-                        dc.drawLine(x1, y1, x2, y2);
-                    }
-                    x1 = x2;
-                    y1 = y2;
-                    skip1 = skip2;
+            // first point
+            var i;
+            var pt1 = null;
+            for(i=0; i<count; i++){
+                pt1 = pts[i];
+                if(pt1 != null){
+                    break;
                 }
-                p1 = p2;
+            }                
+            if(pt1 != null){
+                var x1 = xOffset + zoomFactor * pt1[0];
+                var y1 = yOffset + zoomFactor * pt1[1];
+                var skip1 = x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax;
+
+                for(i++; i<count; i++){
+                    var pt2 = pts[i];
+                    if(pt2 != null){
+                        var x2 = xOffset + zoomFactor * pt2[0];
+                        var y2 = yOffset + zoomFactor * pt2[1];
+                        var skip2 = x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax;
+
+                        if(!skip1 || !skip2){
+                            if(skip1){
+                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                                x1 = xy[0];
+                                y1 = xy[1];
+                            }else if(skip2){
+                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
+                                x2 = xy[0];
+                                y2 = xy[1];
+                            }
+                            dc.drawLine(x1, y1, x2, y2);
+                        }
+
+                        x1 = x2;
+                        y1 = y2;
+                        skip1 = skip2;
+                    }
+                }
             }
         }
     }
@@ -209,7 +221,7 @@ class TrackOverviewField extends MyDataField{
     }
 
     hidden function getTrackColor() as ColorType{
-        return darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+        return darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
     }
     hidden function getBreadcrumpColor() as ColorType{
         return Graphics.COLOR_PINK;
@@ -265,15 +277,14 @@ class TrackOverviewField extends MyDataField{
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
                     if(bitmap != null){
                         // add to breadcrump path
-                        var x1 = xOffset + zoomFactor * xyCurrent[0];
-                        var y1 = yOffset + zoomFactor * xyCurrent[1];
-                        var x2 = xOffset + zoomFactor * xy[0];
-                        var y2 = yOffset + zoomFactor * xy[1];
+                        var x1 = xOffset - locX + zoomFactor * xyCurrent[0];
+                        var y1 = yOffset - locX + zoomFactor * xyCurrent[1];
+                        var x2 = xOffset - locX + zoomFactor * xy[0];
+                        var y2 = yOffset - locX + zoomFactor * xy[1];
 
                         var dc = bitmap.getDc();
-                        var penWidth = getTrackThickness(zoomFactor);
-                        dc.setPenWidth(penWidth);
-                        dc.setColor(Graphics.COLOR_PINK, Graphics.COLOR_TRANSPARENT);
+                        dc.setPenWidth(getTrackThickness(zoomFactor));
+                        dc.setColor(getBreadcrumpColor(), Graphics.COLOR_TRANSPARENT);
                         dc.drawLine(x1, y1, x2, y2);
                     }
 
