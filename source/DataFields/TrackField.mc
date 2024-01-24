@@ -66,6 +66,10 @@ class TrackField extends MyDataField{
         legend.draw(dc);
 
         // draw the map
+        var track = trackManager.track;
+        color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+        dc.setPenWidth(trackThickness);
+
         var xOffset = locX + width/2;
         var yOffset = locY + height/2;
         var xyCurrent = trackManager.xy;
@@ -73,161 +77,74 @@ class TrackField extends MyDataField{
             xOffset -= zoomFactor * xyCurrent[0];
             yOffset -= zoomFactor * xyCurrent[1];
         }
-        dc.setPenWidth(trackThickness);
 
-        var x1 = 0f;
-        var y1 = 0f;
-        var x2 = 0f;
-        var y2 = 0f;
-        var xMin = locX;
-        var xMax = locX + width;
-        var yMin = locY;
-        var yMax = locY + height;
-
-        var track = trackManager.track;
         if(track != null){
-            color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-            var colorToDo = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+
+            var index = trackManager.index;
+            var lambda = trackManager.lambda;
+            var pt = null;
+            var pts = track.xyValues;
+            if(index != null && lambda != null){
+                // interpolated point
+                var pt1 = track.xyValues[index];
+                var pt2 = track.xyValues[index+1];
+                pt = [
+                    pt1[0] + lambda * (pt2[0] - pt1[0]),
+                    pt1[1] + lambda * (pt2[1] - pt1[1]),
+                ] as Array<Float>;
+                pts = track.xyValues.slice(null, index+1);
+                pts.add(pt);
+            }
+
+            // track behind
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+            TrackDrawing.drawPoints(dc, pts, {
+                :xMin => locX,
+                :xMax => locX + width,
+                :xOffset => xOffset,
+                :yMin => locY,
+                :yMax => locY + height,
+                :yOffset => yOffset,
+                :zoomFactor => zoomFactor,
+            });
 
-            var xy1 = track.xyValues[0];
-            x1 = xOffset + zoomFactor * xy1[0];
-            y1 = yOffset + zoomFactor * xy1[1];
-            var skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-            var sectionDone = true;
-            var count = track.xyValues.size();
-            for(var i=1; i<count; i++){
-                var xy2 = track.xyValues[i];
-                x2 = xOffset + zoomFactor * xy2[0];
-                y2 = yOffset + zoomFactor * xy2[1];
-
-                if(i-1==trackManager.index){
-                    // extra interpolated point to switch color done => todo
-                    if(sectionDone){
-                        var l = trackManager.lambda;
-                        if(l != null){
-                            x2 = x1 + (x2-x1)*l;
-                            y2 = y1 + (y2-y1)*l;
-                            sectionDone = false;
-                            i--;
-                        }
-                    }else{
-                        dc.setColor(colorToDo, Graphics.COLOR_TRANSPARENT);
-                    }
-                }
-
-                var skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
-                if(!skip1 || !skip2){
-                    dc.drawLine(x1, y1, x2, y2);
-                }
-
-                skip1 = skip2;
-                x1 = x2;
-                y1 = y2;
+            // track infront
+            if(pt != null && index != null){
+                color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+                pts = [pt] as Array<XY>;
+                pts.addAll(track.xyValues.slice(index+1, null));
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                TrackDrawing.drawPoints(dc, pts, {
+                    :xMin => locX,
+                    :xMax => locX + width,
+                    :xOffset => xOffset,
+                    :yMin => locY,
+                    :yMax => locY + height,
+                    :yOffset => yOffset,
+                    :zoomFactor => zoomFactor,
+                });
             }
         }
 
-        // draw bread crumps (with interpolation of points outside viewers range)
-        color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-
-        drawBreadcrumps(dc, xOffset, yOffset, zoomFactor);
-
-
-        if(track != null){
-            var trackCount = track.xyValues.size();
-            var i = trackCount - 1;
-            var xy = track.xyValues[i];
-            var x = xOffset + zoomFactor * xy[0];
-            var y = yOffset + zoomFactor * xy[1];
-
-            // draw finish marker
-   	        color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
+        if(Data has :breadcrumps){
+            // breadcrumps
+            var breadcrumps = $.getApp().data.breadcrumps as Array<XY>;
+            color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(x, y, markerSize);
+            TrackDrawing.drawPoints(dc, breadcrumps, {
+                :xMin => locX,
+                :xMax => locX + width,
+                :xOffset => xOffset,
+                :yMin => locY,
+                :yMax => locY + height,
+                :yOffset => yOffset,
+                :zoomFactor => zoomFactor,
+            });
         }
 
         // draw current position marker
         if(xyCurrent != null){
             positionMarker.draw(dc);
-        }
-    }
-
-    (:noBreadcrumps)
-    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
-        // do nothing
-    }
-
-    (:breadcrumps)
-    hidden function drawBreadcrumps(dc as Dc, xOffset as Numeric, yOffset as Numeric, zoomFactor as Float) as Void{
-        var points = $.getApp().data.breadcrumps;
-        var count = points.size();
-        if(count >= 1){
-            var p1 = points[0];
-            var skip1 = true;
-
-            var x1 = 0f;
-            var y1 = 0f;
-            var x2 = 0f;
-            var y2 = 0f;
-            var xMin = locX;
-            var xMax = locX + width;
-            var yMin = locY;
-            var yMax = locY + height;
-
-            if(p1 != null){
-                x1 = xOffset + zoomFactor * p1[0];
-                y1 = yOffset + zoomFactor * p1[1];
-                skip1 = (x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax);
-            }
-
-            for(var i=1; i<count; i++){
-                var p2 = points[i];
-                var skip2 = true;
-                if(p2 != null){
-                    x2 = xOffset + zoomFactor * p2[0];
-                    y2 = yOffset + zoomFactor * p2[1];
-
-                    skip2 = (x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax);
-
-                    if(p1 != null){
-
-                        // interpolate
-                        if(skip1 && !skip2){
-                            var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                            x1 = xy[0];
-                            y1 = xy[1];
-                        }else if(!skip1 && skip2){
-                            var xy = Math2.interpolateXY(x2, y2, x1, y1, xMin, xMax, yMin, yMax);
-                            x2 = xy[0];
-                            y2 = xy[1];
-                        }
-                        
-                        // draw
-                        if(!skip1 || !skip2){
-                            dc.drawLine(x1, y1, x2, y2);
-                        }
-                    }
-                    x1 = x2;
-                    y1 = y2;
-                }
-                p1 = p2;
-                skip1 = skip2;
-            }
-
-            if(xyCurrent != null){
-                // draw from last breadcrump to current xy
-                x2 = xOffset + zoomFactor * xyCurrent[0];
-                y2 = yOffset + zoomFactor * xyCurrent[1];
-
-                if(skip1){
-                    var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                    x1 = xy[0];
-                    y1 = xy[1];
-                }
-
-                dc.drawLine(x1, y1, x2, y2);
-            }
         }
     }
 

@@ -3,6 +3,7 @@ import Toybox.Graphics;
 import Toybox.Activity;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
+using TrackDrawing;
 
 (:advanced)
 class TrackOverviewField extends MyDataField{
@@ -27,11 +28,6 @@ class TrackOverviewField extends MyDataField{
     }
 
     function onLayout(dc as Dc){
-        // determine marker size
-        var deviceSettings = System.getDeviceSettings();
-        var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
-        var fieldSize = (width > height) ? height : width;
-
         // update the bitmap
         updateBitmap(trackManager.track);
     }
@@ -68,6 +64,9 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
+            var trackThickness = getTrackThickness(zoomFactor);
+            markerSize = 2 * trackThickness;
+
             var helper = Layout.getLayoutHelper({
                 :xMin => locX,
                 :xMax => locX + width,
@@ -104,8 +103,6 @@ class TrackOverviewField extends MyDataField{
             var factorHor = (dummy.width.toFloat()) / (track.xMax - track.xMin);
             var factorVert = (dummy.height.toFloat()) / (track.yMax - track.yMin);
             zoomFactor = factorHor < factorVert ? factorHor : factorVert;
-            var trackThickness = getTrackThickness(zoomFactor);
-            markerSize = 2 * trackThickness;
 
             // draw the track and buffered breadcrumps
             var dc = bitmap.getDc();
@@ -115,7 +112,7 @@ class TrackOverviewField extends MyDataField{
 
                 // draw track in bitmap
                 dc.setColor(trackColor, backgroundColor);
-                drawPoints(dc, track.xyValues, {
+                TrackDrawing.drawPoints(dc, track.xyValues, {
                     :xOffset => xOffset, 
                     :yOffset => yOffset,
                     :xMin => 0,
@@ -128,7 +125,7 @@ class TrackOverviewField extends MyDataField{
                 // draw breadcrumps
                 dc.setColor(breadcrumpColor, breadcrumpColor);
                 var breadcrumps = $.getApp().data.breadcrumps;
-                drawPoints(dc, breadcrumps, {
+                TrackDrawing.drawPoints(dc, breadcrumps, {
                     :xOffset => xOffset, 
                     :yOffset => yOffset,
                     :xMin => 0,
@@ -141,72 +138,6 @@ class TrackOverviewField extends MyDataField{
         }else{
             // clear bitmap
             self.bitmap = null;
-        }
-    }
-
-    hidden static function drawPoints(
-        dc as Dc, 
-        pts as Array<XY|Null>, 
-        options as {
-            :xOffset as Numeric,
-            :xMin as Numeric,
-            :xMax as Numeric, 
-            :yOffset as Numeric,
-            :yMin as Numeric,
-            :yMax as Numeric,
-            :zoomFactor as Decimal,
-        }
-    ) as Void{
-        var count = pts.size();
-        if(count>2){
-            var xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
-            var yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
-            var xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
-            var xMax = options.hasKey(:xMax) ? options.get(:xMax) as Numeric: dc.getWidth();
-            var yMin = options.hasKey(:yMin) ? options.get(:yMin) as Numeric: 0;
-            var yMax = options.hasKey(:yMax) ? options.get(:yMax) as Numeric: dc.getHeight();
-            var zoomFactor = options.hasKey(:zoomFactor) ? options.get(:zoomFactor) as Numeric: 1f;
-
-            // first point
-            var i;
-            var pt1 = null;
-            for(i=0; i<count; i++){
-                pt1 = pts[i];
-                if(pt1 != null){
-                    break;
-                }
-            }                
-            if(pt1 != null){
-                var x1 = xOffset + zoomFactor * pt1[0];
-                var y1 = yOffset + zoomFactor * pt1[1];
-                var skip1 = x1 < xMin || x1 > xMax || y1 < yMin || y1 > yMax;
-
-                for(i++; i<count; i++){
-                    var pt2 = pts[i];
-                    if(pt2 != null){
-                        var x2 = xOffset + zoomFactor * pt2[0];
-                        var y2 = yOffset + zoomFactor * pt2[1];
-                        var skip2 = x2 < xMin || x2 > xMax || y2 < yMin || y2 > yMax;
-
-                        if(!skip1 || !skip2){
-                            if(skip1){
-                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                                x1 = xy[0];
-                                y1 = xy[1];
-                            }else if(skip2){
-                                var xy = Math2.interpolateXY(x1, y1, x2, y2, xMin, xMax, yMin, yMax);
-                                x2 = xy[0];
-                                y2 = xy[1];
-                            }
-                            dc.drawLine(x1, y1, x2, y2);
-                        }
-
-                        x1 = x2;
-                        y1 = y2;
-                        skip1 = skip2;
-                    }
-                }
-            }
         }
     }
 
