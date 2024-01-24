@@ -10,15 +10,15 @@ import MyBarrel;
 (:advanced)
 class TrackProfileField extends MyDataField{
 	var zoomFactor as Float = 1f; // xRange = zoomFactor*(xMax-xMin)
-	var track as Track?;
 	var xAxis as Graph.Axis;
 	var yAxis as Graph.Axis;
 
-	hidden var data as Lists.BufferedList;
+	hidden var distance as Float;
+	hidden var pts as Array<Graph.Point>;
 	hidden var serie as Graph.Serie;
 	hidden var trend as Graph.Trend;
 
-	var xCurrent as Float|Null = null;
+	hidden var xCurrent as Float|Null = null;
 	
 	function initialize(
 		options as {
@@ -30,12 +30,21 @@ class TrackProfileField extends MyDataField{
 
 		xAxis = new Graph.Axis(0, 500); // distance 0..500m
 		yAxis = new Graph.Axis(0, 50); // altitude 0..50m
-		data = new Lists.BufferedList({
-			:maxCount => 50,
-			:listener => self,
-		});
+
+		if(options.hasKey(:track)){
+			var track = options.get(:track) as Track;
+			distance = track.distance;
+			pts = getPoints(track);
+
+			updateXAxisLimits();
+			updateYAxisLimits();
+		}else{
+			distance = 0f;
+			pts = [] as Array<Graph.Point>;
+		}
+
 		serie = new Graph.Serie({
-			:data => data,
+			:pts => pts,
 			:style => Graph.DRAW_STYLE_FILLED,
 		});
 		trend = new Graph.Trend({
@@ -43,16 +52,9 @@ class TrackProfileField extends MyDataField{
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 		});
-		if(options.hasKey(:track)){
-			setTrack(options.get(:track) as Track);
-		}
 		if(options.hasKey(:darkMode)){
 			setDarkMode(options.get(:darkMode) as Boolean);
 		}
-	}
-
-	function onHide(){
-		data.cancel();
 	}
 
 	function onLayout(dc as Graphics.Dc){
@@ -69,18 +71,15 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onActivityInfo(info as Activity.Info) as Void{
-		serie.xCurrent = $.getApp().trackManager.elapsedDistance;
+		var trackManager = $.getApp().trackManager;
+		serie.xCurrent = trackManager.elapsedDistance;
 	}
 
 	function onUpdate(dc as Graphics.Dc){
 		MyDataField.onUpdate(dc);
 
 		// draw the graph
-		if(!data.isLoading()){
-			trend.draw(dc);
-		}else{
-			dc.drawText(locX + width/2, locY + height/2, Graphics.FONT_SMALL, "loading", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-		}
+		trend.draw(dc);
 	}
 
 	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
@@ -92,20 +91,31 @@ class TrackProfileField extends MyDataField{
 	}
 
 	hidden function setTrack(track as Track?) as Void{
-		// update profile with set track
-		self.track = track;
-		data.clear();
+		// update graph data
 		if(track != null){
-			if(track.zValues != null){			
-				var altitudes = track.zValues as Array<Float>;
-
-				// fill elevation data
-				for(var i=0; i<altitudes.size(); i++){
-					data.add(new Graph.DataPoint(track.distances[i], altitudes[i]));
-				}
-			}
+			pts = getPoints(track);
+		}else{
+			pts = [] as Array<Graph.Point>;
 		}
-		// do not refresh yet, wait for onReady event
+
+		// update axis ranges
+		
+		refresh();
+	}
+
+	// retrieve graph data from track
+	hidden function getPoints(track as Track) as Array<Graph.Point>{
+		var yValues = track.zValues;
+		if(yValues != null){
+			var xValues = track.distances;
+			var pts = new[xValues.size()] as Array<Graph.Point>;
+			for(var i=0; i<xValues.size(); i++){
+				pts.add([xValues[i], yValues[i]] as Graph.Point);
+			}
+			return pts;
+		}else{
+			return [] as Array<Graph.Point>;
+		}
 	}
 
 	function setDarkMode(darkMode as Boolean) as Void{
@@ -114,14 +124,6 @@ class TrackProfileField extends MyDataField{
 		serie.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
 		serie.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 		trend.setDarkMode(darkMode);
-	}
-
-	function onReady(sender as Object) as Void{
-		if(sender.equals(data)){
-			serie.updateStatistics();
-			updateAxisLimits(trend.series);
-			refresh();
-		}
 	}
 
 	hidden static function min(value1 as Numeric?, value2 as Numeric?) as Numeric?{
@@ -144,19 +146,49 @@ class TrackProfileField extends MyDataField{
 	}
 
 	// adjust axis limits
-	hidden function updateAxisLimits(series as Array<Graph.Serie>) as Void{
-		var xMin = 0; // always start at distance 0
-		var xMax = null;
-		var yMin = null;
-		var yMax = null;
+	hidden function updateYAxisLimits() as Void{
+		// y-axis
+		var yMin = null as Numeric|Null;
+		var yMax = null as Numeric|Null;
 
-		for(var i=0; i<series.size(); i++){
-			var serie = series[i];
-			xMin = min(xMin, serie.getXmin());
-			xMax = max(xMax, serie.getXmax());
-			yMin = min(yMin, serie.getYmin());
-			yMax = max(yMax, serie.getYmax());
+		for(var i=0; i<pts.size(); i++){
+			var pt = pts[i] as Graph.Point;
+			var y = pt[1] as Numeric?;
+			if(y != null){
+				if(yMin != null && yMax != null){
+					if(y < yMin){
+						yMin = y;
+					}
+					if(y > yMax){
+						yMax = y;
+					}
+				}else{
+					yMin = y;
+					yMax = y;
+				}
+			}
 		}
+		if(yMin != null && yMax != null) {
+			// minimal altitude range = 50m
+			// prefered yMin = 0
+			if(yMin > 0){
+				if(yMax <= 50){
+					yMin = 0;
+				}
+			}
+			if(yMax - yMin < 50){
+				yMax = yMin + 50;
+			}
+
+			yAxis.min = yMin;
+			yAxis.max = yMax;
+		}
+	}
+
+	hidden function updateXAxisLimits() as Void{
+		// x-axis
+		var xMin = 0; // always start at distance 0
+		var xMax = self.distance;
 
 		if(xMin != null && xMax != null){
 			// minimal distance range = 500m
@@ -180,22 +212,6 @@ class TrackProfileField extends MyDataField{
 			xAxis.min = xMin;
 			xAxis.max = xMax;
 		}
-
-		if(yMin != null && yMax != null) {
-			// minimal altitude range = 50m
-			// prefered yMin = 0
-			if(yMin > 0){
-				if(yMax <= 50){
-					yMin = 0;
-				}
-			}
-			if(yMax - yMin < 50){
-				yMax = yMin + 50;
-			}
-
-			yAxis.min = yMin;
-			yAxis.max = yMax;
-		}
 	}
 
 	// change zoomFactor from click event
@@ -217,7 +233,7 @@ class TrackProfileField extends MyDataField{
 		if(zoomFactor > 1f){
 			zoomFactor = 1f;
 		}
-		updateAxisLimits(trend.series);
+		updateXAxisLimits();
 		refresh();
         return true;
 	}
