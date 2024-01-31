@@ -67,7 +67,6 @@ class TrackField extends MyDataField{
 
         // draw the map
         var track = trackManager.track;
-        color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
         dc.setPenWidth(trackThickness);
 
         var xOffset = locX + width/2;
@@ -85,7 +84,7 @@ class TrackField extends MyDataField{
             var pt = null;
             var pts = track.xyValues;
             if(index != null && lambda != null){
-                // interpolated point
+                // interpolated current position on track
                 var pt1 = track.xyValues[index];
                 var pt2 = track.xyValues[index+1];
                 pt = [
@@ -96,7 +95,8 @@ class TrackField extends MyDataField{
                 pts.add(pt);
             }
 
-            // track behind
+            // track (start -> current track position)
+            color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
             TrackDrawing.drawPoints(dc, pts, {
                 :xMin => locX,
@@ -108,7 +108,7 @@ class TrackField extends MyDataField{
                 :zoomFactor => zoomFactor,
             });
 
-            // track infront
+            // track (current track position -> finish)
             if(pt != null && index != null){
                 color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
                 pts = [pt] as Array<XY>;

@@ -95,7 +95,7 @@ class TrackProfileField extends MyDataField{
 			var y = y0 + lambda * (y1-y0);
 			var pt = [x, y] as Graph.Point;
 
-			var pts1 = pts.slice(0, index+1);
+			var pts1 = pts.slice(null, index+1);
 			pts1.add(pt);
 			var pts2 = [pt] as Array<Graph.Point>;
 			pts2.addAll(pts.slice(index+1, null));
