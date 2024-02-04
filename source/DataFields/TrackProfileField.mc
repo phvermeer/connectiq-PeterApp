@@ -16,6 +16,7 @@ class TrackProfileField extends MyDataField{
 	hidden var distance as Float;
 	hidden var pts as Array<Graph.Point>;
 	hidden var serie as Graph.Serie;
+	hidden var serie2 as Graph.Serie;
 	hidden var trend as Graph.Trend;
 
 	hidden var xCurrent as Float|Null = null;
@@ -46,9 +47,15 @@ class TrackProfileField extends MyDataField{
 		serie = new Graph.Serie({
 			:pts => pts,
 			:style => Graph.DRAW_STYLE_FILLED,
+			:color => Graphics.COLOR_LT_GRAY,
+		});
+		serie2 = new Graph.Serie({
+			:pts => [] as Array<Graph.Point>,
+			:style => Graph.DRAW_STYLE_FILLED,
+			:color => Graphics.COLOR_DK_BLUE,
 		});
 		trend = new Graph.Trend({
-			:series => [serie] as Array<Graph.Serie>,
+			:series => [serie, serie2] as Array<Graph.Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 		});
@@ -72,7 +79,30 @@ class TrackProfileField extends MyDataField{
 
 	function onActivityInfo(info as Activity.Info) as Void{
 		var trackManager = $.getApp().trackManager;
-		serie.xCurrent = trackManager.elapsedDistance;
+		// split graph in two: before and after current position
+		var index = trackManager.index;
+		var lambda = trackManager.lambda;
+
+		if(index != null && lambda != null){
+			// interpolated point between point before and after
+			var pt0 = pts[index];
+			var pt1 = pts[index+1];
+			var x0 = pt0[0];
+			var y0 = pt0[1];
+			var x1 = pt1[0];
+			var y1 = pt1[1];
+			var x = x0 + lambda * (x1-x0);
+			var y = y0 + lambda * (y1-y0);
+			var pt = [x, y] as Graph.Point;
+
+			var pts1 = pts.slice(0, index+1);
+			pts1.add(pt);
+			var pts2 = [pt] as Array<Graph.Point>;
+			pts2.addAll(pts.slice(index+1, null));
+			
+			serie.pts = pts1;
+			serie2.pts = pts2;
+		}
 	}
 
 	function onUpdate(dc as Graphics.Dc){
@@ -110,7 +140,7 @@ class TrackProfileField extends MyDataField{
 			var xValues = track.distances;
 			var pts = new[xValues.size()] as Array<Graph.Point>;
 			for(var i=0; i<xValues.size(); i++){
-				pts.add([xValues[i], yValues[i]] as Graph.Point);
+				pts[i] = [xValues[i], yValues[i]] as Graph.Point;
 			}
 			return pts;
 		}else{
@@ -122,7 +152,7 @@ class TrackProfileField extends MyDataField{
 		MyDataField.setDarkMode(darkMode);
 		
 		serie.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-		serie.color2 = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+		serie2.color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 		trend.setDarkMode(darkMode);
 	}
 
@@ -152,9 +182,9 @@ class TrackProfileField extends MyDataField{
 		var yMax = null as Numeric|Null;
 
 		for(var i=0; i<pts.size(); i++){
-			var pt = pts[i] as Graph.Point;
-			var y = pt[1] as Numeric?;
-			if(y != null){
+			var pt = pts[i] as Graph.Point|Null;
+			if(pt != null){
+				var y = pt[1] as Numeric;
 				if(yMin != null && yMax != null){
 					if(y < yMin){
 						yMin = y;
