@@ -104,6 +104,11 @@ class FieldManager{
     // additional optional fields
     (:track)
     function getTrackFields(id as DataFieldId, options as { :darkMode as Boolean }) as MyDataField|Null{
+        var track = $.getApp().trackManager.track;
+        if(track != null){
+            options.put(:track, track);
+        }
+
         if(id == DATAFIELD_TRACK_MAP){ return new TrackField(options); }else
         if(id == DATAFIELD_REMAINING_DISTANCE){ return new RemainingDistanceField(id, options); }else
         { return getAdvancedFields(id, options); }
