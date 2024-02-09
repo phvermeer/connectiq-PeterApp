@@ -64,25 +64,25 @@ class FieldManager{
 
         var field = null;
         if(id == DATAFIELD_TEST){ field = new TestField(options); }else
-        if(id == DATAFIELD_ELAPSED_TIME){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_ELAPSED_TIME){ field = new ActivityField(id, options); }else
         if(id == DATAFIELD_COMPASS){ field = new CompassField(options); }else
-        if(id == DATAFIELD_CURRENT_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_AVG_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MAX_SPEED){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_TOTAL_ASCENT){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_TOTAL_DESCENT){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_HEART_RATE){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_AVG_HEARTRATE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MAX_HEARTRATE){ field =  new MultiDataField(id, options); }else
-        if(id == DATAFIELD_OXYGEN_SATURATION){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ENERGY_RATE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_PRESSURE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_ALTITUDE){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_CLOCK){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_MEMORY){ field = new MultiDataField(id, options); }else
-        if(id == DATAFIELD_BATTERY){ field = new MultiDataField(id, options); }else
+        if(id == DATAFIELD_CURRENT_SPEED){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_AVG_SPEED){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_MAX_SPEED){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_ELAPSED_DISTANCE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_TOTAL_ASCENT){ field =  new ActivityField(id, options); }else
+        if(id == DATAFIELD_TOTAL_DESCENT){ field =  new ActivityField(id, options); }else
+        if(id == DATAFIELD_HEART_RATE){ field =  new ActivityField(id, options); }else
+        if(id == DATAFIELD_AVG_HEARTRATE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_MAX_HEARTRATE){ field =  new ActivityField(id, options); }else
+        if(id == DATAFIELD_OXYGEN_SATURATION){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_ENERGY_RATE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_PRESSURE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_ALTITUDE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_CLOCK){ field = new SystemStatsField(id, options); }else
+        if(id == DATAFIELD_MEMORY){ field = new SystemStatsField(id, options); }else
+        if(id == DATAFIELD_BATTERY){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else{
             field = getTrackFields(id, options);

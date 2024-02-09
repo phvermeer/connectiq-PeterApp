@@ -3,8 +3,7 @@ import Toybox.Activity;
 import Toybox.Graphics;
 import Toybox.System;
 
-// (:advanced)
-class MultiDataField extends NumericField{
+class ActivityField extends NumericField{
 
     hidden var fieldId as DataFieldId;
     hidden static var ds as System.DeviceSettings;
@@ -36,9 +35,6 @@ class MultiDataField extends NumericField{
             : (fieldId == DATAFIELD_ENERGY_RATE) ? WatchUi.loadResource(Rez.Strings.energyRate)
             : (fieldId == DATAFIELD_PRESSURE) ? WatchUi.loadResource(Rez.Strings.pressure)
             : (fieldId == DATAFIELD_SEALEVEL_PRESSURE) ? WatchUi.loadResource(Rez.Strings.seaLevelPressure)
-            : (fieldId == DATAFIELD_CLOCK) ? WatchUi.loadResource(Rez.Strings.clock)
-            : (fieldId == DATAFIELD_MEMORY) ? WatchUi.loadResource(Rez.Strings.memory)
-            : (fieldId == DATAFIELD_BATTERY) ? WatchUi.loadResource(Rez.Strings.battery)
             : "???";
 
         options.put(:label, strLabel);
@@ -103,11 +99,6 @@ class MultiDataField extends NumericField{
                 value = Lang.format("$1$:$2$", [hours, (minutes % 60).format("%02d")]);
             }
         }
-        return value;
-    }
-
-    static function formatClock(value as ClockTime) as String{
-        value = Lang.format("$1$:$2$", [value.hour.format("%02d"), value.min.format("%02d")]);
         return value;
     }
 
