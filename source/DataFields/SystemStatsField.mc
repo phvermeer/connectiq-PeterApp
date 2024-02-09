@@ -41,7 +41,7 @@ class SystemStatsField extends NumericField{
     }
 
     static function formatClock(value as ClockTime) as String{
-        value = Lang.format("$1$:$2$", [value.hour.format("%02d"), value.min.format("%02d")]);
+        value = Lang.format("$1$:$2$", [value.hour.format("%d"), value.min.format("%02d")]);
         return value;
     }
 
