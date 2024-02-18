@@ -30,7 +30,7 @@ module TrackDrawing{
         }
     ) as Void{
         var count = pts.size();
-        if(count>2){
+        if(count > 1){
             var xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
             var yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
             var xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
