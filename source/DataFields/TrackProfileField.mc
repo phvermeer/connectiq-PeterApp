@@ -167,7 +167,7 @@ class TrackProfileField extends MyDataField{
 		MyDataField.setDarkMode(darkMode);
 		
 		serie.color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-		serieColored.color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+		serieColored.color = darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
 		serieLine.color = darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
 		trend.setDarkMode(darkMode);
 	}

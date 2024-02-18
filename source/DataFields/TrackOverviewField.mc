@@ -40,14 +40,25 @@ class TrackOverviewField extends MyDataField{
             // Draw the track
             dc.drawBitmap(locX, locY, bitmap);
 
-            // Draw the finish marker
+            // Draw the start marker
             var count = track.xyValues.size();
-            var i = count-1;
+            var i = 0;
+            if(i<count){
+                var xy = track.xyValues[i];
+                var x = xOffset + zoomFactor * xy[0] as Float;
+                var y = yOffset + zoomFactor * xy[1] as Float;
+                var color = getBreadcrumpColor();
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                dc.fillCircle(x, y, markerSize);
+            }
+
+            // Draw the finish marker
+            i = count-1;
             if(i>0){
                 var xy = track.xyValues[i];
                 var x = xOffset + zoomFactor * xy[0] as Float;
                 var y = yOffset + zoomFactor * xy[1] as Float;
-                var color = darkMode ? Graphics.COLOR_GREEN : Graphics.COLOR_DK_GREEN;
+                var color = getFinishColor();
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x, y, markerSize);
             }
@@ -56,7 +67,7 @@ class TrackOverviewField extends MyDataField{
             if(xyCurrent != null){
                 var x = xOffset + zoomFactor * xyCurrent[0];
                 var y = yOffset + zoomFactor * xyCurrent[1];
-                var color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_BLUE;
+                var color = darkMode ? Graphics.COLOR_YELLOW : Graphics.COLOR_ORANGE;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(x as Float, y as Float, markerSize);
             }
@@ -121,7 +132,7 @@ class TrackOverviewField extends MyDataField{
                     :yMax => height,
                     :zoomFactor => zoomFactor,
                 });
-                
+
                 // draw breadcrumps
                 dc.setColor(breadcrumpColor, breadcrumpColor);
                 var breadcrumps = $.getApp().data.breadcrumps;
@@ -155,7 +166,10 @@ class TrackOverviewField extends MyDataField{
         return darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
     }
     hidden function getBreadcrumpColor() as ColorType{
-        return Graphics.COLOR_PINK;
+        return darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
+    }
+    hidden function getFinishColor() as ColorType{
+        return darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
     }
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;

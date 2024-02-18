@@ -110,7 +110,7 @@ class TrackField extends MyDataField{
 
             // track (current track position -> finish)
             if(pt != null && index != null){
-                color = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+                color = darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
                 pts = [pt] as Array<XY>;
                 pts.addAll(track.xyValues.slice(index+1, null));
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
@@ -129,7 +129,7 @@ class TrackField extends MyDataField{
         if(Data has :breadcrumps){
             // breadcrumps
             var breadcrumps = $.getApp().data.breadcrumps as Array<XY>;
-            color = darkMode ? Graphics.COLOR_PURPLE : Graphics.COLOR_PINK;
+            color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
             TrackDrawing.drawPoints(dc, breadcrumps, {
                 :xMin => locX,
