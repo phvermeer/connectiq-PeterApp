@@ -80,6 +80,7 @@ class FieldManager{
         if(id == DATAFIELD_PRESSURE){ field = new ActivityField(id, options); }else
         if(id == DATAFIELD_SEALEVEL_PRESSURE){ field = new ActivityField(id, options); }else
         if(id == DATAFIELD_ALTITUDE){ field = new ActivityField(id, options); }else
+        if(id == DATAFIELD_ELEVATION_SPEED){ field = new ElevationSpeedField(options); }else        
         if(id == DATAFIELD_CLOCK){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_MEMORY){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_BATTERY){ field = new SystemStatsField(id, options); }else

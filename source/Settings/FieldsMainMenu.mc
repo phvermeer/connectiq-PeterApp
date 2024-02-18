@@ -76,7 +76,7 @@ class FieldsMainMenu extends MyMenu{
 				WatchUi.loadResource(Rez.Strings.altitudeFields) as String,
 				{
 					DATAFIELD_ALTITUDE => WatchUi.loadResource(Rez.Strings.altitude),
-//					DATAFIELD_ELEVATION_SPEED => WatchUi.loadResource(Rez.Strings.elevationSpeed),
+					DATAFIELD_ELEVATION_SPEED => WatchUi.loadResource(Rez.Strings.elevationSpeed),
 					DATAFIELD_TOTAL_ASCENT => WatchUi.loadResource(Rez.Strings.totalAscent),
 					DATAFIELD_TOTAL_DESCENT => WatchUi.loadResource(Rez.Strings.totalDescent),
 				}
