@@ -129,17 +129,30 @@ class TrackField extends MyDataField{
         if(Data has :breadcrumps){
             // breadcrumps
             var breadcrumps = $.getApp().data.breadcrumps as Array<XY>;
-            color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
-            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            TrackDrawing.drawPoints(dc, breadcrumps, {
-                :xMin => locX,
-                :xMax => locX + width,
-                :xOffset => xOffset,
-                :yMin => locY,
-                :yMax => locY + height,
-                :yOffset => yOffset,
-                :zoomFactor => zoomFactor,
-            });
+            var count = breadcrumps.size();
+            if(count > 0){
+                color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                TrackDrawing.drawPoints(dc, breadcrumps, {
+                    :xMin => locX,
+                    :xMax => locX + width,
+                    :xOffset => xOffset,
+                    :yMin => locY,
+                    :yMax => locY + height,
+                    :yOffset => yOffset,
+                    :zoomFactor => zoomFactor,
+                });
+
+                // draw line from last breadcrump to current position
+                if(xyCurrent != null){
+                    var xy = breadcrumps[count-1];
+                    var x1 = xOffset + zoomFactor * xy[0];
+                    var y1 = yOffset + zoomFactor * xy[1];
+                    var x2 = xOffset + zoomFactor * xyCurrent[0];
+                    var y2 = yOffset + zoomFactor * xyCurrent[1];
+                    dc.drawLine(x1, y1, x2, y2);
+                }
+            }
         }
 
         // draw current position marker
