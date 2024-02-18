@@ -86,19 +86,8 @@ class Settings{
         var sport = get(ID_SPORT) as Activity.Sport;
         profileId = getProfileSection(sport);
         profileData = getProfileData(profileId);
-
-        // compatibility updates
-        // 6: backgroundColor => darkMode
-        var ids = [ID_DARK_MODE];
-        for(var i=0; i<ids.size(); i++){
-            var id = ids[i] as Id;
-            var value = get(id);
-            if(!(value instanceof Boolean)){
-                value = DEFAULT_VALUES.get(id as Number) as Boolean;
-                set(ID_DARK_MODE, value);
-            }
-        }
     }
+
     hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
         var size = ID_PROFILE_MAX - ID_GLOBAL_MAX;
         var data = Storage.getValue(profileId as Number);
