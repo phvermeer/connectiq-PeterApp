@@ -10,7 +10,7 @@ class RemainingDistanceField extends NumericField{
         :locY as Numeric,
         :width as Numeric,
         :height as Numeric,
-        :backgroundColor as ColorType,
+        :darkMode as Boolean,
     }){
         // determine the label
         var strLabel

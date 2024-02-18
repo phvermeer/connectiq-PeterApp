@@ -13,7 +13,7 @@ class NumericField extends MyLabeledField{
         :locY as Numeric,
         :width as Numeric,
         :height as Numeric,
-        :backgroundColor as ColorType,
+        :darkMode as Boolean,
         :label as String,
     }){
         MyLabeledField.initialize(options);

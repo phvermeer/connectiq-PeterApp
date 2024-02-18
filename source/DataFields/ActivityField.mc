@@ -13,7 +13,7 @@ class ActivityField extends NumericField{
         :locY as Numeric,
         :width as Numeric,
         :height as Numeric,
-        :backgroundColor as ColorType,
+        :darkMode as Boolean,
     }){
         self.fieldId = fieldId;
         self.ds = System.getDeviceSettings();

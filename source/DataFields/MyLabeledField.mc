@@ -12,7 +12,7 @@ class MyLabeledField extends MyDataField{
         :locY as Numeric,
         :width as Numeric,
         :height as Numeric,
-        :backgroundColor as ColorType,
+        :darkMode as Boolean,
         :label as String,
     }){
         MyDataField.initialize(options);
