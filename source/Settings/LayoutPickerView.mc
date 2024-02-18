@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
+import Toybox.Graphics;
 import MyBarrel.Views;
 
 class LayoutPickerView extends DataView{
@@ -65,5 +66,18 @@ class LayoutPickerView extends DataView{
         // save settings
         screensSettings[screenIndex] = screenSettings;
         settings.set(Settings.ID_DATASCREENS, screensSettings);
+    }
+
+    function onUpdate(dc as Dc) as Void{
+        // the original drawing
+        DataView.onUpdate(dc);
+
+        // draw additional edges of the fields
+        dc.setColor(darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(1);
+        for(var i=0; i<layout.size(); i++){
+            var fieldLayout = layout[i] as DataView.FieldLayout;
+            dc.drawRectangle(fieldLayout[0], fieldLayout[1], fieldLayout[2], fieldLayout[3]);
+        }
     }
 }

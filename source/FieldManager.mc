@@ -83,11 +83,11 @@ class FieldManager{
         if(id == DATAFIELD_CLOCK){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_MEMORY){ field = new SystemStatsField(id, options); }else
         if(id == DATAFIELD_BATTERY){ field = new SystemStatsField(id, options); }else
-        if(id == DATAFIELD_EMPTY){ field = new EmptyField(options); }else
+        if(id == DATAFIELD_EMPTY){ field = new MyDataField(options); }else
         if(id == DATAFIELD_STATUS){ field = new StatusField(options); }else{
             field = getTrackFields(id, options);
             if(field == null){
-                field = new EmptyField(options);
+                field = new MyDataField(options);
             }
         }
 
