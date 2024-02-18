@@ -23,10 +23,20 @@ class DataScreensMenu extends MyMenu{
         if(screens instanceof Array){
             var txtScreen = WatchUi.loadResource(Rez.Strings.dataScreen) as String;
             for(var i=0; i<screens.size(); i++){
+                var screen = screens[i] as DataView.ScreenSettings;
+                var fieldIds = screen[DataView.SETTING_FIELDS] as Array;
+                var fieldCount = fieldIds.size();
+                var txtInfo = Lang.format("$1$ $2$", [
+                    fieldCount, 
+                    (fieldCount==1)
+                        ? WatchUi.loadResource(Rez.Strings.dataField) as String
+                        : WatchUi.loadResource(Rez.Strings.dataFields) as String
+                ]);
+
                 addItem(
                     new WatchUi.MenuItem(
                         Lang.format("$1$ $2$", [txtScreen, i+1]),
-                        null,
+                        txtInfo,
                         i,
                         {}
                     )
@@ -62,5 +72,4 @@ class DataScreensMenu extends MyMenu{
 
         return true;
     }
-
 }
