@@ -98,6 +98,7 @@ class FieldManager{
         // keep fields up-to-date
         app.data.addListener(field);
         app.settings.addListener(field);
+        app.trackManager.addListener(field);
         return field;
     }
 

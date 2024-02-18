@@ -21,12 +21,7 @@ class RemainingDistanceField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onPosition(sender as TrackManager, xy as XY) as Void{
-        System.println("onPosition event received");
-    }
-
-    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
-        var trackManager = $.getApp().trackManager;
+    function onPosition(trackManager as TrackManager, xy as XY?) as Void{
         var track = trackManager.track;
         var value = null;
         var useAlertColor = false;
@@ -46,7 +41,6 @@ class RemainingDistanceField extends NumericField{
         if(hasAlertColor != useAlertColor){
             self.value.color = useAlertColor ? Graphics.COLOR_RED : getForegroundColor();
         }
-        
     }
 
     static function formatDistance(value as Numeric|Null) as Numeric|Null{

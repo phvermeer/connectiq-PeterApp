@@ -222,12 +222,10 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
-        var xy = trackManager.xy;
-        var accuracy = info.currentLocationAccuracy;
-        if(xy != null && accuracy != null && accuracy >= Position.QUALITY_POOR && xy != xyCurrent){
+    function onPosition(trackManager as TrackManager, xy as XY?) as Void{
+        if(xy != null && xy != xyCurrent){
             xyCurrent = xy;
-            positionMarker.setHeading(info.currentHeading);
+            positionMarker.setHeading(trackManager.heading);
             refresh();
         }
     }

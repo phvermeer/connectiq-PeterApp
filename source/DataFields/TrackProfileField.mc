@@ -74,8 +74,7 @@ class TrackProfileField extends MyDataField{
 		helper.resizeToMax(trend, true);
 	}
 
-	function onActivityInfo(sender as Object, info as Activity.Info) as Void{
-		var trackManager = $.getApp().trackManager;
+	function onPosition(trackManager as TrackManager, xy as XY?) as Void{
 		// split graph in two: before and after current position
 		if(pts.size() > 0){
 			var index = trackManager.index;

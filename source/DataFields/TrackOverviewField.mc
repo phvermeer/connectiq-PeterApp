@@ -216,8 +216,7 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
-        var xy = trackManager.xy;
+    function onPosition(sender as Object, xy as XY?) as Void{
         if(xy != null){
             if(xyCurrent != null){
                 if(xy[0] != xyCurrent[0] && xy[1] != xyCurrent[1]){
