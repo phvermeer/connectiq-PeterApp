@@ -151,8 +151,10 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onSetting(id, value){
-        MyDataField.onSetting(id, value);
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType){
+        // internal background updates
+        MyDataField.onSetting(sender, id, value);
+
         if(id == Settings.ID_TRACK){
             // update the track bitmap
             var track = value as Track?;
@@ -214,7 +216,7 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var xy = trackManager.xy;
         if(xy != null){
             if(xyCurrent != null){

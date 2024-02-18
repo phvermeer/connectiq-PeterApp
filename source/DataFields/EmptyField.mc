@@ -23,7 +23,7 @@ class EmptyField extends MyDataField{
         counter = COUNTER;
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         if(counter > 0){
             counter--;
             if(counter==0){

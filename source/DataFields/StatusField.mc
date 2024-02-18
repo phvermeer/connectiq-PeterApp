@@ -43,7 +43,7 @@ class StatusField extends MyLabeledField{
         gpsIndicator.draw(dc);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var quality = info.currentLocationAccuracy;
         if(quality != null && quality != gpsIndicator.quality){
             gpsIndicator.quality = quality;

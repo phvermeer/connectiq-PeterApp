@@ -41,7 +41,7 @@ class ActivityField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var value
             = (fieldId == DATAFIELD_ELAPSED_TIME) ? formatTime(info.timerTime)
             : (fieldId == DATAFIELD_CURRENT_SPEED) ? toSpeedUnit(info.currentSpeed)

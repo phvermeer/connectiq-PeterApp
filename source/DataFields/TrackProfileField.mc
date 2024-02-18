@@ -74,7 +74,7 @@ class TrackProfileField extends MyDataField{
 		helper.resizeToMax(trend, true);
 	}
 
-	function onActivityInfo(info as Activity.Info) as Void{
+	function onActivityInfo(sender as Object, info as Activity.Info) as Void{
 		var trackManager = $.getApp().trackManager;
 		// split graph in two: before and after current position
 		if(pts.size() > 0){
@@ -115,11 +115,12 @@ class TrackProfileField extends MyDataField{
 		trend.draw(dc);
 	}
 
-	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+	function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
+        // internal background updates
+		MyDataField.onSetting(sender, id, value);
+
 		if(id == Settings.ID_TRACK){
 			setTrack(value as Track|Null);
-		}else if(id == Settings.ID_DARK_MODE){
-			setDarkMode(value as Boolean);
 		}
 	}
 

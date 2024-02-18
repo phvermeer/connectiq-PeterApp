@@ -21,7 +21,11 @@ class RemainingDistanceField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onPosition(sender as TrackManager, xy as XY) as Void{
+        System.println("onPosition event received");
+    }
+
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var trackManager = $.getApp().trackManager;
         var track = trackManager.track;
         var value = null;

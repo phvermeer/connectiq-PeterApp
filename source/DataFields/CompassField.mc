@@ -30,7 +30,7 @@ class CompassField extends MyDataField{
         helper.resizeToMax(compass, true);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var heading = info.currentHeading;
 
         if(compass.heading != heading){

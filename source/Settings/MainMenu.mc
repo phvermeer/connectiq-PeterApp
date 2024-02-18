@@ -164,7 +164,7 @@ class MainMenu extends MyMenu{
     }    
 
     // update changed values
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(
             id == Settings.ID_SPORT || 
             id == Settings.ID_DARK_MODE ||
@@ -194,7 +194,7 @@ class MainMenu extends MyMenu{
             ];
             for(var i=0; i<ids.size(); i++){
                 id = ids[i] as Settings.Id;
-                onSetting(id, settings.get(id));
+                onSetting(sender, id, settings.get(id));
             }
         }
     }

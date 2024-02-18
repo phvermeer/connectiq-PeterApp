@@ -176,7 +176,7 @@ class DataView extends MyView{
     }
 
     // event handler for session state changes
-    function onSessionState(state as SessionState) as Void{
+    function onSessionState(sender as Object, state as SessionState) as Void{
         switch(state){
         case SESSION_STATE_STOPPED:
             edge.color = Graphics.COLOR_RED;
@@ -412,7 +412,7 @@ class DataView extends MyView{
         }
     }
 
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_DATASCREENS){
             var screensSettings = value as ScreensSettings;
             if(screenIndex >= screensSettings.size()){

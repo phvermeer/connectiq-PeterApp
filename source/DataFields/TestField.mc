@@ -19,7 +19,7 @@ class TestField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         counter++;
         setValue(counter);
     }

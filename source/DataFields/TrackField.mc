@@ -176,9 +176,9 @@ class TrackField extends MyDataField{
         return true;
     }
 
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         // internal background updates
-        MyDataField.onSetting(id, value);
+        MyDataField.onSetting(sender, id, value);
 
         if(id == Settings.ID_ZOOMFACTOR){
             // update zoomfactor
@@ -222,7 +222,7 @@ class TrackField extends MyDataField{
         return trackThickness;
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Object, info as Activity.Info) as Void{
         var xy = trackManager.xy;
         var accuracy = info.currentLocationAccuracy;
         if(xy != null && accuracy != null && accuracy >= Position.QUALITY_POOR && xy != xyCurrent){

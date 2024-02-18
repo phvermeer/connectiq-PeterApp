@@ -93,7 +93,7 @@ class Session{
 	hidden function setState(state as SessionState) as Void{
 		if(mState != state){
 			mState = state;
-			mListeners.notify(state);
+			mListeners.notify(self, state);
 		}
 	}
 	public function getState() as SessionState{
@@ -161,7 +161,7 @@ class Session{
 	}
 
 	// **** Settings *****
-	function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+	function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_AUTOPAUSE){
             setAutoPause(value as Boolean);
         }else if(id == Settings.ID_AUTOLAP){
@@ -253,7 +253,7 @@ class Session{
 	}
 
 	(:lapInfo)
-	function onActivityInfo(info as Activity.Info) as Void{
+	function onActivityInfo(sender as Object, info as Activity.Info) as Void{
 		if(currentLapInfo != null){
 			currentLapInfo.update(info);
 		}
@@ -265,7 +265,7 @@ class Session{
 		}
 	}
 	(:noLapInfo)
-	function onActivityInfo(info as Activity.Info) as Void{
+	function onActivityInfo(sender as Object, info as Activity.Info) as Void{
 		if(mAutoPause){
 			checkPaused(info);
 		}
@@ -315,6 +315,6 @@ class Session{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        mListeners.add(listener, mState);
+        mListeners.add(self, listener, mState);
     }
 }

@@ -84,7 +84,7 @@ class Data
 
     // Settings
     (:breadcrumps)
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_BREADCRUMPS){
             setBreadcrumpsEnabled(value as Boolean);
         }else if(id == Settings.ID_BREADCRUMPS_MAX_COUNT){
@@ -207,16 +207,16 @@ class Data
             self.stats = stats;
             if(info != null){
                 self.info = info;
-                infoListeners.notify(info);
+                infoListeners.notify(self, info);
             }
-            statsListeners.notify(stats);            
+            statsListeners.notify(self, stats);            
         }else{
             eventReceived = false;
         }
     }
 
     (:track)
-    function onPosition(xy as XY) as Void{
+    function onPosition(sender as Object, xy as XY?) as Void{
         // process xy for breadcrump
         updateBreadcrumps(self.xy, xy);
         self.xy = xy;
@@ -230,13 +230,13 @@ class Data
 
         if(info != null){
             self.info = info;
-            infoListeners.notify(info);
+            infoListeners.notify(self, info);
         }
-        statsListeners.notify(stats);
+        statsListeners.notify(self, stats);
     }
 
     (:noTrack)
-    function onSessionState(state as SessionState) as Void {
+    function onSessionState(sender as Object, state as SessionState) as Void {
         // start/stop positioning events
         switch(state){
             case SESSION_STATE_IDLE:
@@ -265,7 +265,7 @@ class Data
     // - stats
  
     function addListener(listener as Object) as Void{
-        infoListeners.add(listener, info);
-        statsListeners.add(listener, stats);
+        infoListeners.add(self, listener, info);
+        statsListeners.add(self, listener, stats);
     }
 }

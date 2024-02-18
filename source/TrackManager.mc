@@ -36,7 +36,7 @@ class TrackManager{
 	hidden var started as Boolean = false;
 	hidden var accuracy as Position.Quality = Position.QUALITY_NOT_AVAILABLE;
 
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
 		if(id == Settings.ID_TRACK){
 	        track = value as Track|Null;
 			if(track != null){
@@ -48,20 +48,20 @@ class TrackManager{
 	// position events
 	function start() as Void{'
 		if(!started){
-			Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onPosition) as Method(info as Position.Info) as Void);
+			Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onRawPosition) as Method(info as Position.Info) as Void);
 			started = true;
 		}
 	}
 	function stop() as Void{
 		if(started){
-			Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onPosition) as Method(info as Position.Info) as Void);
+			Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:onRawPosition) as Method(info as Position.Info) as Void);
 			accuracy = Position.QUALITY_LAST_KNOWN;
 			heading = null;
 			started = false;
 		}
 	}
 
-	function onPosition(info as Position.Info) as Void{
+	function onRawPosition(info as Position.Info) as Void{
 		var position = info.position;
 		if(info.accuracy >= Position.QUALITY_POOR && position != null){
 			// signal available
@@ -78,7 +78,7 @@ class TrackManager{
 					updateTrackPosition(track, xy);
 				}
 			}
-			positionListeners.notify(xy);
+			positionListeners.notify(self, xy);
 		}else{
 			// no signal
 			if(accuracy > Position.QUALITY_LAST_KNOWN){
@@ -88,7 +88,7 @@ class TrackManager{
 		}
 	}
 
-    function onSessionState(state as SessionState) as Void {
+    function onSessionState(sender as Object, state as SessionState) as Void {
         // start/stop positioning events
         switch(state){
             case SESSION_STATE_IDLE:
@@ -128,7 +128,7 @@ class TrackManager{
                 var dy = xyOffset[1];
 
                 // update breadcrump points
-				offsetListeners.notify(xyOffset);
+				offsetListeners.notify(self, xyOffset);
 
                 // current position
                 if(xy != null){
@@ -286,7 +286,7 @@ class TrackManager{
 
 	// Listeners
 	function addListener(listener as Object) as Void{
-		offsetListeners.add(listener, null);
-		positionListeners.add(listener, xy);
+		offsetListeners.add(self, listener, null);
+		positionListeners.add(self, listener, xy);
 	}
 }

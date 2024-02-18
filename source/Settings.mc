@@ -9,9 +9,9 @@ class SettingsListeners extends Listeners{
         Listeners.initialize(:onSetting);
     }
 
-    function invoke(listener as Object, info as Object|Null){
+    function invoke(sender as Object, listener as Object, info as Object|Null){
         var params = info as Array;
-        listener.method(method).invoke(params[0], params[1]);
+        listener.method(method).invoke(sender, params[0], params[1]);
     }
 }
 
@@ -197,9 +197,9 @@ class Settings{
 
     // Listeners
     function addListener(listener as Object) as Void{
-        listeners.add(listener, null);
+        listeners.add(self, listener, null);
     }
     hidden function notifyListeners(id as Id, value as ValueType) as Void{
-        listeners.notify([id, value]);
+        listeners.notify(self, [id, value]);
     }
 }

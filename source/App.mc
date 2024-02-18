@@ -10,7 +10,7 @@ import MyBarrel.Layout;
 
 // interfaces for generic function support
 typedef SessionStateListener as interface {
-    function onSessionState(state as SessionState) as Void;
+    function onSessionState(sender as Object, state as SessionState) as Void;
 };
 
 class App extends Application.AppBase {
@@ -70,7 +70,7 @@ class App extends Application.AppBase {
         var trackData = settings.get(Settings.ID_TRACK);
         if(trackData instanceof Array){
             var track = new Track(trackData as Array);
-            trackManager.onSetting(Settings.ID_TRACK, track);
+            trackManager.onSetting(self, Settings.ID_TRACK, track);
         }
 
         data.addListener(session);
@@ -96,7 +96,7 @@ class App extends Application.AppBase {
         started = false;
     }
 
-    function onActivityInfo(info as Activity.Info) as Void{
+    function onActivityInfo(sender as Data, info as Activity.Info) as Void{
         fieldManager.cleanup();
     }
     

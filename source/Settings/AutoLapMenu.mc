@@ -97,7 +97,7 @@ class AutoLapMenu extends MyMenu{
     }    
 
     // update changed values
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_AUTOLAP_DISTANCE){
             var item = getItem(findItemById(id));
             if(item != null){

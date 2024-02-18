@@ -30,7 +30,7 @@ class SystemStatsField extends NumericField{
         NumericField.initialize(options);
     }
 
-    function onSystemStats(stats as System.Stats) as Void{
+    function onSystemStats(sender as Object, stats as System.Stats) as Void{
         var value
             = (fieldId == DATAFIELD_CLOCK) ? formatClock(System.getClockTime())
             : (fieldId == DATAFIELD_MEMORY) ? formatPercentage(100f * stats.usedMemory / stats.totalMemory)

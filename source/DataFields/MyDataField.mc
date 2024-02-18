@@ -76,7 +76,7 @@ class MyDataField extends WatchUi.Drawable{
         refresh();
     }
 
-    function onSetting(id as Settings.Id, value as Settings.ValueType) as Void{
+    function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
         if(id == Settings.ID_DARK_MODE){
             setDarkMode(value as Boolean);
         }
