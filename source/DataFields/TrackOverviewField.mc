@@ -37,31 +37,8 @@ class TrackOverviewField extends MyDataField{
         if(track != null && bitmap != null){
             var bitmap = self.bitmap as BufferedBitmap;
 
-            // Draw the track
+            // Draw the buffered track bitmap (includes start/finish markers and breadcrumps)
             dc.drawBitmap(locX, locY, bitmap);
-
-            // Draw the start marker
-            var count = track.xyValues.size();
-            var i = 0;
-            if(i<count){
-                var xy = track.xyValues[i];
-                var x = xOffset + zoomFactor * xy[0] as Float;
-                var y = yOffset + zoomFactor * xy[1] as Float;
-                var color = getBreadcrumpColor();
-                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                dc.fillCircle(x, y, markerSize);
-            }
-
-            // Draw the finish marker
-            i = count-1;
-            if(i>0){
-                var xy = track.xyValues[i];
-                var x = xOffset + zoomFactor * xy[0] as Float;
-                var y = yOffset + zoomFactor * xy[1] as Float;
-                var color = getFinishColor();
-                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                dc.fillCircle(x, y, markerSize);
-            }
 
             // Draw current position marker
             if(xyCurrent != null){
@@ -102,7 +79,8 @@ class TrackOverviewField extends MyDataField{
             var trackColor = getTrackColor();
             var backgroundColor = getBackgroundColor();
             var breadcrumpColor = getBreadcrumpColor();
-            var colorPalette = [Graphics.COLOR_TRANSPARENT, trackColor, backgroundColor, breadcrumpColor] as Array<ColorValue>;
+            var aheadColor = getAheadColor();
+            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
                 :width => width.toNumber(),
                 :height => height.toNumber(),
@@ -133,8 +111,29 @@ class TrackOverviewField extends MyDataField{
                     :zoomFactor => zoomFactor,
                 });
 
+                // draw the start marker
+                var count = track.xyValues.size();
+                var i = 0;
+                if(i<count){
+                    var xy = track.xyValues[i];
+                    var x = xOffset + zoomFactor * xy[0] as Float;
+                    var y = yOffset + zoomFactor * xy[1] as Float;
+                    dc.setColor(breadcrumpColor, backgroundColor);
+                    dc.fillCircle(x, y, markerSize);
+                }
+
+                // draw the finish marker
+                i = count-1;
+                if(i>0){
+                    var xy = track.xyValues[i];
+                    var x = xOffset + zoomFactor * xy[0] as Float;
+                    var y = yOffset + zoomFactor * xy[1] as Float;
+                    dc.setColor(aheadColor, backgroundColor);
+                    dc.fillCircle(x, y, markerSize);
+                }
+
                 // draw breadcrumps
-                dc.setColor(breadcrumpColor, breadcrumpColor);
+                dc.setColor(breadcrumpColor, backgroundColor);
                 var breadcrumps = $.getApp().data.breadcrumps;
                 TrackDrawing.drawPoints(dc, breadcrumps, {
                     :xOffset => xOffset, 
@@ -168,7 +167,7 @@ class TrackOverviewField extends MyDataField{
     hidden function getBreadcrumpColor() as ColorType{
         return darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
     }
-    hidden function getFinishColor() as ColorType{
+    hidden function getAheadColor() as ColorType{
         return darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
     }
     hidden function getTrackThickness(zoomFactor as Float) as Number{
@@ -223,13 +222,13 @@ class TrackOverviewField extends MyDataField{
                     if(bitmap != null){
                         // add to breadcrump path
                         var x1 = xOffset - locX + zoomFactor * xyCurrent[0];
-                        var y1 = yOffset - locX + zoomFactor * xyCurrent[1];
+                        var y1 = yOffset - locY + zoomFactor * xyCurrent[1];
                         var x2 = xOffset - locX + zoomFactor * xy[0];
-                        var y2 = yOffset - locX + zoomFactor * xy[1];
+                        var y2 = yOffset - locY + zoomFactor * xy[1];
 
                         var dc = bitmap.getDc();
                         dc.setPenWidth(getTrackThickness(zoomFactor));
-                        dc.setColor(getBreadcrumpColor(), Graphics.COLOR_TRANSPARENT);
+                        dc.setColor(getBreadcrumpColor(), getBackgroundColor());
                         dc.drawLine(x1, y1, x2, y2);
                     }
 
