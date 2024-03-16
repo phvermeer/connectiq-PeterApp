@@ -175,7 +175,7 @@ class Data
         }
     }
     (:breadcrumps)
-    public function onPositionOffset(dxy as XY) as Void{
+    public function onPositionOffset(sender as Object, dxy as XY) as Void{
         var dx = dxy[0] as Float;
         var dy = dxy[1] as Float;
         // breadcrump points
