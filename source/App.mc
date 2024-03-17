@@ -67,11 +67,9 @@ class App extends Application.AppBase {
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
-        var trackData = settings.get(Settings.ID_TRACK);
-        if(trackData instanceof Array){
-            var track = new Track(trackData as Array);
-            trackManager.onSetting(self, Settings.ID_TRACK, track);
-        }
+        var rawData = settings.get(Settings.ID_TRACK);
+        var track = convertToTrack(rawData as Array);
+        trackManager.onSetting(self, Settings.ID_TRACK, track);
 
         data.addListener(session);
         data.addListener(self);

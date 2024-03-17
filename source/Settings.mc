@@ -146,20 +146,17 @@ class Settings{
 
         // convert raw track data to Track
         if(settingId == ID_TRACK && value instanceof Array){
-            value = convertToTrack(value);
+            try{
+                value = convertToTrack(value);
+            }catch(e instanceof Exception){
+                set(settingId, null);
+                e.printStackTrace();
+                return;
+            }
         }
 
         // inform listeners
         notifyListeners(settingId, value);
-    }
-
-    (:noTrack)
-    function convertToTrack(value as ValueType) as ValueType{
-        return value;
-    }
-    (:track)
-    function convertToTrack(value as ValueType) as ValueType{
-        return new Track(value as Array);
     }
 
     function clear() as Void{
