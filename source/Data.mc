@@ -192,10 +192,10 @@ class Data
         var info = Activity.getActivityInfo();
         if(info != null){
             self.info = info;
-            infoListeners.notify(info);
+            infoListeners.notify(self, info);
         }
         self.stats = System.getSystemStats();
-        statsListeners.notify(stats);
+        statsListeners.notify(self, stats);
     }
 
     (:track)

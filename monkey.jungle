@@ -17,5 +17,5 @@ base.excludeAnnotations = noBreadcrumps;noTrack;lapInfo;basic
 #vivoactive3.excludeAnnotations = advanced
 #vivoactive4.excludeAnnotations = basic
 vivoactive4.excludeAnnotations = noBreadcrumps;noTrack;lapInfo;basic
-vivoactive3.excludeAnnotations = breadcrumps;noTrack;lapInfo;advanced
+vivoactive3.excludeAnnotations = breadcrumps;track;lapInfo;advanced
 vivoactive3.MyBarrel.annotations = views;drawables;layout;math

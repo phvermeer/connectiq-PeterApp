@@ -97,10 +97,22 @@ class FieldManager{
         log(Lang.format("Field $1$ is created", [id]));
 
         // keep fields up-to-date
+        addListeners(field);
+        return field;
+    }
+
+    (:noTrack)
+    function addListeners(field as MyDataField) as Void{
+        var app = $.getApp();
+        app.data.addListener(field);
+        app.settings.addListener(field);
+    }
+    (:track)
+    function addListeners(field as MyDataField) as Void{
+        var app = $.getApp();
         app.data.addListener(field);
         app.settings.addListener(field);
         app.trackManager.addListener(field);
-        return field;
     }
 
     // additional optional fields

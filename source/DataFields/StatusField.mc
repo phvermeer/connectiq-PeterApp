@@ -6,7 +6,6 @@ import Toybox.Activity;
 import MyBarrel.Drawables;
 import MyBarrel.Layout;
 
-(:track)
 class StatusField extends MyLabeledField{
     var gpsIndicator as GpsSignalIndicator;
 

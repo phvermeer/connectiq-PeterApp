@@ -1,6 +1,11 @@
 import Toybox.Lang;
 import Toybox.Graphics;
 
+(:noTrack)
+module TrackDrawing{
+    
+}
+
 (:track)
 module TrackDrawing{
     function getInterpolatedY(x1 as Numeric, y1 as Numeric, x2 as Numeric, y2 as Numeric, x as Numeric) as Numeric{
