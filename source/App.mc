@@ -68,8 +68,10 @@ class App extends Application.AppBase {
 
         // initial track
         var rawData = settings.get(Settings.ID_TRACK);
-        var track = convertToTrack(rawData as Array);
-        trackManager.onSetting(self, Settings.ID_TRACK, track);
+        if(rawData instanceof Array){
+            var track = convertToTrack(rawData as Array);
+            trackManager.onSetting(self, Settings.ID_TRACK, track);
+        }
 
         data.addListener(session);
         data.addListener(self);
