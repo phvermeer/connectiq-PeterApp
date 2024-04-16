@@ -65,7 +65,7 @@ class DataScreensMenu extends MyMenu{
             // add new screen
             var screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
             var screensDefault = Settings.DEFAULT_VALUES[Settings.ID_DATASCREENS] as DataView.ScreensSettings;
-            screens.add(screensDefault[0]);
+            screens.add(screensDefault[0].slice(null, null)); // clone this, to avoid updating defaults
             settings.set(Settings.ID_DATASCREENS, screens);
             updateItems();
         }
