@@ -91,8 +91,9 @@ class Settings{
     hidden function getProfileData(profileId as ProfileSection) as Array<PropertyValueType>{
         var size = ID_PROFILE_MAX - ID_GLOBAL_MAX;
         var data = Storage.getValue(profileId as Number);
-        return (data == null || (data as Array).size() != size)
-            ? new Array<PropertyValueType>[size]
+
+        return(data == null || (data as Array).size() != size)
+            ? DEFAULT_VALUES.values().slice(ID_GLOBAL_MAX+1, null) as Array<PropertyValueType>
             : data as Array<PropertyValueType>;
     }
 
