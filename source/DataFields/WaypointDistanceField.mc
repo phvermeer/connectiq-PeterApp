@@ -64,12 +64,15 @@ class WaypointDistanceField extends NumericField{
         // update distance to waypoint
         var distanceCurrent = trackManager.elapsedDistance;
         if(distanceCurrent != null && waypoint != null){
-            var wp = waypoint;
-            if(distanceCurrent > wp.distance + NEXT_WAYPOINT_OFFSET || (distancePrevWP != null && distanceCurrent < distancePrevWP - NEXT_WAYPOINT_OFFSET)){
+            if(distanceCurrent > waypoint.distance + NEXT_WAYPOINT_OFFSET || (distancePrevWP != null && distanceCurrent < distancePrevWP + NEXT_WAYPOINT_OFFSET)){
                 refreshWaypoint();
             }
-            var distance = wp.distance - distanceCurrent;
-            setValue(distance/1000);
+            if(waypoint != null){
+                var distance = waypoint.distance - distanceCurrent;
+                setValue(distance/1000);
+            }else{
+                setValue(null);
+            }
         }else{
             setValue(null);
         }
