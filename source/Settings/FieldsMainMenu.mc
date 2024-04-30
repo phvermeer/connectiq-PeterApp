@@ -52,6 +52,7 @@ class FieldsMainMenu extends MyMenu{
 				?{
 					DATAFIELD_ELAPSED_DISTANCE => WatchUi.loadResource(Rez.Strings.distance),
 					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
+					DATAFIELD_WAYPOINT_DISTANCE => WatchUi.loadResource(Rez.Strings.waypointDistance),
 				}:{
 					DATAFIELD_REMAINING_DISTANCE => WatchUi.loadResource(Rez.Strings.remainingDistance),
 				};

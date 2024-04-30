@@ -45,10 +45,12 @@
 	<string id="map">Kaart</string>
 	<string id="counter">Teller</string>
 	<string id="remainingDistance">Rst.Afst</string>
+	<string id="waypointDistance">Waypoint.Afst</string>
 	<string id="compass">Kompas</string>
 	<string id="clock">Klok</string>
 	<string id="empty">Leeg</string>
 	<string id="test">Test</string>
+	<string id="finish">Finish</string>
 
 	<!-- actions -->
 	<string id="add">Toevoegen</string>

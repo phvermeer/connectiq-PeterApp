@@ -39,6 +39,7 @@ enum DataFieldId{
     DATAFIELD_PRESSURE = 30,
     DATAFIELD_SEALEVEL_PRESSURE = 31,
     DATAFIELD_EMPTY = 32,
+    DATAFIELD_WAYPOINT_DISTANCE = 33,
 }
 
 class FieldManager{
@@ -125,6 +126,7 @@ class FieldManager{
 
         if(id == DATAFIELD_TRACK_MAP){ return new TrackField(options); }else
         if(id == DATAFIELD_REMAINING_DISTANCE){ return new RemainingDistanceField(id, options); }else
+        if(id == DATAFIELD_WAYPOINT_DISTANCE){ return new WaypointDistanceField(options); }else
         { return getAdvancedFields(id, options); }
     }
     (:noTrack)

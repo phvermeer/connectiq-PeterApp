@@ -41,10 +41,11 @@ class TrackManager{
 	        track = value as Track|Null;
 			if(track != null){
 				setCenter(track.latlonCenter);
-				
+
 				// reset current position on the track
 				index = null;
 				lambda = null;
+				elapsedDistance = null;
 				onTrack = false;
 			}
 		}

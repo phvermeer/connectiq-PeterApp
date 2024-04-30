@@ -10,7 +10,7 @@ class SettingsListeners extends Listeners{
     }
 
     function invoke(sender as Object, listener as Object, info as Object|Null){
-        var params = info as Array;
+        var params = info as Array; //[0] => Settings.Id, [1] => value
         listener.method(method).invoke(sender, params[0], params[1]);
     }
 }
