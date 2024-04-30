@@ -61,7 +61,7 @@ class TrackField extends MyDataField{
     }
     function onUpdate(dc as Dc){
         // draw the legend
-        var color = darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY;
+        var color = Track.getColor(darkMode);
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         legend.draw(dc);
 
@@ -96,7 +96,7 @@ class TrackField extends MyDataField{
             }
 
             // track (start -> current track position)
-            color = darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
+            color = Track.getColor(darkMode);
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
             TrackDrawing.drawPoints(dc, pts, {
                 :xMin => locX,
@@ -110,7 +110,7 @@ class TrackField extends MyDataField{
 
             // track (current track position -> finish)
             if(pt != null && index != null){
-                color = darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
+                color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
                 pts = [pt] as Array<XY>;
                 pts.addAll(track.xyValues.slice(index+1, null));
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);

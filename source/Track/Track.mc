@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Position;
 import Toybox.Attention;
+import Toybox.Graphics;
 import MyBarrel.Math2;
 
 (:noTrack)
@@ -80,5 +81,15 @@ class Track{
 			waypoints.add(new Waypoint(waypointData));
 		}
 
+	}
+
+	static function getColorAhead(darkMode as Boolean) as ColorType{
+		return Graphics.COLOR_PINK;
+	}
+	static function getColorBehind(darkMode as Boolean) as ColorType{
+		return Graphics.COLOR_GREEN;
+	}
+	static function getColor(darkMode as Boolean) as ColorType{
+		return darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
 	}
 }

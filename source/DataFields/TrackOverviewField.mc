@@ -76,10 +76,10 @@ class TrackOverviewField extends MyDataField{
             var yOffset = self.yOffset - locY;
 
             // create the bitmap
-            var trackColor = getTrackColor();
+            var trackColor = Track.getColor(darkMode);
             var backgroundColor = getBackgroundColor();
-            var breadcrumpColor = getBreadcrumpColor();
-            var aheadColor = getAheadColor();
+            var breadcrumpColor = Track.getColorBehind(darkMode);
+            var aheadColor = Track.getColorAhead(darkMode);
             var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
                 :width => width.toNumber(),
@@ -163,15 +163,6 @@ class TrackOverviewField extends MyDataField{
         }
     }
 
-    hidden function getTrackColor() as ColorType{
-        return darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;
-    }
-    hidden function getBreadcrumpColor() as ColorType{
-        return darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
-    }
-    hidden function getAheadColor() as ColorType{
-        return darkMode ? Graphics.COLOR_RED : Graphics.COLOR_DK_RED;
-    }
     hidden function getTrackThickness(zoomFactor as Float) as Number{
 		var size = (width < height) ? width : height;
         var trackThickness = 1;
@@ -229,7 +220,7 @@ class TrackOverviewField extends MyDataField{
 
                         var dc = bitmap.getDc();
                         dc.setPenWidth(getTrackThickness(zoomFactor));
-                        dc.setColor(getBreadcrumpColor(), getBackgroundColor());
+                        dc.setColor(Track.getColorBehind(darkMode), getBackgroundColor());
                         dc.drawLine(x1, y1, x2, y2);
                     }
 
