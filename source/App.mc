@@ -68,8 +68,8 @@ class App extends Application.AppBase {
 
         // initial track
         var rawData = settings.get(Settings.ID_TRACK);
-        if(rawData instanceof Array){
-            var track = convertToTrack(rawData as Array);
+        if(rawData != null){
+            var track = convertToTrack(rawData as Array|Dictionary);
             trackManager.onSetting(self, Settings.ID_TRACK, track);
         }
 
@@ -102,17 +102,15 @@ class App extends Application.AppBase {
     
     function onPhone(msg as Communications.Message) as Void{
         // receive track data
-        if(msg.data instanceof Array){
-            var data = msg.data as Array;
+        var data = msg.data as Array|Dictionary;
 
-            // vibrate when track is received
-            if(Attention has :vibrate){
-                Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
-            }
-
-            // save track data in storage and inform listeners
-            settings.set(Settings.ID_TRACK, data as Array<PropertyValueType>);
+        // vibrate when track is received
+        if(Attention has :vibrate){
+            Attention.vibrate([new Attention.VibeProfile(25, 1000)] as Array<VibeProfile>);
         }
+
+        // save track data in storage and inform listeners
+        settings.set(Settings.ID_TRACK, data as Array<PropertyValueType>);
     }
 
     // Return the initial view of your application here

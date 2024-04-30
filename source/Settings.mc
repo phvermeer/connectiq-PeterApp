@@ -146,9 +146,9 @@ class Settings{
         }
 
         // convert raw track data to Track
-        if(settingId == ID_TRACK && value instanceof Array){
+        if(settingId == ID_TRACK && value != null){
             try{
-                value = convertToTrack(value);
+                value = convertToTrack(value as Array|Dictionary);
             }catch(e instanceof Exception){
                 set(settingId, null);
                 e.printStackTrace();
