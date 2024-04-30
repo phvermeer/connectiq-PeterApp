@@ -77,11 +77,11 @@ class TrackField extends MyDataField{
             yOffset -= zoomFactor * xyCurrent[1];
         }
 
-        if(track != null){
+        var index = trackManager.index;
+        var lambda = trackManager.lambda;
 
-            var index = trackManager.index;
-            var lambda = trackManager.lambda;
-            var pt = null;
+        var pt = null;
+        if(track != null){
             var pts = track.xyValues;
             if(index != null && lambda != null){
                 // interpolated current position on track
@@ -107,23 +107,6 @@ class TrackField extends MyDataField{
                 :yOffset => yOffset,
                 :zoomFactor => zoomFactor,
             });
-
-            // track (current track position -> finish)
-            if(pt != null && index != null){
-                color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
-                pts = [pt] as Array<XY>;
-                pts.addAll(track.xyValues.slice(index+1, null));
-                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                TrackDrawing.drawPoints(dc, pts, {
-                    :xMin => locX,
-                    :xMax => locX + width,
-                    :xOffset => xOffset,
-                    :yMin => locY,
-                    :yMax => locY + height,
-                    :yOffset => yOffset,
-                    :zoomFactor => zoomFactor,
-                });
-            }
         }
 
         if(Data has :breadcrumps){
@@ -152,6 +135,25 @@ class TrackField extends MyDataField{
                     var y2 = yOffset + zoomFactor * xyCurrent[1];
                     dc.drawLine(x1, y1, x2, y2);
                 }
+            }
+        }
+
+        if(track != null){
+            // track (current track position -> finish)
+            if(pt != null && index != null){
+                color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+                var pts = [pt] as Array<XY>;
+                pts.addAll(track.xyValues.slice(index+1, null));
+                dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+                TrackDrawing.drawPoints(dc, pts, {
+                    :xMin => locX,
+                    :xMax => locX + width,
+                    :xOffset => xOffset,
+                    :yMin => locY,
+                    :yMax => locY + height,
+                    :yOffset => yOffset,
+                    :zoomFactor => zoomFactor,
+                });
             }
         }
 
