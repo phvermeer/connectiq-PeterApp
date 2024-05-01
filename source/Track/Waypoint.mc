@@ -7,10 +7,10 @@ class Waypoint{
     var z as Float?;
     var distance as Float; // referenced elapsed distance on track
 
-    function initialize(waypointData as Dictionary){
-        name = waypointData.get("NAME") as String;
-        xy = waypointData.get("POINT") as XY;
-        z = waypointData.get("ALTITUDE") as Float?;
-        distance = waypointData.get("DISTANCE") as Float;
+    function initialize(waypointData as Array){
+        name = waypointData[0] as String;
+        xy = waypointData[1] as XY;
+        z = waypointData[2] as Float?;
+        distance = waypointData[3] as Float;
     }
 }

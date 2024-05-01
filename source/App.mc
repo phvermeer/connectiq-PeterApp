@@ -67,9 +67,9 @@ class App extends Application.AppBase {
         Communications.registerForPhoneAppMessages(method(:onPhone));
 
         // initial track
-        var rawData = settings.get(Settings.ID_TRACK);
-        if(rawData != null){
-            var track = convertToTrack(rawData as Array|Dictionary);
+        var gpxData = settings.get(Settings.ID_TRACK);
+        if(gpxData != null){
+            var track = convertToTrack(gpxData as Array);
             trackManager.onSetting(self, Settings.ID_TRACK, track);
         }
 

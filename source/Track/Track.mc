@@ -6,21 +6,20 @@ import Toybox.Graphics;
 import MyBarrel.Math2;
 
 (:noTrack)
-function convertToTrack(rawData as Array|Dictionary) as Null{
+function convertToTrack(data as Array|Dictionary) as Null{
 	return null;
 }
 
 (:track)
-function convertToTrack(rawData as Array|Dictionary) as Track|Null{
+function convertToTrack(data as Array) as Track|Null{
 	try{
 		// get version from data
-		if(rawData instanceof Dictionary) {
-			// ToDo
-			return new Track(rawData as Dictionary);
-		}else if(rawData instanceof Array){
+		if(data.size() == 2){
+			//new format
+			return new Track(data as Dictionary);
+		}else if(data.size() >2){
 			// old wormnav format
-			return new TrackWormNav(rawData as Array);
-
+			return new TrackWormNav(data as Array);
 		}else{
 			throw new MyException("The Track data format is not recognized");
 		}
@@ -57,15 +56,15 @@ class Track{
 
 	function initialize(data as Dictionary){
 		// track data
-		var trackData = data.get("TRACK") as Dictionary;
+		var trackData = data[0] as Array;
 
-		name = 		   trackData.get("NAME") as String;
-		distance =	   trackData.get("DISTANCE") as Float;
-		latlonCenter = trackData.get("CENTER") as Array<Float>;
-		xyValues = 	   trackData.get("POINTS") as Array<XY>;
-		zValues = 	   trackData.get("ALTITUDES") as Array<Float|Null>|Null;
-		distances =	   trackData.get("DISTANCES") as Array<Float>;
-		var boundaries = trackData.get("BOUNDARIES") as Array<Float>;
+		name = 		   trackData[0] as String;
+		distance =	   trackData[1] as Float;
+		latlonCenter = trackData[2] as Array<Float>;
+		var boundaries = trackData[3] as Array<Float>;
+		xyValues = 	   trackData[4] as Array<XY>;
+		zValues = 	   trackData[5] as Array<Float|Null>|Null;
+		distances =	   trackData[6] as Array<Float>;
 
 		xMin = boundaries[0] as Float;
 		xMax = boundaries[1] as Float;
@@ -75,7 +74,7 @@ class Track{
 		zMax = boundaries[5] as Float|Null;
 
 		// waypoints
-		var waypointsData = data.get("WAYPOINTS") as Array<Dictionary>;
+		var waypointsData = data[1] as Array<Array>;
 		for(var i=0; i<waypointsData.size(); i++){
 			var waypointData = waypointsData[i];
 			waypoints.add(new Waypoint(waypointData));

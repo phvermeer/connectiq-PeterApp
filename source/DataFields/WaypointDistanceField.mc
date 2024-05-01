@@ -35,11 +35,11 @@ class WaypointDistanceField extends NumericField{
 
             // if no waypoints ahead, create finish as next waypoint
             var i = track.xyValues.size()-1;
-            var wp = new Waypoint({
-                "NAME" => WatchUi.loadResource(Rez.Strings.finish),
-                "POINT" => track.xyValues[i] as XY,
-                "DISTANCE" => track.distance
-            });
+            var wp = new Waypoint([
+                WatchUi.loadResource(Rez.Strings.finish),
+                track.xyValues[i] as XY,
+                track.distance
+            ]);
             setWaypoint(wp);
         }
     }
