@@ -61,7 +61,7 @@ class TrackField extends MyDataField{
     }
     function onUpdate(dc as Dc){
         // draw the legend
-        var color = Track.getColor(darkMode);
+        var color = darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         legend.draw(dc);
 
