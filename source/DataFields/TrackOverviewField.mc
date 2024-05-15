@@ -51,15 +51,14 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
-            var trackThickness = TrackDrawer.getTrackThickness(width, height, zoomFactor);
-            markerSize = 2 * trackThickness;
+            var margin = 0.05 * (width<height ? width : height);
 
             var helper = Layout.getLayoutHelper({
                 :xMin => locX,
                 :xMax => locX + width,
                 :yMin => locY,
                 :yMax => locY + height,
-                :margin => markerSize,
+                :margin => margin.toNumber(),
             });
 
             var dummy = new Drawable({
@@ -79,7 +78,7 @@ class TrackOverviewField extends MyDataField{
             var backgroundColor = getBackgroundColor();
             var breadcrumpColor= TrackDrawer.getColorBehind(darkMode);
             var aheadColor= TrackDrawer.getColorAhead(darkMode);
-            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor] as Array<ColorValue>;
+            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor, Graphics.COLOR_RED] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
                 :width => width.toNumber(),
                 :height => height.toNumber(),
@@ -91,6 +90,7 @@ class TrackOverviewField extends MyDataField{
             var factorHor = (dummy.width.toFloat()) / (track.xMax - track.xMin);
             var factorVert = (dummy.height.toFloat()) / (track.yMax - track.yMin);
             zoomFactor = factorHor < factorVert ? factorHor : factorVert;
+            var trackThickness = TrackDrawer.getTrackThickness(width, height, zoomFactor);
 
             // draw the track and buffered breadcrumps
             var dc = bitmap.getDc();
@@ -111,26 +111,8 @@ class TrackOverviewField extends MyDataField{
                 });
                 drawer.drawLines(dc, track.xyValues);
 
-                // draw the start marker
-                var count = track.xyValues.size();
-                var i = 0;
-                if(i<count){
-                    var xy = track.xyValues[i];
-                    var x = xOffset + zoomFactor * xy[0] as Float;
-                    var y = yOffset + zoomFactor * xy[1] as Float;
-                    dc.setColor(breadcrumpColor, backgroundColor);
-                    dc.fillCircle(x, y, markerSize);
-                }
-
-                // draw the finish marker
-                i = count-1;
-                if(i>0){
-                    var xy = track.xyValues[i];
-                    var x = xOffset + zoomFactor * xy[0] as Float;
-                    var y = yOffset + zoomFactor * xy[1] as Float;
-                    dc.setColor(aheadColor, backgroundColor);
-                    dc.fillCircle(x, y, markerSize);
-                }
+                // draw waypoints
+                drawer.drawWaypoints(dc, track.waypoints, trackThickness * 4);
 
                 // draw breadcrumps
                 dc.setColor(breadcrumpColor, backgroundColor);

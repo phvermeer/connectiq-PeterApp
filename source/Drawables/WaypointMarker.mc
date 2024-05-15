@@ -3,23 +3,42 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 
 class WaypointMarker extends WatchUi.Drawable{
-    var color as Graphics.ColorType;
+    const sqrt3 = 1.732050808f;
+    var color as ColorType|Null;
+    var size as Number;
 
     public function initialize(options as {
         :identifier as String,
         :locX as Number, 
         :locY as Number,
-        :width as Number, 
-        :height as Number,
-        :color as Graphics.ColorType,
+        :size as Number,
+        :color as ColorType,
     }){
         Drawable.initialize(options);
-        color = options.hasKey(:color) ? options.get(:color) as Graphics.ColorType : Graphics.COLOR_RED;
+        color = options.get(:color) as ColorType|Null;
+        size = options.hasKey(:size) ? options.get(:size) as Number : 10;
     }
 
     function draw(dc as Dc){
-        var radius = 0.5f * width;
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(locX, locY, radius);
+        if(color != null){
+            dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        }
+
+        var radius = 0.5f * size;
+        var dx = radius * sqrt3/2;
+        var dy2 = 0.75f * size;
+        var dy = size;
+
+        var pts = [
+            [locX - dx, locY - dy2],
+            [locX, locY],
+            [locX + dx, locY - dy2],
+            [locX, locY - radius],
+        ] as Array<Point2D>;
+        dc.fillPolygon(pts);
+
+        var thickness = 0.4 * radius;
+        dc.setPenWidth(thickness);
+        dc.drawCircle(locX, locY-dy, radius-thickness/2);
     }
 }

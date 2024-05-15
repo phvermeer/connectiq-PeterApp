@@ -144,10 +144,8 @@ class TrackField extends MyDataField{
 
             // draw waypoints
             dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-            drawer.drawWaypoints(dc, track.waypoints, trackThickness * 2);
+            drawer.drawWaypoints(dc, track.waypoints, trackThickness * 4);
         }
-
-
 
         // draw current position marker
         if(xyCurrent != null){

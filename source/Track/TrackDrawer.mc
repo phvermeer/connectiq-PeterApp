@@ -174,12 +174,16 @@ class TrackDrawer{
         }
     }
 
-    function drawWaypoints(dc as Dc, waypoints as Array<Waypoint>, radius as Number) as Void{
+    function drawWaypoints(dc as Dc, waypoints as Array<Waypoint>, size as Number) as Void{
+        var marker = new WaypointMarker({
+            :size => size,
+            :color => Graphics.COLOR_RED,
+        });
         for(var i=0; i<waypoints.size(); i++){
             var wp = waypoints[i];
-            var x = xOffset + zoomFactor * wp.xy[0];
-            var y = yOffset + zoomFactor * wp.xy[1];
-            dc.drawCircle(x, y, radius);
+            marker.locX = xOffset + zoomFactor * wp.xy[0];
+            marker.locY = yOffset + zoomFactor * wp.xy[1];
+            marker.draw(dc);
         }
     }
 }
