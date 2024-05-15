@@ -35,7 +35,7 @@ class TrackField extends MyDataField{
     }
 
     function onLayout(dc as Dc){
-        trackThickness = getTrackThickness(zoomFactor);
+        trackThickness = TrackDrawer.getTrackThickness(width, height, zoomFactor);
         legend.updateSize(dc);
         
         // determine marker size
@@ -76,6 +76,15 @@ class TrackField extends MyDataField{
             xOffset -= zoomFactor * xyCurrent[0];
             yOffset -= zoomFactor * xyCurrent[1];
         }
+        var drawer = new TrackDrawer({
+            :xMin => locX,
+            :xMax => locX + width,
+            :xOffset => xOffset,
+            :yMin => locY,
+            :yMax => locY + height,
+            :yOffset => yOffset,
+            :zoomFactor => zoomFactor,
+        });
 
         var index = trackManager.index;
         var lambda = trackManager.lambda;
@@ -98,15 +107,8 @@ class TrackField extends MyDataField{
             // track (start -> current track position)
             color = Track.getColor(darkMode);
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-            TrackDrawing.drawPoints(dc, pts, {
-                :xMin => locX,
-                :xMax => locX + width,
-                :xOffset => xOffset,
-                :yMin => locY,
-                :yMax => locY + height,
-                :yOffset => yOffset,
-                :zoomFactor => zoomFactor,
-            });
+
+            drawer.drawLines(dc, pts);
         }
 
         if(Data has :breadcrumps){
@@ -116,15 +118,7 @@ class TrackField extends MyDataField{
             if(count > 0){
                 color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                TrackDrawing.drawPoints(dc, breadcrumps, {
-                    :xMin => locX,
-                    :xMax => locX + width,
-                    :xOffset => xOffset,
-                    :yMin => locY,
-                    :yMax => locY + height,
-                    :yOffset => yOffset,
-                    :zoomFactor => zoomFactor,
-                });
+                drawer.drawLines(dc, breadcrumps);
 
                 // draw line from last breadcrump to current position
                 if(xyCurrent != null){
@@ -145,17 +139,15 @@ class TrackField extends MyDataField{
                 var pts = [pt] as Array<XY>;
                 pts.addAll(track.xyValues.slice(index+1, null));
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                TrackDrawing.drawPoints(dc, pts, {
-                    :xMin => locX,
-                    :xMax => locX + width,
-                    :xOffset => xOffset,
-                    :yMin => locY,
-                    :yMax => locY + height,
-                    :yOffset => yOffset,
-                    :zoomFactor => zoomFactor,
-                });
+                drawer.drawLines(dc, pts);
             }
+
+            // draw waypoints
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            drawer.drawWaypoints(dc, track.waypoints, trackThickness * 2);
         }
+
+
 
         // draw current position marker
         if(xyCurrent != null){
@@ -166,7 +158,7 @@ class TrackField extends MyDataField{
     hidden function setZoomFactor(value as Float) as Void{
         if(value != zoomFactor){
             zoomFactor = value;
-            trackThickness = getTrackThickness(zoomFactor);
+            trackThickness = TrackDrawer.getTrackThickness(width, height, zoomFactor);
             legend.setZoomFactor(zoomFactor);
             refresh();
         }
@@ -201,40 +193,6 @@ class TrackField extends MyDataField{
         }else if(id == Settings.ID_TRACK){
             refresh();
         }
-    }
-
-    hidden function getTrackThickness(zoomFactor as Float) as Number{
-		var size = (width < height) ? width : height;
-        var trackThickness = 1;
-		if(size > 0){
-            var ds = System.getDeviceSettings();
-			var thicknessMax = (size > 10) ? size / 10 : 1;
-			var thicknessMin = Math.ceil(0.01f * ds.screenWidth);
-
-			var range = size / zoomFactor; // [m]
-			// 0 → 50m:		 	maxPenWidth
-			// 50m → 5km: 		scaled between maxPenWidth and minPenWidth
-			// 5km → ∞:			minPenWidth
-			var rangeMin = 50;
-			var rangeMax = 10000;
-
-			if(range <= rangeMin){
-				trackThickness = thicknessMax.toNumber();
-			} else if(range >= rangeMax){
-				trackThickness = thicknessMin.toNumber();
-			}else{
-				// The penWidth between rangeMin and rangeMax:
-				var rangeFactor = rangeMax / rangeMin;  
-				var thicknessFactor = thicknessMax / thicknessMin;
-				// use the log value to convert range to penWidth
-				var log = Math.log(thicknessFactor, rangeFactor); 
-
-				// the scaling from range between rangemin and rangeMax will result in 
-				// the equalvalent of the penWIdth between penWidthMax end penWIdthMin using a logaritmic correction
-				trackThickness = Math.round(thicknessMax / Math.pow(range/rangeMin, log)).toNumber();			
-			}
-		}
-        return trackThickness;
     }
 
     function onPosition(trackManager as TrackManager, xy as XY?) as Void{

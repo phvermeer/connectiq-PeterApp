@@ -3,7 +3,6 @@ import Toybox.Graphics;
 import Toybox.Activity;
 import MyBarrel.Math2;
 import MyBarrel.Layout;
-using TrackDrawing;
 
 (:advanced)
 class TrackOverviewField extends MyDataField{
@@ -52,7 +51,7 @@ class TrackOverviewField extends MyDataField{
     }
     hidden function updateBitmap(track as Track?) as Void{
         if(track != null){
-            var trackThickness = getTrackThickness(zoomFactor);
+            var trackThickness = TrackDrawer.getTrackThickness(width, height, zoomFactor);
             markerSize = 2 * trackThickness;
 
             var helper = Layout.getLayoutHelper({
@@ -101,7 +100,7 @@ class TrackOverviewField extends MyDataField{
 
                 // draw track in bitmap
                 dc.setColor(trackColor, backgroundColor);
-                TrackDrawing.drawPoints(dc, track.xyValues, {
+                var drawer = new TrackDrawer({
                     :xOffset => xOffset, 
                     :yOffset => yOffset,
                     :xMin => 0,
@@ -110,6 +109,7 @@ class TrackOverviewField extends MyDataField{
                     :yMax => height,
                     :zoomFactor => zoomFactor,
                 });
+                drawer.drawLines(dc, track.xyValues);
 
                 // draw the start marker
                 var count = track.xyValues.size();
@@ -135,15 +135,7 @@ class TrackOverviewField extends MyDataField{
                 // draw breadcrumps
                 dc.setColor(breadcrumpColor, backgroundColor);
                 var breadcrumps = $.getApp().data.breadcrumps;
-                TrackDrawing.drawPoints(dc, breadcrumps, {
-                    :xOffset => xOffset, 
-                    :yOffset => yOffset,
-                    :xMin => 0,
-                    :xMax => width,
-                    :yMin => 0,
-                    :yMax => height,
-                    :zoomFactor => zoomFactor,
-                });
+                drawer.drawLines(dc, breadcrumps);
             }
         }else{
             // clear bitmap
@@ -161,40 +153,6 @@ class TrackOverviewField extends MyDataField{
             updateBitmap(track);
             refresh();
         }
-    }
-
-    hidden function getTrackThickness(zoomFactor as Float) as Number{
-		var size = (width < height) ? width : height;
-        var trackThickness = 1;
-		if(size > 0 && zoomFactor > 0){
-            var ds = System.getDeviceSettings();
-			var thicknessMax = (size > 10) ? size / 10 : 1;
-			var thicknessMin = Math.ceil(0.01f * ds.screenWidth);
-
-			var range = size / zoomFactor; // [m]
-			// 0 → 50m:		 	maxPenWidth
-			// 50m → 10km: 		scaled between maxPenWidth and minPenWidth
-			// 10km → ∞:			minPenWidth
-			var rangeMin = 50;
-			var rangeMax = 10000;
-
-			if(range <= rangeMin){
-				trackThickness = thicknessMax.toNumber();
-			} else if(range >= rangeMax){
-				trackThickness = thicknessMin.toNumber();
-			}else{
-				// The penWidth between rangeMin and rangeMax:
-				var rangeFactor = rangeMax / rangeMin;  
-				var thicknessFactor = thicknessMax / thicknessMin;
-				// use the log value to convert range to penWidth
-				var log = Math.log(thicknessFactor, rangeFactor); 
-
-				// the scaling from range between rangemin and rangeMax will result in 
-				// the equalvalent of the penWIdth between penWidthMax end penWIdthMin using a logaritmic correction
-				trackThickness = Math.round(thicknessMax / Math.pow(range/rangeMin, log)).toNumber();			
-			}
-		}
-        return trackThickness;
     }
 
     function setDarkMode(darkMode as Boolean) as Void{
@@ -219,7 +177,7 @@ class TrackOverviewField extends MyDataField{
                         var y2 = yOffset - locY + zoomFactor * xy[1];
 
                         var dc = bitmap.getDc();
-                        dc.setPenWidth(getTrackThickness(zoomFactor));
+                        dc.setPenWidth(TrackDrawer.getTrackThickness(width, height, zoomFactor));
                         dc.setColor(Track.getColorBehind(darkMode), getBackgroundColor());
                         dc.drawLine(x1, y1, x2, y2);
                     }

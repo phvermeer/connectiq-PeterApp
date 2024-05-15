@@ -1,29 +1,19 @@
 import Toybox.Lang;
 import Toybox.Graphics;
-
-(:noTrack)
-module TrackDrawing{
-    
-}
+import Toybox.System;
+import Toybox.Math;
 
 (:track)
-module TrackDrawing{
-    function getInterpolatedY(x1 as Numeric, y1 as Numeric, x2 as Numeric, y2 as Numeric, x as Numeric) as Numeric{
-        if(x1 != x2){
-            var rc = (y2-y1)/(x2-x1);
-            return y1 + rc * (x-x1);
-        }else{
-            return (y1+y2)/2;
-        }
-    }
-    function getInterpolatedX(x1 as Numeric, y1 as Numeric, x2 as Numeric, y2 as Numeric, y as Numeric) as Numeric{
-        return getInterpolatedY(y1, x1, y2, x2, y);
-    }
+class TrackDrawer{
+    var xOffset as Numeric;
+    var yOffset as Numeric;
+    var xMin as Numeric;
+    var xMax as Numeric;
+    var yMin as Numeric;
+    var yMax as Numeric;
+    var zoomFactor as Numeric;
 
-
-    function drawPoints(
-        dc as Dc, 
-        pts as Array<XY|Null>, 
+    function initialize(
         options as {
             :xOffset as Numeric,
             :xMin as Numeric,
@@ -33,17 +23,66 @@ module TrackDrawing{
             :yMax as Numeric,
             :zoomFactor as Decimal,
         }
-    ) as Void{
+    ){
+        var deviceSettings = System.getDeviceSettings();
+        xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
+        yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
+        xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
+        xMax = options.hasKey(:xMax) ? options.get(:xMax) as Numeric: deviceSettings.screenWidth;
+        yMin = options.hasKey(:yMin) ? options.get(:yMin) as Numeric: 0;
+        yMax = options.hasKey(:yMax) ? options.get(:yMax) as Numeric: deviceSettings.screenHeight;
+        zoomFactor = options.hasKey(:zoomFactor) ? options.get(:zoomFactor) as Numeric: 1f;
+    }
+
+    hidden static function getInterpolatedY(x1 as Numeric, y1 as Numeric, x2 as Numeric, y2 as Numeric, x as Numeric) as Numeric{
+        if(x1 != x2){
+            var rc = (y2-y1)/(x2-x1);
+            return y1 + rc * (x-x1);
+        }else{
+            return (y1+y2)/2;
+        }
+    }
+    hidden static function getInterpolatedX(x1 as Numeric, y1 as Numeric, x2 as Numeric, y2 as Numeric, y as Numeric) as Numeric{
+        return getInterpolatedY(y1, x1, y2, x2, y);
+    }
+
+    static function getTrackThickness(width as Numeric, height as Numeric, zoomFactor as Float) as Number{
+        var size = (width < height) ? width : height;
+        var trackThickness = 1;
+        if(size > 0 && zoomFactor > 0){
+            var ds = System.getDeviceSettings();
+            var thicknessMax = (size > 10) ? size / 10 : 1;
+            var thicknessMin = Math.ceil(0.01f * ds.screenWidth);
+
+            var range = size / zoomFactor; // [m]
+            // 0 → 50m:		 	maxPenWidth
+            // 50m → 10km: 		scaled between maxPenWidth and minPenWidth
+            // 10km → ∞:			minPenWidth
+            var rangeMin = 50;
+            var rangeMax = 10000;
+
+            if(range <= rangeMin){
+                trackThickness = thicknessMax.toNumber();
+            } else if(range >= rangeMax){
+                trackThickness = thicknessMin.toNumber();
+            }else{
+                // The penWidth between rangeMin and rangeMax:
+                var rangeFactor = rangeMax / rangeMin;  
+                var thicknessFactor = thicknessMax / thicknessMin;
+                // use the log value to convert range to penWidth
+                var log = Math.log(thicknessFactor, rangeFactor); 
+
+                // the scaling from range between rangemin and rangeMax will result in 
+                // the equalvalent of the penWIdth between penWidthMax end penWIdthMin using a logaritmic correction
+                trackThickness = Math.round(thicknessMax / Math.pow(range/rangeMin, log)).toNumber();			
+            }
+        }
+        return trackThickness;            
+    }
+
+    function drawLines(dc as Dc, pts as Array<XY|Null>) as Void{
         var count = pts.size();
         if(count > 1){
-            var xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
-            var yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
-            var xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
-            var xMax = options.hasKey(:xMax) ? options.get(:xMax) as Numeric: dc.getWidth();
-            var yMin = options.hasKey(:yMin) ? options.get(:yMin) as Numeric: 0;
-            var yMax = options.hasKey(:yMax) ? options.get(:yMax) as Numeric: dc.getHeight();
-            var zoomFactor = options.hasKey(:zoomFactor) ? options.get(:zoomFactor) as Numeric: 1f;
-
             // first point
             var i;
             var pt1 = null;
@@ -122,6 +161,15 @@ module TrackDrawing{
                     }
                 }
             }
+        }
+    }
+
+    function drawWaypoints(dc as Dc, waypoints as Array<Waypoint>, radius as Number) as Void{
+        for(var i=0; i<waypoints.size(); i++){
+            var wp = waypoints[i];
+            var x = xOffset + zoomFactor * wp.xy[0];
+            var y = yOffset + zoomFactor * wp.xy[1];
+            dc.drawCircle(x, y, radius);
         }
     }
 }
