@@ -105,7 +105,7 @@ class TrackField extends MyDataField{
             }
 
             // track (start -> current track position)
-            color = Track.getColor(darkMode);
+            color= TrackDrawer.getColor(darkMode);
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
             drawer.drawLines(dc, pts);
