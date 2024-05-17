@@ -76,7 +76,7 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onPosition(trackManager as TrackManager, xy as XY?) as Void{
-		var xCurrent = trackManager.elapsedDistance;
+		xCurrent = trackManager.elapsedDistance;
 
 		// split graph in two: before and after current position
 		serieAhead.pts = [] as Array<Graph.Point>;
