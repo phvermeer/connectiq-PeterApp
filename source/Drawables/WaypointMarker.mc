@@ -37,7 +37,7 @@ class WaypointMarker extends WatchUi.Drawable{
         ] as Array<Point2D>;
         dc.fillPolygon(pts);
 
-        var thickness = 0.4 * radius;
+        var thickness = (0.4 * radius).toNumber();
         dc.setPenWidth(thickness);
         dc.drawCircle(locX, locY-dy, radius-thickness/2);
     }
