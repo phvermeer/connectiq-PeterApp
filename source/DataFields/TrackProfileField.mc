@@ -15,8 +15,9 @@ class TrackProfileField extends MyDataField{
 
 	hidden var distance as Float = 0f;
 	hidden var pts as Array<Graph.Point> = new Array<Graph.Point>[0];
-	hidden var serie as Graph.Serie;
-	hidden var serieColored as Graph.Serie;
+	hidden var waypoints as Array<Graph.Point> = [] as Array<Graph.Point>;
+	hidden var serieElapsed as Graph.Serie;
+	hidden var serieAhead as Graph.Serie;
 	hidden var serieLine as Graph.Serie;
 	hidden var trend as Graph.Trend;
 	hidden var xCurrent as Float|Null = null;
@@ -32,12 +33,12 @@ class TrackProfileField extends MyDataField{
 		xAxis = new Graph.Axis(0, 500); // distance 0..500m
 		yAxis = new Graph.Axis(0, 50); // altitude 0..50m
 
-		serie = new Graph.Serie({
+		serieAhead = new Graph.Serie({
 			:pts => pts,
 			:style => Graph.DRAW_STYLE_FILLED,
 			:color => Graphics.COLOR_LT_GRAY,
 		});
-		serieColored = new Graph.Serie({
+		serieElapsed = new Graph.Serie({
 			:pts => pts,
 			:style => Graph.DRAW_STYLE_FILLED,
 			:color => Graphics.COLOR_DK_BLUE,
@@ -49,7 +50,7 @@ class TrackProfileField extends MyDataField{
 			:color => Graphics.COLOR_BLACK,
 		});
 		trend = new Graph.Trend({
-			:series => [serie, serieColored, serieLine] as Array<Graph.Serie>,
+			:series => [serieAhead, serieElapsed, serieLine] as Array<Graph.Serie>,
 			:xAxis => xAxis,
 			:yAxis => yAxis,
 		});
@@ -75,31 +76,37 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onPosition(trackManager as TrackManager, xy as XY?) as Void{
+		var xCurrent = trackManager.elapsedDistance;
+
 		// split graph in two: before and after current position
+		serieAhead.pts = [] as Array<Graph.Point>;
 		if(pts.size() > 0){
-			var index = trackManager.index;
-			var lambda = trackManager.lambda;
+			if(xCurrent != null){
+				var index = serieLine.getIndexForX(xCurrent);
+				if(index != null){
+					var i = index.toNumber();
+					if(index instanceof Number){
+						// exact at track point
+						serieElapsed.pts = pts.slice(null, i+1);
+						serieAhead.pts = pts.slice(i, null);
+					}else{
+						// interpolated
+						var yCurrent = serieLine.getYforIndex(index);
+						var pt = [xCurrent, yCurrent] as Graph.Point;
 
-			if(index != null && lambda != null){
-				// interpolated point between point before and after
-				var pt0 = pts[index];
-				var pt1 = pts[index+1];
-				var x0 = pt0[0];
-				var y0 = pt0[1];
-				var x1 = pt1[0];
-				var y1 = pt1[1];
-				var x = x0 + lambda * (x1-x0);
-				var y = y0 + lambda * (y1-y0);
-				var pt = [x, y] as Graph.Point;
+						serieElapsed.pts = pts.slice(null, i+1);
+						serieElapsed.pts.add(pt);
 
-				var pts1 = pts.slice(null, index+1);
-				pts1.add(pt);
-				var pts2 = [pt] as Array<Graph.Point>;
-				pts2.addAll(pts.slice(index+1, null));
-				
-				serie.pts = pts1;
-				serieColored.pts = pts2;
+						serieAhead.pts = [pt] as Array<Graph.Point>;
+						serieAhead.pts.addAll(pts.slice(i+1, null));
+					}
+				}else{
+					// out of range
+					serieElapsed.pts = [] as Array<Graph.Point>;
+					serieAhead.pts = pts;
+				}
 			}
+			refresh();
 		}
 	}
 
@@ -112,6 +119,22 @@ class TrackProfileField extends MyDataField{
 
 		// draw the graph
 		trend.draw(dc);
+
+		// draw waypoints
+		var size = (width > height ? width : height) / 10;
+		var wp = new WaypointMarker({ 
+			:size => size.toNumber(),
+		});
+		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+		for(var i=0; i<waypoints.size(); i++){
+			var pt = waypoints[i];
+			var xy = serieLine.getScreenPosition(pt);
+			if(xy != null){
+				wp.locX = xy[0];
+				wp.locY = xy[1];
+				wp.draw(dc);
+			}
+		}
 	}
 
 	function onSetting(sender as Object, id as Settings.Id, value as Settings.ValueType) as Void{
@@ -125,7 +148,7 @@ class TrackProfileField extends MyDataField{
 
 	hidden function setTrack(track as Track?) as Void{
 
-		// update graph data
+		// update graph data and waypoints
 		if(track != null){
 			pts = getPoints(track);
 			distance = track.distance;
@@ -134,9 +157,20 @@ class TrackProfileField extends MyDataField{
 			distance = 0f;
 		}
 
-		serie.pts = pts;
-		serieColored.pts = new Array<Graph.Point>[0];
+		serieAhead.pts = pts;
+		serieElapsed.pts = new Array<Graph.Point>[0];
 		serieLine.pts = pts;
+
+		// update waypoints
+		waypoints = [] as Array<Graph.Point>;
+		if(track != null){
+			for(var i=0; i<track.waypoints.size(); i++){
+				var wp = track.waypoints[i];
+				var x = wp.distance;
+				var y = serieLine.getYforX(x);
+				waypoints.add([x, y] as Graph.Point);
+			}
+		}
 
 		// update axis ranges
 		updateXAxisLimits();
@@ -151,11 +185,13 @@ class TrackProfileField extends MyDataField{
 		if(altitudes != null){
 			var distances = track.distances;
 			if(distances.size() == altitudes.size()){
-				var pts = new[distances.size()] as Array<Graph.Point>;
+				var pts = [] as Array<Graph.Point>;
 				for(var i=0; i<distances.size(); i++){
 					var x = distances[i];
 					var y = altitudes[i];
-					pts[i] = [x, y] as Graph.Point;
+					if(x != null && y != null){
+						pts.add([x, y] as Graph.Point);
+					}
 				}
 				return pts;
 			}
@@ -166,8 +202,8 @@ class TrackProfileField extends MyDataField{
 	function setDarkMode(darkMode as Boolean) as Void{
 		MyDataField.setDarkMode(darkMode);
 		
-		serie.color= TrackDrawer.getColor(darkMode);
-		serieColored.color= TrackDrawer.getColorAhead(darkMode);
+		serieAhead.color= TrackDrawer.getColor(darkMode);
+		serieElapsed.color= TrackDrawer.getColorAhead(darkMode);
 		serieLine.color = darkMode ? Graphics.COLOR_WHITE : Graphics.COLOR_BLACK;
 		trend.setDarkMode(darkMode);
 	}
