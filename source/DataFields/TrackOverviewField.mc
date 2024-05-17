@@ -76,13 +76,13 @@ class TrackOverviewField extends MyDataField{
             // create the bitmap
             var trackColor= TrackDrawer.getColor(darkMode);
             var backgroundColor = getBackgroundColor();
-            var breadcrumpColor= TrackDrawer.getColorBehind(darkMode);
-            var aheadColor= TrackDrawer.getColorAhead(darkMode);
-            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor, Graphics.COLOR_RED] as Array<ColorValue>;
+            var breadcrumpColor = TrackDrawer.getColorBehind(darkMode);
+//            var aheadColor = TrackDrawer.getColorAhead(darkMode);
+//            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor, Graphics.COLOR_RED, Graphics.COLOR_BLACK] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
                 :width => width.toNumber(),
                 :height => height.toNumber(),
-                :palette => colorPalette,
+//                :palette => colorPalette,
             });
             self.bitmap = bitmap;
 
@@ -101,6 +101,7 @@ class TrackOverviewField extends MyDataField{
                 // draw track in bitmap
                 dc.setColor(trackColor, backgroundColor);
                 var drawer = new TrackDrawer({
+                    :darkMode => darkMode,
                     :xOffset => xOffset, 
                     :yOffset => yOffset,
                     :xMin => 0,

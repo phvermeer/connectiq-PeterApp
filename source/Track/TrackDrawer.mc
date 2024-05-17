@@ -5,6 +5,7 @@ import Toybox.Math;
 
 (:track)
 class TrackDrawer{
+    var darkMode as Boolean;
     var xOffset as Numeric;
     var yOffset as Numeric;
     var xMin as Numeric;
@@ -25,6 +26,7 @@ class TrackDrawer{
         }
     ){
         var deviceSettings = System.getDeviceSettings();
+        darkMode = options.hasKey(:darkMode) ? options.get(:darkMode) as Boolean: false; 
         xOffset = options.hasKey(:xOffset) ? options.get(:xOffset) as Numeric: 0;
         yOffset = options.hasKey(:yOffset) ? options.get(:yOffset) as Numeric: 0;
         xMin = options.hasKey(:xMin) ? options.get(:xMin) as Numeric: 0;
@@ -175,10 +177,22 @@ class TrackDrawer{
     }
 
     function drawWaypoints(dc as Dc, waypoints as Array<Waypoint>, size as Number) as Void{
+        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
         var marker = new WaypointMarker({
             :size => size,
-            :color => Graphics.COLOR_RED,
         });
+/*
+        var marker = new FinishMarker({
+            :size => size,
+            :darkMode => darkMode,
+        });
+*/
+/*
+        dc.setColor((darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+        var marker = new PeakMarker({
+            :size => size,
+        });
+*/
         for(var i=0; i<waypoints.size(); i++){
             var wp = waypoints[i];
             marker.locX = xOffset + zoomFactor * wp.xy[0];

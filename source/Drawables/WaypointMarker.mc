@@ -2,13 +2,13 @@ import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
+(:track)
 class WaypointMarker extends WatchUi.Drawable{
     const sqrt3 = 1.732050808f;
     var color as ColorType|Null;
     var size as Number;
 
     public function initialize(options as {
-        :identifier as String,
         :locX as Number, 
         :locY as Number,
         :size as Number,
