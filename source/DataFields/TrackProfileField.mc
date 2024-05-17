@@ -167,7 +167,7 @@ class TrackProfileField extends MyDataField{
 			for(var i=0; i<track.waypoints.size(); i++){
 				var wp = track.waypoints[i];
 				var x = wp.distance;
-				var y = serieLine.getYforX(x);
+				var y = wp.z != null ? wp.z : serieLine.getYforX(x);
 				waypoints.add([x, y] as Graph.Point);
 			}
 		}
