@@ -77,6 +77,7 @@ class TrackField extends MyDataField{
             yOffset -= zoomFactor * xyCurrent[1];
         }
         var drawer = new TrackDrawer({
+            :darkMode => darkMode,
             :xMin => locX,
             :xMax => locX + width,
             :xOffset => xOffset,

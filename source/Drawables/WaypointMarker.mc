@@ -62,7 +62,7 @@ class WaypointMarker extends WatchUi.Drawable{
         dc.fillPolygon(pts);
 
         // pole
-        dc.setColor(darkMode ? Graphics.COLOR_LT_GRAY: Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(darkMode ? Graphics.COLOR_YELLOW: Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(size/5);
         dc.drawLine(locX, locY, locX, locY-h);
     }

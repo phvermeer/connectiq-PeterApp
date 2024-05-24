@@ -124,6 +124,7 @@ class TrackProfileField extends MyDataField{
 		// draw waypoints
 		var size = (width > height ? width : height) / 10;
 		var marker = new WaypointMarker({
+			:darkMode => darkMode,
 			:size => size.toNumber(),
 		});
 		for(var i=0; i<waypoints.size(); i++){

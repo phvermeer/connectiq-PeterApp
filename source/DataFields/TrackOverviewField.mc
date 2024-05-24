@@ -102,12 +102,12 @@ class TrackOverviewField extends MyDataField{
                 dc.setColor(trackColor, backgroundColor);
                 var drawer = new TrackDrawer({
                     :darkMode => darkMode,
-                    :xOffset => xOffset, 
-                    :yOffset => yOffset,
                     :xMin => 0,
                     :xMax => width,
+                    :xOffset => xOffset,
                     :yMin => 0,
                     :yMax => height,
+                    :yOffset => yOffset,
                     :zoomFactor => zoomFactor,
                 });
                 drawer.drawLines(dc, track.xyValues);
