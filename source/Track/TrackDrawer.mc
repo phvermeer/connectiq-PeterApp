@@ -177,26 +177,18 @@ class TrackDrawer{
     }
 
     function drawWaypoints(dc as Dc, waypoints as Array<Waypoint>, size as Number) as Void{
-        dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
         var marker = new WaypointMarker({
-            :size => size,
-        });
-/*
-        var marker = new FinishMarker({
             :size => size,
             :darkMode => darkMode,
         });
-*/
-/*
-        dc.setColor((darkMode ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
-        var marker = new PeakMarker({
-            :size => size,
-        });
-*/
+
         for(var i=0; i<waypoints.size(); i++){
             var wp = waypoints[i];
-            marker.locX = xOffset + zoomFactor * wp.xy[0];
-            marker.locY = yOffset + zoomFactor * wp.xy[1];
+            marker.type = wp.type;
+            marker.setLocation(
+                xOffset + zoomFactor * wp.xy[0],
+                yOffset + zoomFactor * wp.xy[1]
+            );
             marker.draw(dc);
         }
     }

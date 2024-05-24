@@ -15,7 +15,8 @@ class TrackProfileField extends MyDataField{
 
 	hidden var distance as Float = 0f;
 	hidden var pts as Array<Graph.Point> = new Array<Graph.Point>[0];
-	hidden var waypoints as Array<Graph.Point> = [] as Array<Graph.Point>;
+	hidden var waypoints as Array<Waypoint> = [] as Array<Waypoint>;
+	hidden var wpPts as Array<Graph.Point> = [] as Array<Graph.Point>;
 	hidden var serieElapsed as Graph.Serie;
 	hidden var serieAhead as Graph.Serie;
 	hidden var serieLine as Graph.Serie;
@@ -122,17 +123,16 @@ class TrackProfileField extends MyDataField{
 
 		// draw waypoints
 		var size = (width > height ? width : height) / 10;
-		var wp = new WaypointMarker({ 
+		var marker = new WaypointMarker({
 			:size => size.toNumber(),
 		});
-		dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 		for(var i=0; i<waypoints.size(); i++){
-			var pt = waypoints[i];
+			var pt = wpPts[i];
 			var xy = serieLine.getScreenPosition(pt);
 			if(xy != null){
-				wp.locX = xy[0];
-				wp.locY = xy[1];
-				wp.draw(dc);
+				marker.type = waypoints[i].type;
+				marker.setLocation(xy[0], xy[1]);
+				marker.draw(dc);
 			}
 		}
 	}
@@ -162,14 +162,18 @@ class TrackProfileField extends MyDataField{
 		serieLine.pts = pts;
 
 		// update waypoints
-		waypoints = [] as Array<Graph.Point>;
+		wpPts = [] as Array<Graph.Point>;
+
 		if(track != null){
-			for(var i=0; i<track.waypoints.size(); i++){
-				var wp = track.waypoints[i];
+			waypoints = track.waypoints;
+			for(var i=0; i<waypoints.size(); i++){
+				var wp = waypoints[i];
 				var x = wp.distance;
 				var y = wp.z != null ? wp.z : serieLine.getYforX(x);
-				waypoints.add([x, y] as Graph.Point);
+				wpPts.add([x, y] as Graph.Point);
 			}
+		}else{
+			waypoints = [] as Array<Waypoint>;
 		}
 
 		// update axis ranges
