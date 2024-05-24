@@ -36,7 +36,6 @@ class DataView extends MyView{
     hidden var layout as Layout = [] as Layout;
     hidden var fields as Array<MyDataField> = [] as Array<MyDataField>;
     hidden var edge as Edge;
-    hidden var updateIndicator as Edge;
     hidden var darkMode as Boolean;
 
     function initialize(
@@ -57,11 +56,6 @@ class DataView extends MyView{
         // listen to setting changes with "onSetting()"
         var settings = $.getApp().settings;
         darkMode = settings.get(Settings.ID_DARK_MODE) as Boolean;
-
-        updateIndicator = new Edge( {
-            :darkMode => darkMode,
-            :position => Edge.EDGE_TOP,
-        } );
     }
 
     // event handler when view becomes visible
@@ -121,13 +115,6 @@ class DataView extends MyView{
         if(edge.color != Graphics.COLOR_TRANSPARENT){
             edge.draw(dc);
         }
-
-        // show update indicator
-        updateIndicator.position = (updateIndicator.position == Edge.EDGE_RIGHT)
-            ? Edge.EDGE_BOTTOM
-            : (updateIndicator.position - 90) as Edge.EdgePos;
-
-        updateIndicator.draw(dc);
     }
 
     // update single field with given field layout
