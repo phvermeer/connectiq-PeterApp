@@ -39,7 +39,8 @@ class WaypointDistanceField extends NumericField{
                 WatchUi.loadResource(Rez.Strings.finish),
                 track.xyValues[i] as XY,
                 null,
-                track.distance
+                track.distance,
+                Waypoint.TYPE_DEFAULT
             ]);
             setWaypoint(wp);
         }
