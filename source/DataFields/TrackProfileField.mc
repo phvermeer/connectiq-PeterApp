@@ -64,13 +64,13 @@ class TrackProfileField extends MyDataField{
 	}
 
 	function onLayout(dc as Graphics.Dc){
+		var marginTop = getWaypointSize();
 		// init graph sizes
 		var helper = Layout.getLayoutHelper({
 			:xMin => locX,
 			:xMax => locX + width,
-			:yMin => locY,
+			:yMin => locY + marginTop,
 			:yMax => locY + height,
-			:margin => 1,
 		});
 		trend.setSize(3, 1); // set aspect ratio 3:1
 		helper.resizeToMax(trend, true);
@@ -122,10 +122,9 @@ class TrackProfileField extends MyDataField{
 		trend.draw(dc);
 
 		// draw waypoints
-		var size = (width > height ? width : height) / 10;
 		var marker = new WaypointMarker({
 			:darkMode => darkMode,
-			:size => size.toNumber(),
+			:size => getWaypointSize(),
 		});
 		for(var i=0; i<waypoints.size(); i++){
 			var pt = wpPts[i];
@@ -323,5 +322,9 @@ class TrackProfileField extends MyDataField{
 		updateXAxisLimits();
 		refresh();
         return true;
+	}
+
+	hidden function getWaypointSize() as Number{
+		return ((width > height ? width : height) / 10).toNumber();
 	}
 }
