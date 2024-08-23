@@ -1,5 +1,6 @@
 import Toybox.Lang;
 
+(:track)
 class WaypointDistanceField extends NumericField{
     hidden var trackManager as TrackManager;
     hidden var waypoint as Waypoint?;
