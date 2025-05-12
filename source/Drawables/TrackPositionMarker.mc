@@ -30,7 +30,7 @@ class TrackPositionMarker extends WatchUi.Drawable{
 		
 		// determine the marker size and thickness
 		var deviceSettings = System.getDeviceSettings();
-		var screenSize = Math2.max([deviceSettings.screenWidth, deviceSettings.screenHeight] as Array<Number>).toFloat();
+		var screenSize = Math2.max([deviceSettings.screenWidth, deviceSettings.screenHeight]).toFloat();
 		radius = screenSize / 10f;
 		penWidth = Math.ceil(screenSize / 200f).toNumber();
 	}
@@ -81,11 +81,11 @@ class TrackPositionMarker extends WatchUi.Drawable{
 			// Draw solid marker
 			dc.setColor(colorFill, Graphics.COLOR_TRANSPARENT);
 			dc.fillPolygon([
-				[x0, y0] as Array<Numeric>,
-				[x1, y1] as Array<Numeric>,
-				[x2, y2] as Array<Numeric>,
-				[x3, y3] as Array<Numeric>
-			] as Array< Array<Numeric> >);
+				[x0, y0],
+				[x1, y1],
+				[x2, y2],
+				[x3, y3]
+			]);
 
 			// Draw the edge
 			dc.setPenWidth(penWidth);

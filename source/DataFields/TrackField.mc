@@ -9,7 +9,7 @@ import MyBarrel.Math2;
 (:track)
 class TrackField extends MyDataField{
     hidden var trackManager as TrackManager;
-    hidden var xyCurrent as Array<Float>|Null;
+    hidden var xyCurrent as XY|Null;
     hidden var legend as TrackScaleLegend;
     hidden var positionMarker as TrackPositionMarker;
     hidden var zoomFactor as Float;
@@ -17,7 +17,7 @@ class TrackField extends MyDataField{
     hidden var markerSize as Number = 3;
 
     function initialize(options as {
-        :xyCurrent as Array<Float>,
+        :xyCurrent as XY,
     }){
         MyDataField.initialize(options);
         var app = $.getApp();
@@ -100,7 +100,7 @@ class TrackField extends MyDataField{
                 pt = [
                     pt1[0] + lambda * (pt2[0] - pt1[0]),
                     pt1[1] + lambda * (pt2[1] - pt1[1]),
-                ] as Array<Float>;
+                ];
                 pts = track.xyValues.slice(null, index+1);
                 pts.add(pt);
             }
@@ -109,7 +109,7 @@ class TrackField extends MyDataField{
             color= TrackDrawer.getColor(darkMode);
             dc.setColor(color, Graphics.COLOR_TRANSPARENT);
 
-            drawer.drawLines(dc, pts);
+            drawer.drawLines(dc, pts as Array<XY|Null>);
         }
 
         if(Data has :breadcrumps){
@@ -119,7 +119,7 @@ class TrackField extends MyDataField{
             if(count > 0){
                 color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                drawer.drawLines(dc, breadcrumps);
+                drawer.drawLines(dc, breadcrumps as Array<XY|Null>);
 
                 // draw line from last breadcrump to current position
                 if(xyCurrent != null){
@@ -140,7 +140,7 @@ class TrackField extends MyDataField{
                 var pts = [pt] as Array<XY>;
                 pts.addAll(track.xyValues.slice(index+1, null));
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-                drawer.drawLines(dc, pts);
+                drawer.drawLines(dc, pts as Array<XY|Null>);
             }
 
             // draw waypoints

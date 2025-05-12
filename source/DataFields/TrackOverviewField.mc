@@ -110,7 +110,7 @@ class TrackOverviewField extends MyDataField{
                     :yOffset => yOffset,
                     :zoomFactor => zoomFactor,
                 });
-                drawer.drawLines(dc, track.xyValues);
+                drawer.drawLines(dc, track.xyValues as Array<XY|Null>);
 
                 // draw waypoints
                 drawer.drawWaypoints(dc, track.waypoints, trackThickness * 4);

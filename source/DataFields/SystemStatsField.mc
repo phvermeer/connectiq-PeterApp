@@ -21,9 +21,9 @@ class SystemStatsField extends NumericField{
 
         // determine the label
         var strLabel
-            = (fieldId == DATAFIELD_CLOCK) ? WatchUi.loadResource(Rez.Strings.clock)
-            : (fieldId == DATAFIELD_MEMORY) ? WatchUi.loadResource(Rez.Strings.memory)
-            : (fieldId == DATAFIELD_BATTERY) ? WatchUi.loadResource(Rez.Strings.battery)
+            = (fieldId == DATAFIELD_CLOCK) ? WatchUi.loadResource(Rez.Strings.clock) as String
+            : (fieldId == DATAFIELD_MEMORY) ? WatchUi.loadResource(Rez.Strings.memory) as String
+            : (fieldId == DATAFIELD_BATTERY) ? WatchUi.loadResource(Rez.Strings.battery) as String
             : "???";
 
         options.put(:label, strLabel);

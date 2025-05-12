@@ -14,7 +14,7 @@ class RemainingDistanceField extends NumericField{
     }){
         // determine the label
         var strLabel
-            = (fieldId == DATAFIELD_REMAINING_DISTANCE) ? WatchUi.loadResource(Rez.Strings.remainingDistance)
+            = (fieldId == DATAFIELD_REMAINING_DISTANCE) ? WatchUi.loadResource(Rez.Strings.remainingDistance) as String
             : "???";
 
         options.put(:label, strLabel);

@@ -16,7 +16,7 @@ class StatusField extends MyLabeledField{
         :height as Numeric,
         :darkMode as Boolean,
     }) {
-        options.put(:label, WatchUi.loadResource(Rez.Strings.gps));
+        options.put(:label, WatchUi.loadResource(Rez.Strings.gps) as String);
         MyLabeledField.initialize(options);
         gpsIndicator = new Drawables.GpsSignalIndicator({
             :darkMode => darkMode,

@@ -15,7 +15,7 @@ class ElevationSpeedField extends NumericField{
         :height as Numeric,
         :darkMode as Boolean,
     }){
-        options.put(:label, WatchUi.loadResource(Rez.Strings.elevationSpeed));
+        options.put(:label, WatchUi.loadResource(Rez.Strings.elevationSpeed) as String);
         NumericField.initialize(options);
     }
 

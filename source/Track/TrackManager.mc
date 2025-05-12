@@ -5,7 +5,7 @@ import Toybox.Attention;
 import MyBarrel.Math2;
 
 (:track)
-typedef XY as Array<Float>; // [x, y]
+typedef XY as [Float, Float]; // [x, y]
 
 (:track)
 class TrackManager{
@@ -52,7 +52,7 @@ class TrackManager{
     }
 
 	// position events
-	function start() as Void{'
+	function start() as Void{
 		if(!started){
 			Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:onRawPosition) as Method(info as Position.Info) as Void);
 			started = true;
