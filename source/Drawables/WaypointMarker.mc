@@ -41,7 +41,7 @@ class WaypointMarker extends WatchUi.Drawable{
             [locX, locY],
             [locX + dx, locY - dy2],
             [locX, locY - radius],
-        ] as Array<Point2D>;
+        ] as Array< [Numeric, Numeric] >;
         dc.fillPolygon(pts);
 
         var thickness = (0.4 * radius).toNumber();
@@ -58,7 +58,7 @@ class WaypointMarker extends WatchUi.Drawable{
             [locX, locY - h],
             [locX, locY - 0.4*h],
             [locX + size, locY - 0.8*h],
-        ] as Array<Point2D>;
+        ] as Array< [Numeric, Numeric] >;
         dc.fillPolygon(pts);
 
         // pole

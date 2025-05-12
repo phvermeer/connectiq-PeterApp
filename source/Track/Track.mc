@@ -39,7 +39,7 @@ class Track{
 	var zValues as Array<Float|Null>|Null;
 
 	// boundaries and reference
-	var latlonCenter as Array<Float>;
+	var latlonCenter as LatLon;
 	var xMin as Float;
 	var xMax as Float;
 	var yMin as Float;
@@ -60,7 +60,7 @@ class Track{
 
 		name = 		   trackData[0] as String;
 		distance =	   trackData[1] as Float;
-		latlonCenter = trackData[2] as Array<Float>;
+		latlonCenter = trackData[2] as LatLon;
 		var boundaries = trackData[3] as Array<Float>;
 		xyValues = 	   trackData[4] as Array<XY>;
 		zValues = 	   trackData[5] as Array<Float|Null>|Null;

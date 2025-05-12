@@ -2,6 +2,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Graphics;
 import MyBarrel.Views;
+import Toybox.Application;
 
 class LayoutPickerView extends DataView{
     hidden var settings as Settings;
@@ -65,7 +66,7 @@ class LayoutPickerView extends DataView{
 
         // save settings
         screensSettings[screenIndex] = screenSettings;
-        settings.set(Settings.ID_DATASCREENS, screensSettings);
+        settings.set(Settings.ID_DATASCREENS, screensSettings as PropertyValueType);
     }
 
     function onUpdate(dc as Dc) as Void{

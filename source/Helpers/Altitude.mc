@@ -196,7 +196,7 @@ module Altitude{
                         if(h instanceof Float && t_hourly instanceof Array){
 
                             // use average values for now
-                            var t = Math.mean(t_hourly as Array<Numeric>).toFloat(); // temperature 2m above surface
+                            var t = Math.mean(t_hourly as Point2D).toFloat(); // temperature 2m above surface
 
                             // calculate temperature at sealevel
                             t0 = t + Lb * -(h+2);

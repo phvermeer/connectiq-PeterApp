@@ -64,7 +64,7 @@ class App extends Application.AppBase {
             :autoPause => settings.get(Settings.ID_AUTOPAUSE) as Boolean,
         });
 
-        Communications.registerForPhoneAppMessages(method(:onPhone));
+        Communications.registerForPhoneAppMessages(method(:onPhone) as PhoneMessageCallback);
 
         // initial track
         var gpxData = settings.get(Settings.ID_TRACK);
@@ -114,10 +114,10 @@ class App extends Application.AppBase {
     }
 
     // Return the initial view of your application here
-    function getInitialView() as Array<Views or InputDelegates>? {
+    function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates]{
         var delegate = new ViewDelegate();
         var view = new StartView(delegate);
-        return [ view, delegate ] as Array<Views or InputDelegates>;
+        return [view, delegate];
     }
 }
 

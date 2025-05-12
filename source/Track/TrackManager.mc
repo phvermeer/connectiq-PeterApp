@@ -6,6 +6,7 @@ import MyBarrel.Math2;
 
 (:track)
 typedef XY as [Float, Float]; // [x, y]
+typedef LatLon as [Decimal, Decimal];
 
 (:track)
 class TrackManager{
@@ -124,7 +125,7 @@ class TrackManager{
 	}
 
 	// helper functions
-    hidden function setCenter(latlon as Array<Decimal>) as Void{
+    hidden function setCenter(latlon as LatLon) as Void{
         if(latlonCenter != null){
             if(latlonCenter[0] != latlon[0] || latlonCenter[1] != latlon[1]){
                 // update current xy points with new center position

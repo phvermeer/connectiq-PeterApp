@@ -6,7 +6,7 @@ import Toybox.Activity;
 
 class MyDataField extends WatchUi.Drawable{
     hidden var darkMode as Boolean;
-    hidden var previousLayout as Array<Numeric>?;
+    hidden var previousLayout as Point2D?;
     hidden var isVisible as Boolean = false;
 
     function initialize(options as {
@@ -23,7 +23,7 @@ class MyDataField extends WatchUi.Drawable{
     function draw(dc as Dc) as Void{
         // check if onLayout should be called
         var doLayout = false;
-        var layout = [locX, locY, width, height] as Array<Numeric>;
+        var layout = [locX, locY, width, height] as Point2D;
         if(previousLayout != null){
             var prevLayout = previousLayout;
             for(var i=0; i<layout.size(); i++){

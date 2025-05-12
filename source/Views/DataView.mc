@@ -45,7 +45,7 @@ class DataView extends MyView{
     ){
         MyView.initialize(delegate);
 
-        self.screenIndex = Math2.min([screenIndex, screensSettings.size()-1] as Array<Number>) as Number;
+        self.screenIndex = Math2.min([screenIndex, screensSettings.size()-1]) as Number;
         self.screensSettings = screensSettings;
 
         edge = new Drawables.Edge({
@@ -94,7 +94,7 @@ class DataView extends MyView{
             dc.clear();
         }
 
-        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()]);
         for(var i=0; i<count; i++){
             var field = fields[i];
             var fieldLayout = layout[i];
@@ -125,7 +125,7 @@ class DataView extends MyView{
 
     // update all fields with current layout
     hidden function updateFieldsLayout() as Void{
-        var count = Math2.min([fields.size(), layout.size()] as Array<Number>);
+        var count = Math2.min([fields.size(), layout.size()]);
         for(var i=0; i<count; i++){
             updateFieldLayout(fields[i], layout[i]);
         }
@@ -258,7 +258,7 @@ class DataView extends MyView{
     hidden static function distributeSpace(total as Number, margin as Number, parts as Array<Number>) as Array<Number>{
         var count = parts.size();
         var total_ = total - (count - 1) * margin;
-        var factor = 1f * total_ / Math2.sum(parts);
+        var factor = 1f * total_ / Math2.sum(parts as Array<Numeric>);
         var results = [] as Array<Number>;
         var spare = total_;
         for(var i=0; i<parts.size(); i++){
@@ -286,7 +286,7 @@ class DataView extends MyView{
         return results;
     }
 
-    hidden static function getFieldLayout(rowSizes as Array, colSizes as Array, margin as Number, row as Number, col as Number) as FieldLayout{
+    hidden static function getFieldLayout(rowSizes as Array<Number>, colSizes as Array<Number>, margin as Number, row as Number, col as Number) as FieldLayout{
         var x = 0;
         for(var i=0; i < col; i++){
             x += colSizes[i] + margin;
@@ -337,17 +337,17 @@ class DataView extends MyView{
             data.add(getFieldLayout([height], [width], margin, 0, 0));
         }else if(id == LAYOUT_TWO_FIELDS){
             var rowSizes = distributeSpace(height, margin, [1,1] as Array<Number>);
-            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
-            data.add(getFieldLayout(rowSizes, [width], margin, 1, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 1, 0));
         }else if(id == LAYOUT_THREE_FIELDS){
             var rowSizes = distributeSpace(height, margin, [1,1,1] as Array<Number>);
-            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
-            data.add(getFieldLayout(rowSizes, [width], margin, 1, 0));
-            data.add(getFieldLayout(rowSizes, [width], margin, 2, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 1, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 2, 0));
         }else if(id == LAYOUT_FOUR_FIELDS){
             var rowSizes = distributeSpace(height, margin, [1,1,1] as Array<Number>);
             var colSizes = distributeSpace(width, margin, [1,1] as Array<Number>);
-            data.add(getFieldLayout(rowSizes, [width], margin, 0, 0));
+            data.add(getFieldLayout(rowSizes, [width] as Array<Number>, margin, 0, 0));
             data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 0));
             data.add(getFieldLayout(rowSizes, colSizes, margin, 1, 1));
             data.add(getFieldLayout(rowSizes, [width], margin, 2, 0));

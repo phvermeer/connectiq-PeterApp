@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
+import Toybox.Graphics;
 
 class MyMenu extends WatchUi.Menu2{
     private var weakDelegate as WeakReference;
@@ -8,8 +9,8 @@ class MyMenu extends WatchUi.Menu2{
 	function initialize(
 		delegate as MyMenuDelegate,
 		options as { 
-			:title as String or Symbol or Drawable,
-			:focus as Number
+			:title as String or ResourceId or Drawable,
+			:focus as Number,
 		} or Null
 	){
 		Menu2.initialize(options);

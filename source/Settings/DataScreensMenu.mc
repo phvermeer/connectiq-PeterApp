@@ -1,5 +1,6 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
+import Toybox.Application;
 
 class DataScreensMenu extends MyMenu{
     hidden var settings as Settings;
@@ -66,7 +67,7 @@ class DataScreensMenu extends MyMenu{
             var screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
             var screensDefault = Settings.DEFAULT_VALUES[Settings.ID_DATASCREENS] as DataView.ScreensSettings;
             screens.add(screensDefault[0].slice(null, null)); // clone this, to avoid updating defaults
-            settings.set(Settings.ID_DATASCREENS, screens);
+            settings.set(Settings.ID_DATASCREENS, screens as PropertyValueType);
             updateItems();
         }
 

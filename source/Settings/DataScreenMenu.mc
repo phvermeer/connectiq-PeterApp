@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 import MyBarrel.Views;
+import Toybox.Application;
 
 class DataScreenMenu extends MyMenu{
     hidden var settings as Settings;
@@ -105,7 +106,7 @@ class DataScreenMenu extends MyMenu{
             screens = settings.get(Settings.ID_DATASCREENS) as DataView.ScreensSettings;
             screen = screens[screenIndex];
             screens.remove(screen);
-            settings.set(Settings.ID_DATASCREENS, screens);
+            settings.set(Settings.ID_DATASCREENS, screens as PropertyValueType);
             WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
         }else{
             return false;

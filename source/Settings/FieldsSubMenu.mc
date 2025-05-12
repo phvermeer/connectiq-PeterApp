@@ -1,6 +1,7 @@
 import Toybox.Lang;
 import Toybox.WatchUi;
 using Toybox.Graphics;
+import Toybox.Application;
 
 class FieldsSubMenu extends MyMenu{
 	hidden var settings as Settings;
@@ -48,7 +49,7 @@ class FieldsSubMenu extends MyMenu{
         fieldIds[fieldIndex] = fieldId;
         screenSettings[DataView.SETTING_FIELDS] = fieldIds;
         screensSettings[screenIndex] = screenSettings;
-        settings.set(Settings.ID_DATASCREENS, screensSettings);
+        settings.set(Settings.ID_DATASCREENS, screensSettings as PropertyValueType);
 
         WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
         WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);

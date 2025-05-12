@@ -14,9 +14,9 @@ class TrackProfileField extends MyDataField{
 	var yAxis as Graph.Axis;
 
 	hidden var distance as Float = 0f;
-	hidden var pts as Array<Graph.Point> = new Array<Graph.Point>[0];
+	hidden var pts as Array<Point2D> = new Array<Point2D>[0];
 	hidden var waypoints as Array<Waypoint> = [] as Array<Waypoint>;
-	hidden var wpPts as Array<Graph.Point> = [] as Array<Graph.Point>;
+	hidden var wpPts as Array<Point2D> = [] as Array<Point2D>;
 	hidden var serieElapsed as Graph.Serie;
 	hidden var serieAhead as Graph.Serie;
 	hidden var serieLine as Graph.Serie;
@@ -80,7 +80,7 @@ class TrackProfileField extends MyDataField{
 		xCurrent = trackManager.elapsedDistance;
 
 		// split graph in two: before and after current position
-		serieAhead.pts = [] as Array<Graph.Point>;
+		serieAhead.pts = [] as Array<Point2D>;
 		if(pts.size() > 0){
 			if(xCurrent != null){
 				var index = serieLine.getIndexForX(xCurrent);
@@ -93,17 +93,17 @@ class TrackProfileField extends MyDataField{
 					}else{
 						// interpolated
 						var yCurrent = serieLine.getYforIndex(index);
-						var pt = [xCurrent, yCurrent] as Graph.Point;
+						var pt = [xCurrent, yCurrent] as Point2D;
 
 						serieElapsed.pts = pts.slice(null, i+1);
 						serieElapsed.pts.add(pt);
 
-						serieAhead.pts = [pt] as Array<Graph.Point>;
+						serieAhead.pts = [pt] as Array<Point2D>;
 						serieAhead.pts.addAll(pts.slice(i+1, null));
 					}
 				}else{
 					// out of range
-					serieElapsed.pts = [] as Array<Graph.Point>;
+					serieElapsed.pts = [] as Array<Point2D>;
 					serieAhead.pts = pts;
 				}
 			}
@@ -153,16 +153,16 @@ class TrackProfileField extends MyDataField{
 			pts = getPoints(track);
 			distance = track.distance;
 		}else{
-			pts = new Array<Graph.Point>[0];
+			pts = new Array<Point2D>[0];
 			distance = 0f;
 		}
 
 		serieAhead.pts = pts;
-		serieElapsed.pts = new Array<Graph.Point>[0];
+		serieElapsed.pts = new Array<Point2D>[0];
 		serieLine.pts = pts;
 
 		// update waypoints
-		wpPts = [] as Array<Graph.Point>;
+		wpPts = [] as Array<Point2D>;
 
 		if(track != null){
 			waypoints = track.waypoints;
@@ -170,7 +170,7 @@ class TrackProfileField extends MyDataField{
 				var wp = waypoints[i];
 				var x = wp.distance;
 				var y = wp.z != null ? wp.z : serieLine.getYforX(x);
-				wpPts.add([x, y] as Graph.Point);
+				wpPts.add([x, y] as Point2D);
 			}
 		}else{
 			waypoints = [] as Array<Waypoint>;
@@ -184,23 +184,23 @@ class TrackProfileField extends MyDataField{
 	}
 
 	// retrieve graph data from track
-	hidden function getPoints(track as Track) as Array<Graph.Point>{
+	hidden function getPoints(track as Track) as Array<Point2D>{
 		var altitudes = track.zValues;
 		if(altitudes != null){
 			var distances = track.distances;
 			if(distances.size() == altitudes.size()){
-				var pts = [] as Array<Graph.Point>;
+				var pts = [] as Array<Point2D>;
 				for(var i=0; i<distances.size(); i++){
 					var x = distances[i];
 					var y = altitudes[i];
 					if(x != null && y != null){
-						pts.add([x, y] as Graph.Point);
+						pts.add([x, y] as Point2D);
 					}
 				}
 				return pts;
 			}
 		}
-		return [] as Array<Graph.Point>;
+		return [] as Array<Point2D>;
 	}
 
 	function setDarkMode(darkMode as Boolean) as Void{
@@ -238,7 +238,7 @@ class TrackProfileField extends MyDataField{
 		var yMax = null as Numeric|Null;
 
 		for(var i=0; i<pts.size(); i++){
-			var pt = pts[i] as Graph.Point|Null;
+			var pt = pts[i] as Point2D|Null;
 			if(pt != null){
 				var y = pt[1] as Numeric;
 				if(yMin != null && yMax != null){

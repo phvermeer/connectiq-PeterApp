@@ -42,7 +42,7 @@ class TrackField extends MyDataField{
         var deviceSettings = System.getDeviceSettings();
         var screenSize = (deviceSettings.screenWidth > deviceSettings.screenHeight) ? deviceSettings.screenHeight : deviceSettings.screenWidth;
         var fieldSize = (width > height) ? height : width;
-        markerSize = Math2.max([screenSize/40, fieldSize/20] as Array<Numeric>).toNumber();
+        markerSize = Math2.max([screenSize/40, fieldSize/20] as Point2D).toNumber();
 
 
         // determine the drawing area's
