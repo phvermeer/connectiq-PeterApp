@@ -24,7 +24,7 @@ class WaypointMarker extends WatchUi.Drawable{
         if(type == Waypoint.TYPE_DEFAULT){
             drawDefault(dc, Graphics.COLOR_RED);
         }else{
-            drawFlag(dc, Graphics.COLOR_BLUE);
+            drawFlag(dc, Graphics.COLOR_PINK);
         }
     }
 

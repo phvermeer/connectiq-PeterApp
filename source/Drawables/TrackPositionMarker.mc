@@ -37,7 +37,9 @@ class TrackPositionMarker extends WatchUi.Drawable{
 
 	function setDarkMode(darkMode as Boolean) as Void{
 		colorFill = darkMode ? Graphics.COLOR_DK_BLUE : Graphics.COLOR_BLUE;
-		colorEdge = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
+		colorEdge = darkMode ? 0xAAAAFF : Graphics.COLOR_DK_BLUE;
+		//colorFill = darkMode ? Graphics.COLOR_DK_BLUE : Graphics.COLOR_BLUE;
+		//colorEdge = darkMode ? Graphics.COLOR_BLUE : Graphics.COLOR_DK_BLUE;
 	}
 	
 	function draw(dc as Graphics.Dc) as Void{

@@ -76,7 +76,7 @@ class TrackOverviewField extends MyDataField{
             // create the bitmap
             var trackColor= TrackDrawer.getColor(darkMode);
             var backgroundColor = getBackgroundColor();
-            var breadcrumpColor = TrackDrawer.getColorBehind(darkMode);
+            var breadcrumpColor = TrackDrawer.getColorElapsed(darkMode);
 //            var aheadColor = TrackDrawer.getColorAhead(darkMode);
 //            var colorPalette = [backgroundColor, trackColor, breadcrumpColor, aheadColor, Graphics.COLOR_RED, Graphics.COLOR_BLACK] as Array<ColorValue>;
             var bitmap = new Graphics.BufferedBitmap({
@@ -161,7 +161,7 @@ class TrackOverviewField extends MyDataField{
 
                         var dc = bitmap.getDc();
                         dc.setPenWidth(TrackDrawer.getTrackThickness(width, height, zoomFactor));
-                        dc.setColor(TrackDrawer.getColorBehind(darkMode), getBackgroundColor());
+                        dc.setColor(TrackDrawer.getColorElapsed(darkMode), getBackgroundColor());
                         dc.drawLine(x1, y1, x2, y2);
                     }
 

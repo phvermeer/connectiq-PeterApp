@@ -49,10 +49,10 @@ class TrackDrawer{
     }
 
 	static function getColorAhead(darkMode as Boolean) as ColorType{
-		return Graphics.COLOR_PINK;
+		return darkMode ? 0x0055FF : Graphics.COLOR_BLUE; // blue
 	}
-	static function getColorBehind(darkMode as Boolean) as ColorType{
-		return Graphics.COLOR_GREEN;
+	static function getColorElapsed(darkMode as Boolean) as ColorType{
+		return darkMode ? 0x005500 : 0xAAFFAA; // green #AAFFAA
 	}
 	static function getColor(darkMode as Boolean) as ColorType{
 		return darkMode ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY;

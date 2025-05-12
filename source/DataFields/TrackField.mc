@@ -117,7 +117,7 @@ class TrackField extends MyDataField{
             var breadcrumps = $.getApp().data.breadcrumps as Array<XY>;
             var count = breadcrumps.size();
             if(count > 0){
-                color = darkMode ? Graphics.COLOR_DK_GREEN : Graphics.COLOR_GREEN;
+                color = TrackDrawer.getColorElapsed(darkMode);
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
                 drawer.drawLines(dc, breadcrumps as Array<XY|Null>);
 
@@ -136,7 +136,7 @@ class TrackField extends MyDataField{
         if(track != null){
             // track (current track position -> finish)
             if(pt != null && index != null){
-                color = darkMode ? Graphics.COLOR_PINK : Graphics.COLOR_PINK;
+                color = TrackDrawer.getColorAhead(darkMode);
                 var pts = [pt] as Array<XY>;
                 pts.addAll(track.xyValues.slice(index+1, null));
                 dc.setColor(color, Graphics.COLOR_TRANSPARENT);
